@@ -7,6 +7,7 @@ package cfh.graph;
 import java.util.Locale;
 
 import cfh.graph.attr.Color;
+import cfh.graph.attr.CommentAttribute;
 
 /**
  * @author Carlos F. Heuberger, 2023-02-24
@@ -52,6 +53,10 @@ public class Dot {
             checkHSV(h, "h:"),
             checkHSV(s, "s:"),
             checkHSV(v, "v:") ));
+    }
+    
+    public static CommentAttribute comment(String comment) {
+        return new CommentAttribute(comment);
     }
     
     //----------------------------------------------------------------------------------------------

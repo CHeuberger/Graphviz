@@ -12,7 +12,7 @@ import static cfh.graph.Dot.*;
  *
  */
 public sealed abstract class Attribute implements Attr 
-permits GraphAttribute, NodeAttribute, EdgeAttribute, ColorAttribute<?> {
+permits GraphAttribute, NodeAttribute, EdgeAttribute, ColorAttribute<?>, CommentAttribute {
 
     final String name;
     final Object value;

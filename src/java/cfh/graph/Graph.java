@@ -73,6 +73,11 @@ public class Graph {
         this.statements.addAll(Arrays.asList(statements));
         return this;
     }
+    
+    public Graph add(GraphAttr... attrs) {
+        Arrays.stream(attrs).map(AttrStatement::new).forEach(statements::add);
+        return this;
+    }
 
     public Graph visit(Consumer<String> visitor) {
         visitor.accept(toDot());

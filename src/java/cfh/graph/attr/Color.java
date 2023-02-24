@@ -8,7 +8,7 @@ package cfh.graph.attr;
  * @author Carlos F. Heuberger, 2023-02-24
  *
  */
-public final class Color extends ColorAttribute<Color> implements NodeAttr, EdgeAttr {
+public final class Color extends ColorAttribute<Color> implements NodeAttr, EdgeAttr, ClusterAttr {
 
     public Color(String value) {
         super("color", value);

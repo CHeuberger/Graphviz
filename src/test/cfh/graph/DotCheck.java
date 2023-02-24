@@ -28,6 +28,7 @@ public class DotCheck {
             .add( node("A") )
             .add( nodeB )
             .add( node("C").with(Color.RED) )
+            .add( comment("==========") )
             .add( edge(node("A"), nodeB).with("taillabel", "tail") )
             .add( nodeB.to(node("C")).with("penwidth", 5).with(color("yellow")) )
             .visit(System.out::println)
