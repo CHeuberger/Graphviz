@@ -18,7 +18,7 @@ public final class Node implements Statement<NodeAttr>, Source, Target {
 
     final String name;
     
-    private final AttrList<NodeAttr> attrList = new AttrList<>();
+    private final AttrList<NodeAttr> attributes = new AttrList<>();
     
     Node(String name) {
         this.name = requireNonNull(name, "null name");
@@ -31,13 +31,13 @@ public final class Node implements Statement<NodeAttr>, Source, Target {
     
     @Override
     public Statement<NodeAttr> with(String name, Object value) {
-        attrList.add(new NodeAttribute(name, value.toString()));
+        attributes.add(new NodeAttribute(name, value.toString()));
         return this;
     }
     
     @Override
     public Statement<NodeAttr> with(NodeAttr attr) {
-        attrList.add(attr);
+        attributes.add(attr);
         return this;
     }
     
@@ -48,6 +48,6 @@ public final class Node implements Statement<NodeAttr>, Source, Target {
     
     @Override
     public String format(Graph graph) {
-        return "%s %s;".formatted(quote(name), attrList.format());
+        return "%s %s;".formatted(quote(name), attributes.format());
     }
 }

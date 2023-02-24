@@ -4,6 +4,8 @@
  */
 package cfh.graph;
 
+import java.util.Locale;
+
 import cfh.graph.attr.Color;
 
 /**
@@ -30,9 +32,43 @@ public class Dot {
         return new Color(value);
     }
     
+    public static Color color(int r, int g, int b) {
+        return new Color("#%02x%02x%02x".formatted( 
+            checkARGB(r, "r:"),
+            checkARGB(g, "g:"),
+            checkARGB(b, "b:") ));
+    }
+    
+    public static Color color(int a, int r, int g, int b) {
+        return new Color("#%02x%02x%02x%02x".formatted( 
+            checkARGB(r, "r:"),
+            checkARGB(g, "g:"),
+            checkARGB(b, "b:"),
+            checkARGB(a, "a:") ));
+    }
+    
+    public static Color color(float h, float s, float v) {
+        return new Color(String.format(Locale.ROOT, "%.3f %.3f %.3f", 
+            checkHSV(h, "h:"),
+            checkHSV(s, "s:"),
+            checkHSV(v, "v:") ));
+    }
+    
     //----------------------------------------------------------------------------------------------
     
     public static String quote(String id) {
         return '"'  + id.replace("\"", "\\\"") + '"';
+    }
+    
+    private static int checkARGB(int val, String message) {
+        if (val < 0 || val > 255)
+            throw new IllegalArgumentException(message + val);
+        return val;
+    }
+    
+    private static float checkHSV(float val, String message) {
+        if (val < 0 || val > 1)
+            throw new IllegalArgumentException(message + val);
+        return val;
     }
 }

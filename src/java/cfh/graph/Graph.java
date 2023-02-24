@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
+import cfh.graph.attr.GraphAttr;
 import cfh.graph.attr.GraphAttribute;
 import cfh.graph.engine.DotEngine;
 
@@ -30,6 +31,7 @@ public class Graph {
     private boolean strict = false;
     private boolean directed = false;
     
+    private final AttrList<GraphAttr> attributes = new AttrList<>();
     private final List<Statement<?>> statements = new ArrayList<>();
 
     Graph(String name) {
@@ -58,9 +60,13 @@ public class Graph {
         return directed;
     }
     
-    public Graph with(String name, Object value) {
-        statements.add(new AttrStatement(new GraphAttribute(name, value)));
+    public Graph with(GraphAttr attribute) {
+        attributes.add(attribute);
         return this;
+    }
+    
+    public Graph with(String name, Object value) {
+        return with(new GraphAttribute(name, value));
     }
 
     public Graph add(Statement<?>... statements) {
@@ -92,6 +98,8 @@ public class Graph {
         if (name != null) dot.append(" ").append(quote(name));
         dot.append(" {\n");
         
+        attributes.stream().map(GraphAttr::format).map("  %s;\n"::formatted).forEach(dot::append);
+        dot.append("\n");
         statements.stream().map(s -> s.format(this)).map("  %s\n"::formatted).forEach(dot::append);
         
         dot.append("}\n");

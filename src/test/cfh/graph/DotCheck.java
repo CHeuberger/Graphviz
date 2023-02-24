@@ -24,12 +24,11 @@ public class DotCheck {
         var img = 
             graph("Test 1")
             .directed(true)
-//            .with(Color.RED.background())
+            .with(Color.RED.and(.2f, Color.BLUE).and(.5f, Color.YELLOW).background())
             .add( node("A") )
             .add( nodeB )
             .add( node("C").with(Color.RED) )
             .add( edge(node("A"), nodeB).with("taillabel", "tail") )
-            .with("label", "red")
             .add( nodeB.to(node("C")).with("penwidth", 5).with(color("yellow")) )
             .visit(System.out::println)
 //            .save(JPEG, new java.io.File("test.jpg"))

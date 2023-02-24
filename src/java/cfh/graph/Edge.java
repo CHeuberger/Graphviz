@@ -19,7 +19,7 @@ public final class Edge implements Statement<EdgeAttr> {
     final Source source;
     final Target target;
     
-    private final AttrList<EdgeAttr> attrList = new AttrList<>();
+    private final AttrList<EdgeAttr> attributes = new AttrList<>();
     
     Edge(Source source, Target target) {
         this.source = requireNonNull(source, "null source");
@@ -28,13 +28,13 @@ public final class Edge implements Statement<EdgeAttr> {
     
     @Override
     public Statement<EdgeAttr> with(String name, Object value) {
-        attrList.add(new EdgeAttribute(name, value.toString()));
+        attributes.add(new EdgeAttribute(name, value.toString()));
         return this;
     }
     
     @Override
     public Statement<EdgeAttr> with(EdgeAttr attr) {
-        attrList.add(attr);
+        attributes.add(attr);
         return this;
     }
     
@@ -44,7 +44,7 @@ public final class Edge implements Statement<EdgeAttr> {
             quote(source.name()),
             graph.directed() ? "->" : "--",
             quote(target.name()),
-            attrList.format()
+            attributes.format()
             );
     }
 }
