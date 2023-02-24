@@ -6,8 +6,11 @@ package cfh.graph;
 
 import java.util.Locale;
 
+import cfh.graph.attr.AnyAttribute;
 import cfh.graph.attr.Color;
 import cfh.graph.attr.CommentAttribute;
+import cfh.graph.attr.FontName;
+import cfh.graph.attr.FontSize;
 
 /**
  * @author Carlos F. Heuberger, 2023-02-24
@@ -48,15 +51,27 @@ public class Dot {
             checkARGB(a, "a:") ));
     }
     
-    public static Color color(float h, float s, float v) {
+    public static Color color(double h, double s, double v) {
         return new Color(String.format(Locale.ROOT, "%.3f %.3f %.3f", 
             checkHSV(h, "h:"),
             checkHSV(s, "s:"),
             checkHSV(v, "v:") ));
     }
     
+    public static AnyAttribute attr(String name, Object value) {
+        return new AnyAttribute(name, value);
+    }
+    
     public static CommentAttribute comment(String comment) {
         return new CommentAttribute(comment);
+    }
+    
+    public static FontName font(String name) {
+        return new FontName(name);
+    }
+    
+    public static FontSize font(double size) {
+        return new FontSize(size);
     }
     
     //----------------------------------------------------------------------------------------------
@@ -71,7 +86,7 @@ public class Dot {
         return val;
     }
     
-    private static float checkHSV(float val, String message) {
+    private static double checkHSV(double val, String message) {
         if (val < 0 || val > 1)
             throw new IllegalArgumentException(message + val);
         return val;

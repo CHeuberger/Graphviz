@@ -9,7 +9,7 @@ package cfh.graph.attr;
  *
  */
 public sealed abstract class ColorAttribute<T extends ColorAttribute<T>> extends Attribute 
-permits Color, BackgroundColor {
+permits Color, BackgroundColor, FillColor, FontColor {
 
     protected ColorAttribute(String name, String value) {
         super(name, value);
@@ -21,7 +21,7 @@ permits Color, BackgroundColor {
         return clone(value + ":" + to);
     }
     
-    public T and(float at, String to) {
+    public T and(double at, String to) {
         return clone(value + ";" + at + ":" + to);
     }
     
@@ -29,7 +29,7 @@ permits Color, BackgroundColor {
         return gradient((String) to.value);
     }
     
-    public T and(float at, Color to) {
+    public T and(double at, Color to) {
         return and(at, (String) to.value);
     }
 }

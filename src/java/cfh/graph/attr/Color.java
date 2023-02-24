@@ -23,6 +23,14 @@ public final class Color extends ColorAttribute<Color> implements NodeAttr, Edge
         return new BackgroundColor((String) value);
     }
     
+    public FillColor fill() {
+        return new FillColor((String) value);
+    }
+    
+    public FontColor font() {
+        return new FontColor((String) value);
+    }
+    
     public static final Color ALICEBLUE  = new Color("aliceblue");
     public static final Color ANTIQUEWHITE  = new Color("antiquewhite");
     public static final Color ANTIQUEWHITE1  = new Color("antiquewhite1");

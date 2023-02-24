@@ -16,8 +16,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
+import cfh.graph.DefaultStatement.Type;
+import cfh.graph.attr.EdgeAttr;
 import cfh.graph.attr.GraphAttr;
 import cfh.graph.attr.GraphAttribute;
+import cfh.graph.attr.NodeAttr;
 import cfh.graph.engine.DotEngine;
 
 /**
@@ -82,6 +85,18 @@ public class Graph {
     public Graph visit(Consumer<String> visitor) {
         visitor.accept(toDot());
         return this;
+    }
+    
+    public Graph defaults(GraphAttr... attributes) {
+        return add(new DefaultStatement<>(Type.GRAPH, Arrays.asList(attributes)));
+    }
+    
+    public Graph nodes(NodeAttr... attributes) {
+        return add(new DefaultStatement<>(Type.NODE, Arrays.asList(attributes)));
+    }
+    
+    public Graph edges(EdgeAttr... attributes) {
+        return add(new DefaultStatement<>(Type.EDGE, Arrays.asList(attributes)));
     }
 
     public BufferedImage toImage(Format format) throws IOException, InterruptedException {

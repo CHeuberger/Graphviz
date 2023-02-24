@@ -11,7 +11,7 @@ import cfh.graph.attr.Attr;
  *
  */
 public sealed interface Statement<T extends Attr> 
-permits Node, Edge, AttrStatement {
+permits Node, Edge, AttrStatement, DefaultStatement<?> {
 // TODO add more statements (attribute, ID=ID, subgraph)
     public String format(Graph graph);
     
