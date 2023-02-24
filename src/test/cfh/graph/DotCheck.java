@@ -11,6 +11,8 @@ import java.io.IOException;
 
 import javax.swing.ImageIcon;
 
+import cfh.graph.attr.Color;
+
 /**
  * @author Carlos F. Heuberger, 2023-02-24
  *
@@ -22,12 +24,15 @@ public class DotCheck {
         var img = 
             graph("Test 1")
             .directed(true)
+//            .with(Color.RED.background())
             .add( node("A") )
             .add( nodeB )
-            .add( node("C").with("color", "red") )
-            .add( link(node("A"), nodeB) )
-            .add( nodeB.to(node("C")).with("penwidth", 5).with("color", "yellow") )
+            .add( node("C").with(Color.RED) )
+            .add( edge(node("A"), nodeB).with("taillabel", "tail") )
+            .with("label", "red")
+            .add( nodeB.to(node("C")).with("penwidth", 5).with(color("yellow")) )
             .visit(System.out::println)
+//            .save(JPEG, new java.io.File("test.jpg"))
             .toImage(JPEG);
         showMessageDialog(null, new ImageIcon(img));
     }

@@ -4,6 +4,8 @@
  */
 package cfh.graph;
 
+import cfh.graph.attr.Color;
+
 /**
  * @author Carlos F. Heuberger, 2023-02-24
  *
@@ -20,8 +22,12 @@ public class Dot {
         return new Node(name);
     }
     
-    public static Link link(Node source, Node target) {
-        return new Link(source, target);
+    public static Edge edge(Source source, Target target) {
+        return new Edge(source, target);
+    }
+
+    public static Color color(String value) {
+        return new Color(value);
     }
     
     //----------------------------------------------------------------------------------------------

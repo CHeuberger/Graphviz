@@ -8,9 +8,10 @@ package cfh.graph.attr;
  * @author Carlos F. Heuberger, 2023-02-24
  *
  */
-public final class LinkAttribute extends Attribute implements LinkAttr {
+public final class GraphAttribute extends Attribute implements GraphAttr {
 
-    public LinkAttribute(String name, String value) {
+    public GraphAttribute(String name, Object value) {
         super(name, value);
     }
+
 }

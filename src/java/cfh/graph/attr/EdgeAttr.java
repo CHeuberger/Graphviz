@@ -8,6 +8,6 @@ package cfh.graph.attr;
  * @author Carlos F. Heuberger, 2023-02-24
  *
  */
-public interface NodeAttr extends Attr {
+public interface EdgeAttr extends Attr {
     //
 }

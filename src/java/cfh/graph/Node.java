@@ -14,7 +14,7 @@ import cfh.graph.attr.NodeAttribute;
  * @author Carlos F. Heuberger, 2023-02-24
  *
  */
-public final class Node implements Statement, Source, Target {
+public final class Node implements Statement<NodeAttr>, Source, Target {
 
     final String name;
     
@@ -30,14 +30,20 @@ public final class Node implements Statement, Source, Target {
     }
     
     @Override
-    public Statement with(String name, Object value) {
+    public Statement<NodeAttr> with(String name, Object value) {
         attrList.add(new NodeAttribute(name, value.toString()));
         return this;
     }
     
     @Override
-    public Link to(Target target) {
-        return new Link(this, target);
+    public Statement<NodeAttr> with(NodeAttr attr) {
+        attrList.add(attr);
+        return this;
+    }
+    
+    @Override
+    public Edge to(Target target) {
+        return new Edge(this, target);
     }
     
     @Override

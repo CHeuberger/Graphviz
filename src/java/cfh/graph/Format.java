@@ -13,6 +13,7 @@ public enum Format {
     BMP,
     // CGImage,
     // CANON, DOT, XDOT, XDOT1$2, XDOT1$4
+    xdot,
     EPS,
     // EXR,
     // FIG,

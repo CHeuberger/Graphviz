@@ -8,12 +8,15 @@ import static java.util.Objects.*;
 import static cfh.graph.Dot.*;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
+import cfh.graph.attr.GraphAttribute;
 import cfh.graph.engine.DotEngine;
 
 /**
@@ -26,8 +29,8 @@ public class Graph {
     
     private boolean strict = false;
     private boolean directed = false;
-
-    private final List<Statement> statements = new ArrayList<>();
+    
+    private final List<Statement<?>> statements = new ArrayList<>();
 
     Graph(String name) {
         this.name = requireNonNull(name, "null name");
@@ -54,8 +57,13 @@ public class Graph {
     public boolean directed() {
         return directed;
     }
+    
+    public Graph with(String name, Object value) {
+        statements.add(new AttrStatement(new GraphAttribute(name, value)));
+        return this;
+    }
 
-    public Graph add(Statement... statements) {
+    public Graph add(Statement<?>... statements) {
         this.statements.addAll(Arrays.asList(statements));
         return this;
     }
@@ -68,6 +76,13 @@ public class Graph {
     public BufferedImage toImage(Format format) throws IOException, InterruptedException {
         // TODO more engines?
         return DotEngine.dotToImage(format, toDot());
+    }
+    
+    public Graph save(Format format, File file) throws IOException, InterruptedException {
+        try (var output = new FileOutputStream(file)) {
+            DotEngine.dot(format, toDot(), output);
+        }
+        return this;
     }
     
     public String toDot() {

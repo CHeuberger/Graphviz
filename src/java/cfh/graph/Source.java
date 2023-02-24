@@ -12,5 +12,5 @@ public interface Source {
 
     public String name();
     
-    public Link to(Target target);
+    public Edge to(Target target);
 }
