@@ -18,10 +18,9 @@ import java.util.function.Consumer;
 
 import cfh.graph.DefaultStatement.Type;
 import cfh.graph.Dot.Format;
-import cfh.graph.attr.EdgeAttr;
-import cfh.graph.attr.GraphAttr;
-import cfh.graph.attr.GraphAttribute;
-import cfh.graph.attr.NodeAttr;
+import cfh.graph.Attr.EdgeAttr;
+import cfh.graph.Attr.GraphAttr;
+import cfh.graph.Attr.NodeAttr;
 
 /**
  * @author Carlos F. Heuberger, 2023-02-24
@@ -41,6 +40,12 @@ public class Graph {
         this.name = requireNonNull(name, "null name");
     }
 
+    /** Sets the graph to directed. */
+    public Graph strict() {
+        return strict(true);
+    }
+    
+    /** Sets strict or not. */
     public Graph strict(boolean strict) {
         if (!statements.isEmpty())
             throw new IllegalStateException("must be called before any Statement is added");
@@ -48,10 +53,16 @@ public class Graph {
         return this;
     }
     
-    public boolean isStrict() {
+    boolean isStrict() {
         return strict;
     }
     
+    /** Sets the graph to directed. */
+    public Graph directed() {
+        return directed(true);
+    }
+    
+    /** Sets the graph to directed or not. */
     public Graph directed(boolean directed) {
         if (!statements.isEmpty())
             throw new IllegalStateException("must be called before any Statement is added");
@@ -59,51 +70,50 @@ public class Graph {
         return this;
     }
     
-    public boolean isDirected() {
+    boolean isDirected() {
         return directed;
     }
     
+    /** Add Graph attributes. */
     public Graph with(GraphAttr attribute) {
         attributes.add(attribute);
         return this;
     }
-    
-    public Graph with(String name, Object value) {
-        return with(new GraphAttribute(name, value));
-    }
 
+    /** Adds nodes and edges. */
     public Graph add(Statement<?>... statements) {
         this.statements.addAll(Arrays.asList(statements));
         return this;
     }
     
+    /** Adds attributes to this graph. */
     public Graph add(GraphAttr... attrs) {
         Arrays.stream(attrs).map(AttrStatement::new).forEach(statements::add);
         return this;
     }
-
+    
+    /** Adds default graph attributes. */
+    public Graph defaults(GraphAttr... attributes) {
+        return add(new DefaultStatement<>(Type.GRAPH, Arrays.asList(attributes)));
+    }
+    
+    /** Adds default node attributes. */
+    public Graph nodes(NodeAttr... attributes) {
+        return add(new DefaultStatement<>(Type.NODE, Arrays.asList(attributes)));
+    }
+    
+    /** Adds default edge attributes. */
+    public Graph edges(EdgeAttr... attributes) {
+        return add(new DefaultStatement<>(Type.EDGE, Arrays.asList(attributes)));
+    }
+    
+    /** Helper to consume the created dot string. */
     public Graph visit(Consumer<String> visitor) {
         visitor.accept(toDot());
         return this;
     }
     
-    public Graph defaults(GraphAttr... attributes) {
-        return add(new DefaultStatement<>(Type.GRAPH, Arrays.asList(attributes)));
-    }
-    
-    public Graph nodes(NodeAttr... attributes) {
-        return add(new DefaultStatement<>(Type.NODE, Arrays.asList(attributes)));
-    }
-    
-    public Graph edges(EdgeAttr... attributes) {
-        return add(new DefaultStatement<>(Type.EDGE, Arrays.asList(attributes)));
-    }
-
-    public BufferedImage toImage(Format format) throws IOException, InterruptedException {
-        // TODO more engines?
-        return dotToImage(format, toDot());
-    }
-    
+    /** Creates an image and saves to a file. */
     public Graph save(Format format, File file) throws IOException, InterruptedException {
         try (var output = new FileOutputStream(file)) {
             dot(format, toDot(), output);
@@ -111,6 +121,17 @@ public class Graph {
         return this;
     }
     
+    /** Creates an image of this graph. */
+    public BufferedImage toImage(Format format) {
+        // TODO more engines?
+        try {
+            return dotToImage(format, toDot());
+        } catch (IOException | InterruptedException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+    
+    /** Creates a dot string of this graph. */
     public String toDot() {
         var dot = new StringBuilder();
         if (strict) dot.append("strict ");

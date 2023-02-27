@@ -4,8 +4,6 @@
  */
 package cfh.graph;
 
-import cfh.graph.attr.Attr;
-
 /**
  * @author Carlos F. Heuberger, 2023-02-24
  *
@@ -15,7 +13,6 @@ permits Node, Edge, AttrStatement, DefaultStatement<?> {
 // TODO add more statements (attribute, ID=ID, subgraph)
     public String format(Graph graph);
     
-    public Statement<T> with(String name, Object value);
-    
-    public Statement<T> with(T attr);
+    @SuppressWarnings("unchecked")
+    public Statement<T> with(T... attr);
 }

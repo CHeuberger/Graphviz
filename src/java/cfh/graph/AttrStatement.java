@@ -6,27 +6,23 @@ package cfh.graph;
 
 import static java.util.Objects.*;
 
-import cfh.graph.attr.GraphAttr;
+import cfh.graph.Attr.GraphAttr;
 
 /**
  * @author Carlos F. Heuberger, 2023-02-24
  *
  */
-public final class AttrStatement implements Statement<GraphAttr> {
+final class AttrStatement implements Statement<GraphAttr> {
 
     private final GraphAttr attribute;
     
-    public AttrStatement(GraphAttr attribute) {
+    AttrStatement(GraphAttr attribute) {
         this.attribute = requireNonNull(attribute, "null attribute");
     }
 
+    /** Unsupported. */
     @Override
-    public AttrStatement with(String name, Object value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public AttrStatement with(GraphAttr attr) {
+    public AttrStatement with(GraphAttr... attr) {
         throw new UnsupportedOperationException();
     }
     

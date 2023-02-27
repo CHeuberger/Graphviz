@@ -7,8 +7,9 @@ package cfh.graph;
 import static cfh.graph.Dot.*;
 import static java.util.Objects.*;
 
-import cfh.graph.attr.NodeAttr;
-import cfh.graph.attr.NodeAttribute;
+import java.util.Arrays;
+
+import cfh.graph.Attr.NodeAttr;
 
 /**
  * @author Carlos F. Heuberger, 2023-02-24
@@ -29,15 +30,10 @@ public final class Node implements Statement<NodeAttr>, Source, Target {
         return name;
     }
     
+    /** Adds attributes to this node. */
     @Override
-    public Statement<NodeAttr> with(String name, Object value) {
-        attributes.add(new NodeAttribute(name, value.toString()));
-        return this;
-    }
-    
-    @Override
-    public Statement<NodeAttr> with(NodeAttr attr) {
-        attributes.add(attr);
+    public Statement<NodeAttr> with(NodeAttr... attributes) {
+        this.attributes.addAll(Arrays.asList(attributes));
         return this;
     }
     

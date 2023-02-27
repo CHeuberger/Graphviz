@@ -5,16 +5,16 @@
 package cfh.graph.check;
 
 import static cfh.graph.Dot.*;
-import java.io.IOException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
-import cfh.graph.attr.Color;
+import cfh.graph.Color;
 
 /**
  * @author Carlos F. Heuberger, 2023-02-24
@@ -29,32 +29,26 @@ public class DotCheck {
     private final JFrame frame;
     
     private DotCheck() {
+        var panel = new JPanel();
+        panel.add(createDirectedGraph());
+        
         frame = new JFrame();
-        
-        try {
-            frame.add(createGraph());
-        } catch (IOException | InterruptedException ex) {
-            ex.printStackTrace();
-            return;
-        }
-        frame.pack();
-        
         frame.setDefaultCloseOperation(frame.DISPOSE_ON_CLOSE);
+        
+        frame.add(new JScrollPane(panel));
+        
+        frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
     
-    private JComponent createGraph() throws IOException, InterruptedException {
+    private JComponent createDirectedGraph() {
         var image = graph("demo")
-            .directed(true)
-            .strict(false)
-            .with( Color.DARKBLUE.gradient(Color.LIGHTBLUE).background() )
-            .nodes( font("Corrier"), font(14) )
-            .nodes( attr("style", "filled"), Color.YELLOW.fill() )
-            .edges( attr("decorate", true) )
-            .add( node("C").with(Color.RED) )
+            .directed()
+            .strict()
+            .with( Color.ORANGE.gradient(Color.LIGHTBLUE3).background() )
             .add( comment("====================") )
-            .add( edge(node("A"), node("B")).with("taillabel", "TAIL").with("label", "LABEL") )
+            .add( edge(node("A"), node("B")).with(attr("taillabel", "TAIL"), attr("label", "LABEL")) )
             .add( node("B").to(node("C")) )
             .visit( System.out::println )
             .toImage(Format.JPG);

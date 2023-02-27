@@ -8,7 +8,7 @@ package cfh.graph;
  * @author Carlos F. Heuberger, 2023-02-24
  *
  */
-public interface Source {
+interface Source {
 
     public String name();
     

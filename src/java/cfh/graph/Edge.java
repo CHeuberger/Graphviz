@@ -7,8 +7,9 @@ package cfh.graph;
 import static cfh.graph.Dot.*;
 import static java.util.Objects.*;
 
-import cfh.graph.attr.EdgeAttr;
-import cfh.graph.attr.EdgeAttribute;
+import java.util.Arrays;
+
+import cfh.graph.Attr.EdgeAttr;
 
 /**
  * @author Carlos F. Heuberger, 2023-02-24
@@ -26,15 +27,10 @@ public final class Edge implements Statement<EdgeAttr> {
         this.target = requireNonNull(target, "null target");
     }
     
+    /** Adds attributes to this edge. */
     @Override
-    public Statement<EdgeAttr> with(String name, Object value) {
-        attributes.add(new EdgeAttribute(name, value.toString()));
-        return this;
-    }
-    
-    @Override
-    public Statement<EdgeAttr> with(EdgeAttr attr) {
-        attributes.add(attr);
+    public Statement<EdgeAttr> with(EdgeAttr... attributes) {
+        this.attributes.addAll(Arrays.asList(attributes));
         return this;
     }
     

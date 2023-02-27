@@ -17,12 +17,6 @@ import java.util.Locale;
 
 import javax.imageio.ImageIO;
 
-import cfh.graph.attr.AnyAttribute;
-import cfh.graph.attr.Color;
-import cfh.graph.attr.CommentAttribute;
-import cfh.graph.attr.FontName;
-import cfh.graph.attr.FontSize;
-
 /**
  * @author Carlos F. Heuberger, 2023-02-24
  *
@@ -54,20 +48,29 @@ public final class Dot {
         return new Graph(name);
     }
     
-    /** Start a new Node. */
+    /** Creates a new Node. */
     public static Node node(String name) {
         return new Node(name);
     }
     
-    /** Start a new Edge. */
+    /** Creates a new Edge. */
     public static Edge edge(Source source, Target target) {
         return new Edge(source, target);
     }
 
+    /** Creates a color attribute.
+     * <p>Valid value formats: 
+     * <ul> <li><code>"#rrggbb"</code>
+     *      <li><code>"#rrggbbaa"<//code>
+     *      <li><code>"H S V"<//code> 0.0 <= H,S,V <= 1.0
+     *      <li><<code>name</code> a color name, see {@link Color}
+     * </ul>
+     */
     public static Color color(String value) {
         return new Color(value);
     }
     
+    /** Creates a color attribute. */
     public static Color color(int r, int g, int b) {
         return new Color("#%02x%02x%02x".formatted( 
             checkARGB(r, "r:"),
@@ -75,6 +78,7 @@ public final class Dot {
             checkARGB(b, "b:") ));
     }
     
+    /** Creates a color attribute. */
     public static Color color(int a, int r, int g, int b) {
         return new Color("#%02x%02x%02x%02x".formatted( 
             checkARGB(r, "r:"),
@@ -83,6 +87,9 @@ public final class Dot {
             checkARGB(a, "a:") ));
     }
     
+    /** Creates a color attribute. 
+     *  <p>0.0 <= H,S,V <= 1.0 
+     */
     public static Color color(double h, double s, double v) {
         return new Color(String.format(Locale.ROOT, "%.3f %.3f %.3f", 
             checkHSV(h, "h:"),
@@ -90,25 +97,29 @@ public final class Dot {
             checkHSV(v, "v:") ));
     }
     
-    public static AnyAttribute attr(String name, Object value) {
-        return new AnyAttribute(name, value);
+    /** Creates a comment. */
+    public static Attribute.CommentAttribute comment(String comment) {
+        return new Attribute.CommentAttribute(comment);
     }
     
-    public static CommentAttribute comment(String comment) {
-        return new CommentAttribute(comment);
+    /** Sets the font name. */
+    public static Attribute.FontName font(String name) {
+        return new Attribute.FontName(name);
     }
     
-    public static FontName font(String name) {
-        return new FontName(name);
+    /** Sets the font size. */
+    public static Attribute.FontSize font(double size) {
+        return new Attribute.FontSize(size);
     }
     
-    public static FontSize font(double size) {
-        return new FontSize(size);
+    /** Creates an arbitrary attribute. */
+    public static Attribute.AnyAttribute attr(String name, Object value) {
+        return new Attribute.AnyAttribute(name, value);
     }
     
     //----------------------------------------------------------------------------------------------
     
-    public static String quote(String id) {
+    static String quote(String id) {
         return '"'  + id.replace("\"", "\\\"") + '"';
     }
     
@@ -146,7 +157,7 @@ public final class Dot {
         PATH = cmd;
     }
     
-    
+    /** Creates a graph using the Dot engine from given input stream and writes to the output stream. */
     public static void dot(Format format, InputStream dotInput, OutputStream output) throws IOException, InterruptedException {
         Process process = Runtime.getRuntime().exec(new String[] { PATH+DOT, "-T" + format.asParameter() });
 
@@ -165,22 +176,27 @@ public final class Dot {
         }
     }
 
+    /** Creates a graph using the Dot engine from given string and writes to the output stream. */
     public static void dot(Format format, String dotInput, OutputStream output) throws IOException, InterruptedException {
         dot(format, new ByteArrayInputStream(dotInput.getBytes(StandardCharsets.UTF_8)), output);
     }
     
+    /** Creates a JPEG graph using the Dot engine from given string and writes to the output stream. */
     public static void dotToJpeg(InputStream dotInput, OutputStream pngOutput) throws IOException, InterruptedException {
         dot(Format.JPEG, dotInput, pngOutput);
     }
     
+    /** Creates a PNG graph using the Dot engine from given string and writes to the output stream. */
     public static void dotToPng(InputStream dotInput, OutputStream pngOutput) throws IOException, InterruptedException {
         dot(Format.PNG, dotInput, pngOutput);
     }
     
+    /** Creates a SVG graph using the Dot engine from given string and writes to the output stream. */
     public static void dotToSvg(InputStream dotInput, OutputStream svgOutput) throws IOException, InterruptedException {
         dot(Format.SVG, dotInput, svgOutput);
     }
     
+    /** Creates a graph using the Dot engine from given stringreturning an image. */
     public static BufferedImage dotToImage(Format format, String dotInput) throws IOException, InterruptedException {
         if (format.type != FormatType.IMAGE) {
             throw new IllegalArgumentException("non-image format: " + format);
@@ -205,6 +221,7 @@ public final class Dot {
         IMAGE, TEXT;
     }
     
+    /** Output formats. */
     public enum Format {
         // TODO enable all formats
         BMP(FormatType.IMAGE),
@@ -247,7 +264,7 @@ public final class Dot {
         private Format(FormatType type) {
             this.type = requireNonNull(type, "null type");
         }
-        public String asParameter() { return name().toLowerCase().replace("$", "."); }
-        public FormatType type() { return type; }
+        String asParameter() { return name().toLowerCase().replace("$", "."); }
+        FormatType type() { return type; }
     }
 }

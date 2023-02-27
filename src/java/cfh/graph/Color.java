@@ -2,7 +2,12 @@
  * Copyright: Carlos F. Heuberger. All rights reserved.
  *
  */
-package cfh.graph.attr;
+package cfh.graph;
+
+import cfh.graph.Attribute.ColorAttribute;
+import cfh.graph.Attr.ClusterAttr;
+import cfh.graph.Attr.EdgeAttr;
+import cfh.graph.Attr.NodeAttr;
 
 /**
  * @author Carlos F. Heuberger, 2023-02-24
@@ -10,7 +15,7 @@ package cfh.graph.attr;
  */
 public final class Color extends ColorAttribute<Color> implements NodeAttr, EdgeAttr, ClusterAttr {
 
-    public Color(String value) {
+    Color(String value) {
         super("color", value);
     }
     
@@ -19,14 +24,17 @@ public final class Color extends ColorAttribute<Color> implements NodeAttr, Edge
         return new Color(newValue);
     }
     
+    /** Returns a backgound color attribute with this color value. */
     public BackgroundColor background() {
         return new BackgroundColor((String) value);
     }
     
+    /** Returns a fill color attribute with this color value. */
     public FillColor fill() {
         return new FillColor((String) value);
     }
     
+    /** Returns a font color attribute with this color value. */
     public FontColor font() {
         return new FontColor((String) value);
     }
