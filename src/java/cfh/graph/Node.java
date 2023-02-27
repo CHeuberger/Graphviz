@@ -48,6 +48,6 @@ public final class Node implements Statement<NodeAttr>, Source, Target {
     
     @Override
     public String format(Graph graph) {
-        return "%s %s;".formatted(quote(name), attributes.format());
+        return "%s %s".formatted(quote(name), attributes.format());
     }
 }

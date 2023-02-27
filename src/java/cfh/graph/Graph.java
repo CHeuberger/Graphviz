@@ -17,11 +17,11 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import cfh.graph.DefaultStatement.Type;
+import cfh.graph.Dot.Format;
 import cfh.graph.attr.EdgeAttr;
 import cfh.graph.attr.GraphAttr;
 import cfh.graph.attr.GraphAttribute;
 import cfh.graph.attr.NodeAttr;
-import cfh.graph.engine.DotEngine;
 
 /**
  * @author Carlos F. Heuberger, 2023-02-24
@@ -48,7 +48,7 @@ public class Graph {
         return this;
     }
     
-    public boolean strict() {
+    public boolean isStrict() {
         return strict;
     }
     
@@ -59,7 +59,7 @@ public class Graph {
         return this;
     }
     
-    public boolean directed() {
+    public boolean isDirected() {
         return directed;
     }
     
@@ -101,12 +101,12 @@ public class Graph {
 
     public BufferedImage toImage(Format format) throws IOException, InterruptedException {
         // TODO more engines?
-        return DotEngine.dotToImage(format, toDot());
+        return dotToImage(format, toDot());
     }
     
     public Graph save(Format format, File file) throws IOException, InterruptedException {
         try (var output = new FileOutputStream(file)) {
-            DotEngine.dot(format, toDot(), output);
+            dot(format, toDot(), output);
         }
         return this;
     }
@@ -120,7 +120,7 @@ public class Graph {
         
         attributes.stream().map(GraphAttr::format).map("  %s;\n"::formatted).forEach(dot::append);
         dot.append("\n");
-        statements.stream().map(s -> s.format(this)).map("  %s\n"::formatted).forEach(dot::append);
+        statements.stream().map(s -> s.format(this)).map("  %s;\n"::formatted).forEach(dot::append);
         
         dot.append("}\n");
         return dot.toString();

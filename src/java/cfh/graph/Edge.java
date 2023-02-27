@@ -40,9 +40,9 @@ public final class Edge implements Statement<EdgeAttr> {
     
     @Override
     public String format(Graph graph) {
-        return "%s %s %s %s;".formatted(
+        return "%s %s %s %s".formatted(
             quote(source.name()),
-            graph.directed() ? "->" : "--",
+            graph.isDirected() ? "->" : "--",
             quote(target.name()),
             attributes.format()
             );

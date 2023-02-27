@@ -41,6 +41,6 @@ public final class DefaultStatement<T extends Attr> implements Statement<T> {
     
     @Override
     public String format(Graph graph) {
-        return type.name().toLowerCase() + " " + attributes.format();
+        return "%s %s".formatted(type.name().toLowerCase(), attributes.format());
     }
 }
