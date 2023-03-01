@@ -29,10 +29,10 @@ public final class Dot {
     
     //==============================================================================================
 
-//    // FORMATS
-//    public static final Format JPEG = Format.JPEG;
-//    public static final Format PNG = Format.PNG;
-//    public static final Format SVG = Format.SVG;
+    // FORMATS
+    public static final Format JPEG = Format.JPEG;
+    public static final Format PNG = Format.PNG;
+    public static final Format SVG = Format.SVG;
     
     // FONTNAMES
     // TODO
@@ -42,6 +42,11 @@ public final class Dot {
     
     // ENGINE
     // TODO
+    
+    /** Start a new Graph. */
+    public static Graph graph() {
+        return new Graph();
+    }
     
     /** Start a new Graph. */
     public static Graph graph(String name) {
@@ -110,6 +115,11 @@ public final class Dot {
     /** Sets the font size. */
     public static Attribute.FontSize font(double size) {
         return new Attribute.FontSize(size);
+    }
+    
+    /** Adds a label (GNEC). */
+    public static Attribute.AnyAttribute label(String label) {
+        return new Attribute.AnyAttribute("label", label);
     }
     
     /** Creates an arbitrary attribute. */

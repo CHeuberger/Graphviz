@@ -6,8 +6,11 @@ package cfh.graph.check;
 
 import static cfh.graph.Dot.*;
 
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -29,8 +32,10 @@ public class DotCheck {
     private final JFrame frame;
     
     private DotCheck() {
+        var images = createGraphs();
+        
         var panel = new JPanel();
-        panel.add(createDirectedGraph());
+        images.stream().map(ImageIcon::new).map(JLabel::new).forEach(panel::add);
         
         frame = new JFrame();
         frame.setDefaultCloseOperation(frame.DISPOSE_ON_CLOSE);
@@ -42,16 +47,76 @@ public class DotCheck {
         frame.setVisible(true);
     }
     
-    private JComponent createDirectedGraph() {
-        var image = graph("demo")
+    private List<BufferedImage> createGraphs() {
+        var list = new ArrayList<BufferedImage>();
+        
+        list.add(
+            graph("directed")
             .directed()
+            .with(label("directed"))
+            .add(node("A").to(node("B")))
+            .visit(System.out::println)
+            .toImage(JPEG) );
+        
+        list.add(
+            graph("undirected")
+            .undirected()
+            .with(label("undirected"))
+            .add(node("A").to(node("B")))
+            .add(node("B").to(node("A")))
+            .visit(System.out::println)
+            .toImage(JPEG)
+            );
+        
+        list.add(
+            graph("strict")
             .strict()
-            .with( Color.ORANGE.gradient(Color.LIGHTBLUE3).background() )
-            .add( comment("====================") )
-            .add( edge(node("A"), node("B")).with(attr("taillabel", "TAIL"), attr("label", "LABEL")) )
-            .add( node("B").to(node("C")) )
-            .visit( System.out::println )
-            .toImage(Format.JPG);
-        return new JScrollPane(new JLabel(new ImageIcon(image)));
+            .with(label("strict"))
+            .add(node("A").to(node("B")))
+            .add(node("B").to(node("A")))
+            .visit(System.out::println)
+            .toImage(JPEG)
+            );
+        
+        list.add(
+            graph()
+            .strict()
+            .with(label("nodes"))
+            .add(node("A"), node("B"))
+            .visit(System.out::println)
+            .toImage(JPEG)
+            );
+        
+        // TODO default graph
+        
+        list.add(
+            graph()
+            .with(label("default node"))
+            .nodes(attr("style", "filled"), Color.LIGHTBLUE.fill())
+            .add(node("A"), node("B"))
+            .visit(System.out::println)
+            .toImage(JPEG)
+            );
+        
+        list.add(
+            graph()
+            .with(label("default edges"))
+            .edges(attr("penwidth", 4))
+            .add(edge(node("A"), node("B")))
+            .add(edge(node("A"), node("C")))
+            .visit(System.out::println)
+            .toImage(JPEG)
+            );
+        
+        list.add(
+            graph()
+            .with(label("graph attribute"))
+            .add(node("A").to(node("B")))
+            .add(attr("orientation", "landscape"))
+            .visit(System.out::println)
+            .toImage(JPEG)
+            );
+        
+        return list;
     }
 }

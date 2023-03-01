@@ -36,6 +36,10 @@ public class Graph {
     private final AttrList<GraphAttr> attributes = new AttrList<>();
     private final List<Statement<?>> statements = new ArrayList<>();
 
+    Graph() {
+        this.name = null;
+    }
+    
     Graph(String name) {
         this.name = requireNonNull(name, "null name");
     }
@@ -60,6 +64,11 @@ public class Graph {
     /** Sets the graph to directed. */
     public Graph directed() {
         return directed(true);
+    }
+    
+    /** Sets the graph to undirected. */
+    public Graph undirected() {
+        return directed(false);
     }
     
     /** Sets the graph to directed or not. */
