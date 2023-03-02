@@ -18,16 +18,28 @@ import cfh.graph.Attr.NodeAttr;
 public final class Node implements Statement<NodeAttr>, Source, Target {
 
     final String name;
+    final String port;
     
     private final AttrList<NodeAttr> attributes = new AttrList<>();
     
     Node(String name) {
         this.name = requireNonNull(name, "null name");
+        this.port = null;
     }
     
-    @Override
-    public String name() {
-        return name;
+    Node(String name, Port port) {
+        this.name = requireNonNull(name, "null name");
+        this.port = requireNonNull(port, "null port").format();
+    }
+    
+    Node(String name, String portId) {
+        this.name = requireNonNull(name, "null name");
+        this.port = requireNonNull(portId, "null portId");
+    }
+    
+    Node(String name, String portId, Port port) {
+        this.name = requireNonNull(name, "null name");
+        this.port = requireNonNull(portId, "null portId") + ":" + requireNonNull(port, "null port").format();
     }
     
     /** Adds attributes to this node. */
@@ -43,7 +55,11 @@ public final class Node implements Statement<NodeAttr>, Source, Target {
     }
     
     @Override
-    public String format(Graph graph) {
-        return "%s %s".formatted(quote(name), attributes.format());
+    public String format(int indent, Graph graph) {
+        if (port == null) {
+            return "%s %s".formatted(quote(name), attributes.format());
+        } else {
+            return "%s:%s %s".formatted(quote(name), port, attributes.format());
+        }
     }
 }

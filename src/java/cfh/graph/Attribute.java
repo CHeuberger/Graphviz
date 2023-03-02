@@ -21,8 +21,7 @@ sealed abstract class Attribute implements Attr {
         this.value = requireNonNull(value, "null value");
     }
 
-    @Override
-    public String format() {
+    protected String format() {
         return "%s=%s".formatted(name, quote(value.toString()));
     }
     

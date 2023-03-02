@@ -9,9 +9,9 @@ package cfh.graph;
  *
  */
 public sealed interface Statement<T extends Attr> 
-permits Node, Edge, AttrStatement, DefaultStatement<?> {
+permits Node, Edge, AttrStatement, DefaultStatement<?>, Subgraph {
 // TODO add more statements (attribute, ID=ID, subgraph)
-    public String format(Graph graph);
+    public String format(int indent, Graph graph);
     
     @SuppressWarnings("unchecked")
     public Statement<T> with(T... attr);

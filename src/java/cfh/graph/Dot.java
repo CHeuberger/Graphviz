@@ -23,11 +23,26 @@ import javax.imageio.ImageIO;
  */
 public final class Dot {
     
+    static final String INDENT = "  ";
     private Dot() {
         throw new AssertionError("do not instanciate");
     }
     
     //==============================================================================================
+
+    public enum Port {
+        // n | ne | e | se | s | sw | w | nw | c | _
+        N, NE, E, SE, S, Sw, W, NW, C, DEFAULT;
+
+        String format() {
+            if (this == DEFAULT) return "_";
+            else return name().toLowerCase();
+        }
+    }
+    
+    public enum Engine {
+        DOT,NEATO;
+    }
 
     // FORMATS
     public static final Format JPEG = Format.JPEG;
@@ -56,6 +71,21 @@ public final class Dot {
     /** Creates a new Node. */
     public static Node node(String name) {
         return new Node(name);
+    }
+    
+    /** Creates a new Node. */
+    public static Node node(String name, Port port) {
+        return new Node(name, port);
+    }
+    
+    /** Creates a new Node. */
+    public static Node node(String name, String portId) {
+        return new Node(name, portId);
+    }
+    
+    /** Creates a new Node. */
+    public static Node node(String name, String portId, Port port) {
+        return new Node(name, portId, port);
     }
     
     /** Creates a new Edge. */
@@ -117,9 +147,24 @@ public final class Dot {
         return new Attribute.FontSize(size);
     }
     
-    /** Adds a label (GNEC). */
+    /** Creates a label (GNEC). */
     public static Attribute.AnyAttribute label(String label) {
         return new Attribute.AnyAttribute("label", label);
+    }
+    
+    /** Creates a cluster (G). */
+    public static Subgraph cluster() {
+        return new Subgraph();
+    }
+    
+    /** Creates a subgraph (G). */
+    public static Subgraph subgraph() {
+        return new Subgraph("");
+    }
+    
+    /** Creates a named subgraph (G). */
+    public static Subgraph subgraph(String name) {
+        return new Subgraph(name);
     }
     
     /** Creates an arbitrary attribute. */
@@ -226,7 +271,7 @@ public final class Dot {
     }
 
     //==============================================================================================
-
+    
     private enum FormatType {
         IMAGE, TEXT;
     }

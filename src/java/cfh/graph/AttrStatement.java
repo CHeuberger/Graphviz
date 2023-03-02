@@ -14,10 +14,10 @@ import cfh.graph.Attr.GraphAttr;
  */
 final class AttrStatement implements Statement<GraphAttr> {
 
-    private final GraphAttr attribute;
+    private final Attribute attribute;
     
     AttrStatement(GraphAttr attribute) {
-        this.attribute = requireNonNull(attribute, "null attribute");
+        this.attribute = (Attribute) requireNonNull(attribute, "null attribute");
     }
 
     /** Unsupported. */
@@ -27,7 +27,7 @@ final class AttrStatement implements Statement<GraphAttr> {
     }
     
     @Override
-    public String format(Graph graph) {
+    public String format(int indent, Graph graph) {
         return attribute.format();
     }
 }

@@ -11,31 +11,21 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.function.Consumer;
 
-import cfh.graph.DefaultStatement.Type;
 import cfh.graph.Dot.Format;
-import cfh.graph.Attr.EdgeAttr;
-import cfh.graph.Attr.GraphAttr;
-import cfh.graph.Attr.NodeAttr;
 
 /**
  * @author Carlos F. Heuberger, 2023-02-24
  *
  */
-public class Graph {
+public final class Graph extends StatementList<Graph> {
 
     final String name;
     
     private boolean strict = false;
     private boolean directed = false;
     
-    private final AttrList<GraphAttr> attributes = new AttrList<>();
-    private final List<Statement<?>> statements = new ArrayList<>();
-
     Graph() {
         this.name = null;
     }
@@ -83,39 +73,6 @@ public class Graph {
         return directed;
     }
     
-    /** Add Graph attributes. */
-    public Graph with(GraphAttr attribute) {
-        attributes.add(attribute);
-        return this;
-    }
-
-    /** Adds nodes and edges. */
-    public Graph add(Statement<?>... statements) {
-        this.statements.addAll(Arrays.asList(statements));
-        return this;
-    }
-    
-    /** Adds attributes to this graph. */
-    public Graph add(GraphAttr... attrs) {
-        Arrays.stream(attrs).map(AttrStatement::new).forEach(statements::add);
-        return this;
-    }
-    
-    /** Adds default graph attributes. */
-    public Graph defaults(GraphAttr... attributes) {
-        return add(new DefaultStatement<>(Type.GRAPH, Arrays.asList(attributes)));
-    }
-    
-    /** Adds default node attributes. */
-    public Graph nodes(NodeAttr... attributes) {
-        return add(new DefaultStatement<>(Type.NODE, Arrays.asList(attributes)));
-    }
-    
-    /** Adds default edge attributes. */
-    public Graph edges(EdgeAttr... attributes) {
-        return add(new DefaultStatement<>(Type.EDGE, Arrays.asList(attributes)));
-    }
-    
     /** Helper to consume the created dot string. */
     public Graph visit(Consumer<String> visitor) {
         visitor.accept(toDot());
@@ -142,15 +99,16 @@ public class Graph {
     
     /** Creates a dot string of this graph. */
     public String toDot() {
+        var lineFormat = INDENT + "%s;\n";
         var dot = new StringBuilder();
         if (strict) dot.append("strict ");
         dot.append(directed ? "digraph" : "graph");
         if (name != null) dot.append(" ").append(quote(name));
         dot.append(" {\n");
         
-        attributes.stream().map(GraphAttr::format).map("  %s;\n"::formatted).forEach(dot::append);
+        attributes.stream().map(Attribute::format).map(lineFormat::formatted).forEach(dot::append);
         dot.append("\n");
-        statements.stream().map(s -> s.format(this)).map("  %s;\n"::formatted).forEach(dot::append);
+        statements.stream().map(s -> s.format(0, this)).map(lineFormat::formatted).forEach(dot::append);
         
         dot.append("}\n");
         return dot.toString();

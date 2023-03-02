@@ -10,8 +10,6 @@ package cfh.graph;
  */
 interface Attr {
 
-    public String format();
-    
     //----------------------------------------------------------------------------------------------
     
     interface ClusterAttr extends Attr { /* */ }

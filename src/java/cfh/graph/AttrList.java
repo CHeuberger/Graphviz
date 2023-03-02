@@ -35,10 +35,14 @@ class AttrList<T extends Attr> {
     Stream<T> stream() {
         return attributes.stream();
     }
+    
+    boolean isEmpty() {
+        return attributes.isEmpty();
+    }
 
     String format() {
         return attributes.isEmpty()
             ? ""
-            : attributes.stream().map(Attr::format).collect(Collectors.joining(",", "[", "]"));
+            : attributes.stream().map(Attribute.class::cast).map(Attribute::format).collect(Collectors.joining(",", "[", "]"));
     }
 }

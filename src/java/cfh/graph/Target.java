@@ -8,7 +8,7 @@ package cfh.graph;
  * @author Carlos F. Heuberger, 2023-02-24
  *
  */
-interface Target {
+public interface Target {
 
-    public String name();
+    public String format(int indent, Graph graph);
 }

@@ -35,11 +35,12 @@ public final class Edge implements Statement<EdgeAttr> {
     }
     
     @Override
-    public String format(Graph graph) {
-        return "%s %s %s %s".formatted(
-            quote(source.name()),
+    public String format(int indent, Graph graph) {
+        return "%s%s %s %s %s".formatted(
+            INDENT.repeat(indent),
+            source.format(0, graph),
             graph.isDirected() ? "->" : "--",
-            quote(target.name()),
+            target.format(0, graph),
             attributes.format()
             );
     }

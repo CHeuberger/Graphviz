@@ -6,6 +6,7 @@ package cfh.graph.check;
 
 import static cfh.graph.Dot.*;
 
+import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,25 +33,33 @@ public class DotCheck {
     private final JFrame frame;
     
     private DotCheck() {
-        var images = createGraphs();
+        var list = createGraphs();
+
+        var all = new JPanel();
+        all.setLayout(new GridLayout(0, 1));
         
-        var panel = new JPanel();
-        images.stream().map(ImageIcon::new).map(JLabel::new).forEach(panel::add);
+        for (List<BufferedImage> images : list) {
+            var panel = new JPanel();
+            images.stream().map(ImageIcon::new).map(JLabel::new).forEach(panel::add);
+            all.add(panel);
+        }
         
         frame = new JFrame();
         frame.setDefaultCloseOperation(frame.DISPOSE_ON_CLOSE);
         
-        frame.add(new JScrollPane(panel));
+        frame.add(new JScrollPane(all));
         
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
     
-    private List<BufferedImage> createGraphs() {
-        var list = new ArrayList<BufferedImage>();
+    private List<List<BufferedImage>> createGraphs() {
+        var list = new ArrayList<List<BufferedImage>>();
         
-        list.add(
+        var images = new ArrayList<BufferedImage>();
+        
+        images.add(
             graph("directed")
             .directed()
             .with(label("directed"))
@@ -58,7 +67,7 @@ public class DotCheck {
             .visit(System.out::println)
             .toImage(JPEG) );
         
-        list.add(
+        images.add(
             graph("undirected")
             .undirected()
             .with(label("undirected"))
@@ -68,7 +77,7 @@ public class DotCheck {
             .toImage(JPEG)
             );
         
-        list.add(
+        images.add(
             graph("strict")
             .strict()
             .with(label("strict"))
@@ -78,7 +87,7 @@ public class DotCheck {
             .toImage(JPEG)
             );
         
-        list.add(
+        images.add(
             graph()
             .strict()
             .with(label("nodes"))
@@ -89,7 +98,7 @@ public class DotCheck {
         
         // TODO default graph
         
-        list.add(
+        images.add(
             graph()
             .with(label("default node"))
             .nodes(attr("style", "filled"), Color.LIGHTBLUE.fill())
@@ -98,7 +107,7 @@ public class DotCheck {
             .toImage(JPEG)
             );
         
-        list.add(
+        images.add(
             graph()
             .with(label("default edges"))
             .edges(attr("penwidth", 4))
@@ -108,7 +117,7 @@ public class DotCheck {
             .toImage(JPEG)
             );
         
-        list.add(
+        images.add(
             graph()
             .with(label("graph attribute"))
             .add(node("A").to(node("B")))
@@ -116,6 +125,79 @@ public class DotCheck {
             .visit(System.out::println)
             .toImage(JPEG)
             );
+        
+        list.add(images);
+        images = new ArrayList<>();
+        
+        images.add(
+            graph()
+            .with(label("cluster attribute"))
+            .add(
+                cluster()
+                .nodes(attr("penwidth", 5))
+                .add(node("A"), node("C"))
+                )
+            .add(node("A").to(node("B")))
+            .add(node("B").to(node("C")))
+            .visit(System.out::println)
+            .toImage(JPEG)
+            );
+        
+        images.add(
+            graph()
+            .with(label("subgraph attribute"))
+            .add(
+                subgraph()
+                .nodes(attr("penwidth", 5))
+                .add(node("A"), node("C"))
+                )
+            .add(node("A").to(node("B")))
+            .add(node("B").to(node("C")))
+            .visit(System.out::println)
+            .toImage(JPEG)
+            );
+        
+        images.add(
+            graph()
+            .with(label("cluster target"))
+            .add(node("A").to(
+                cluster().add(node("B"), node("C"))
+                ))
+            .visit(System.out::println)
+            .toImage(JPEG)
+            );
+        
+        images.add(
+            graph()
+            .with(label("cluster source"))
+            .add( cluster().add(node("A"), node("B"))
+                .to(node("C"))
+                )
+            .visit(System.out::println)
+            .toImage(JPEG)
+            );
+        
+        images.add(
+            graph()
+            .with(label("ports"))
+            .add(node("A", Port.E).to(node("B", Port.W)))
+            .visit(System.out::println)
+            .toImage(JPEG)
+            );
+        
+        images.add(
+            graph()
+            .directed()
+            .with(label("record"))
+            .nodes(attr("shape", "record"))
+            .add(node("struct1").with(label("<1> A|<2> B|<3> C")))
+            .add(node("struct2").with(label("{<1> a|<2> b|<3> c}")))
+            .add(node("struct1", "1").to(node("struct2", "2", Port.W)))
+            .visit(System.out::println)
+            .toImage(JPEG)
+            );
+        
+        list.add(images);
         
         return list;
     }

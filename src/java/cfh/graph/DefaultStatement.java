@@ -35,7 +35,7 @@ final class DefaultStatement<T extends Attr> implements Statement<T> {
     }
     
     @Override
-    public String format(Graph graph) {
+    public String format(int indent, Graph graph) {
         return "%s %s".formatted(type.name().toLowerCase(), attributes.format());
     }
 }
