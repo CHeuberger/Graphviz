@@ -2,10 +2,10 @@
  * Copyright: Carlos F. Heuberger. All rights reserved.
  *
  */
-package cfh.graphviz;
+package cfh.jgraphviz;
 
+import static cfh.jgraphviz.Dot.*;
 import static java.util.Objects.*;
-import static cfh.graphviz.Dot.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,6 @@ public interface StatementList<T extends StatementList<T>> {
     public T add(Node node);
     public T add(Edge edge);
     public T add(Subgraph subgraph);
-
 }
 
 @SuppressWarnings("unchecked")
@@ -62,17 +61,21 @@ class StatementListImpl<T extends StatementList<T>> implements StatementList<T> 
 
     @Override
     public T add(Subgraph subgraph) {
-        statements.add(new CompStatement<>(subgraph));
+        statements.add(new SubgraphStatement(subgraph));
         return (T) this;
     }
-    
+
+    protected void with(Attr first, Attr... attributes) {
+        statements.add(new AttrStatement(first));
+    }
+
     //----------------------------------------------------------------------------------------------
     
-    sealed static abstract class Statement {
+    sealed static interface Statement {
         //
     }
     
-    private static final class NodeStatement extends Statement {
+    private static final class NodeStatement implements Statement {
 
         final NodeImpl node;
         
@@ -81,7 +84,7 @@ class StatementListImpl<T extends StatementList<T>> implements StatementList<T> 
         }
     }
     
-    private static final class EdgeStatement extends Statement {
+    private static final class EdgeStatement implements Statement {
         
         final EdgeImpl edge;
         
@@ -90,15 +93,24 @@ class StatementListImpl<T extends StatementList<T>> implements StatementList<T> 
         }
     }
     
-    private static final class CompStatement<T> extends Statement {
-        final T comp;
+    private static final class SubgraphStatement implements Statement {
+        final SubgraphImpl subgraph;
         
-        CompStatement(T comp) {
-            this.comp = requireNonNull(comp, "null component");
+        SubgraphStatement(Subgraph subgraph) {
+            this.subgraph = (SubgraphImpl) requireNonNull(subgraph, "null subgraph");
+        }
+    }
+    
+    private static final class AttrStatement implements Statement {
+
+        final Attr attr; 
+        
+        AttrStatement(Attr attr) {
+            this.attr = requireNonNull(attr, "null attr");
         }
     }
 
-    private sealed static class DefaultStatement extends Statement {
+    private sealed static class DefaultStatement implements Statement {
 
         final String name;
         private final List<Attribute> attributes = new ArrayList<>();

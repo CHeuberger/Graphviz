@@ -2,9 +2,9 @@
  * Copyright: Carlos F. Heuberger. All rights reserved.
  *
  */
-package cfh.graphviz;
+package cfh.jgraphviz;
 
-import static cfh.graphviz.Dot.*;
+import static cfh.jgraphviz.Dot.*;
 import static java.util.Objects.*;
 
 /**

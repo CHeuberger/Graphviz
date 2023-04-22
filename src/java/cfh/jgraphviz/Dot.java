@@ -2,7 +2,7 @@
  * Copyright: Carlos F. Heuberger. All rights reserved.
  *
  */
-package cfh.graphviz;
+package cfh.jgraphviz;
 
 import static java.util.Objects.requireNonNull;
 
@@ -138,6 +138,13 @@ public class Dot {
     /** Creates a new Subgraph. */
     public static Subgraph subgraph(NodeId first, NodeId... nodes) {
         return null; // TODO
+    }
+    
+    //----------------------------------------------------------------------------------------------
+    
+    /** Creates a label attribute. */
+    public static LabelAttr label(String label) {
+        return new LabelAttr(label);
     }
     
     //==============================================================================================

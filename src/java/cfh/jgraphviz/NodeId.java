@@ -2,12 +2,12 @@
  * Copyright: Carlos F. Heuberger. All rights reserved.
  *
  */
-package cfh.graphviz;
+package cfh.jgraphviz;
 
-import static cfh.graphviz.Dot.*;
+import static cfh.jgraphviz.Dot.*;
 import static java.util.Objects.*;
 
-import cfh.graphviz.StatementListImpl.Statement;
+import cfh.jgraphviz.StatementListImpl.Statement;
 
 /**
  * @author Carlos F. Heuberger, 2023-03-03

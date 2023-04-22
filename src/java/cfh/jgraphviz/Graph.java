@@ -2,7 +2,7 @@
  * Copyright: Carlos F. Heuberger. All rights reserved.
  *
  */
-package cfh.graphviz;
+package cfh.jgraphviz;
 
 import static java.util.Objects.requireNonNull;
 
@@ -10,8 +10,8 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-import cfh.graphviz.Dot.Engine;
-import cfh.graphviz.Dot.Format;
+import cfh.jgraphviz.Dot.Engine;
+import cfh.jgraphviz.Dot.Format;
 
 /**
  * @author Carlos F. Heuberger, 2023-03-03
@@ -24,6 +24,8 @@ public interface Graph extends StatementList<Graph> {
     
     public default Graph directed() { return directed(true); }
     public Graph directed(boolean directed);
+
+    public Graph with(GraphAttr first, GraphAttr... attributes);
     
     public Graph visit(Consumer<String> visitor);
 
@@ -71,6 +73,12 @@ class GraphImpl extends StatementListImpl<Graph> implements Graph {
     
     boolean isDirected() {
         return directed;
+    }
+    
+    @Override
+    public Graph with(GraphAttr first, GraphAttr... attributes) {
+        super.with(first, attributes);
+        return this;
     }
     
     @Override

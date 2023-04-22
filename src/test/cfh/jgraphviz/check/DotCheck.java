@@ -2,9 +2,9 @@
  * Copyright: Carlos F. Heuberger. All rights reserved.
  *
  */
-package cfh.graphviz.check;
+package cfh.jgraphviz.check;
 
-import static cfh.graphviz.Dot.*;
+import static cfh.jgraphviz.Dot.*;
 
 import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
@@ -19,7 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
-import cfh.graphviz.Graph;
+import cfh.jgraphviz.Graph;
 
 /**
  * @author Carlos F. Heuberger, 2023-03-03
@@ -101,6 +101,9 @@ public class DotCheck {
                 graph()
                 .directed()
                 .add(node("A").to(node("B")))
+                ,
+                graph()
+                .with(label("test label"))
                 ).stream().map(dotJpg).toList()
 //            ,
 //            List.of(
