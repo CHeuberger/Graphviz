@@ -29,7 +29,7 @@ public interface Graph extends StatementList<Graph> {
     
     public Graph visit(Consumer<String> visitor);
 
-    public default BufferedImage image(Format format) { return image(Engine.DOT, format); }
+    public BufferedImage image(Format format);
     public BufferedImage image(Engine engine, Format format);
 
 }
@@ -86,6 +86,11 @@ class GraphImpl extends StatementListImpl<Graph> implements Graph {
         var text = script();
         visitor.accept(text);
         return this;
+    }
+    
+    @Override
+    public BufferedImage image(Format format) {
+        return this.image(Engine.DOT, format);
     }
 
     @Override

@@ -37,7 +37,7 @@ public class Dot {
     
     /** Layout Engine. */
     public enum Engine {
-        DOT,NEATO;
+        DOT,NEATO, FDP, SFDP;
     }
 
     //----------------------------------------------------------------------------------------------
@@ -101,12 +101,12 @@ public class Dot {
     
     //==============================================================================================
 
-    /** Creates a new Grarph. */
+    /** Creates a new Graph. */
     public static Graph graph() {
         return new GraphImpl();
     }
     
-    /** Creates a new named Grarph. */
+    /** Creates a new named Graph. */
     public static Graph graph(String id) {
         return new GraphImpl(id);
     }
