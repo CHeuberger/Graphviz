@@ -4,10 +4,8 @@
  */
 package cfh.jgraphviz;
 
-import static cfh.jgraphviz.Dot.quote;
-import static java.util.Objects.requireNonNull;
-
-import cfh.jgraphviz.StatementListImpl.Statement;
+import static cfh.jgraphviz.Dot.*;
+import static java.util.Objects.*;
 
 /**
  * @author Carlos F. Heuberger, 2023-03-03
@@ -21,7 +19,7 @@ public interface Node {
  * @author Carlos F. Heuberger, 2023-03-06
  *
  */
-class NodeImpl implements NodeId {
+class NodeImpl extends AttributeHolder implements NodeId, SourceTarget {
     
     final String id;
     
@@ -38,10 +36,15 @@ class NodeImpl implements NodeId {
     public Edge from(Source source) {
         return new EdgeImpl(source, this);
     }
+
+    @Override
+    public Node with(NodeAttr... attributes) {
+        addAll(attributes);
+        return this;
+    }
     
     @Override
-    public Node with(NodeAttr first, NodeAttr... attributes) {
-        // TODO Auto-generated method stub
-        return null;
+    public String script(GraphImpl graph) {
+        return quote(id) + super.script();
     }
 }

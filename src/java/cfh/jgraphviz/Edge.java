@@ -4,7 +4,6 @@
  */
 package cfh.jgraphviz;
 
-import static cfh.jgraphviz.Dot.*;
 import static java.util.Objects.*;
 
 /**
@@ -13,26 +12,34 @@ import static java.util.Objects.*;
  */
 public interface Edge {
 
-    public Edge with(EdgeAttr first, EdgeAttr... attributes);
+    public Edge with(EdgeAttr... attributes);
 }
 
 /**
  * @author Carlos F. Heuberger, 2023-03-06
  *
  */
-class EdgeImpl implements Edge {
+class EdgeImpl extends AttributeHolder implements Edge {
 
-    final Source source;
-    final Target target;
+    final SourceTarget source;
+    final SourceTarget target;
     
     EdgeImpl(Source source, Target target) {
-        this.source = requireNonNull(source, "null source");
-        this.target = requireNonNull(target, "null target");
+        this.source = (SourceTarget) requireNonNull(source, "null source");
+        this.target = (SourceTarget) requireNonNull(target, "null target");
     }
     
     @Override
-    public Edge with(EdgeAttr first, EdgeAttr... attributes) {
-        // TODO Auto-generated method stub
-        return null;
+    public Edge with(EdgeAttr... attributes) {
+        addAll(attributes);
+        return this;
+    }
+    
+    String script(GraphImpl graph) {
+        return "%s %s %s%s".formatted(
+            source.script(graph),
+            graph.isDirected() ? "->" : "--",
+            target.script(graph),
+            super.script());
     }
 }

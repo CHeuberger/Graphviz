@@ -36,95 +36,147 @@ public class DotCheck {
     private final JFrame frame;
 
     private DotCheck() {
-        List<List<BufferedImage>> list;
+        var allPanel = new JPanel();
+        allPanel.setLayout(new GridLayout(0, 1));
+        
         try {
-            list = createGraphs();
+            var dot = """
+                digraph {
+                  label="old interface"
+                  { A ->  { B C} } -> D
+                }
+                """;
+            System.out.println(dot);
+            allPanel.add(new JLabel(new ImageIcon(dotToImage(JPG, dot))));
         } catch (IOException | InterruptedException ex) {
             throw new RuntimeException(ex);
         }
+        
+        List<List<Graph>> list = createGraphs();
 
-        var all = new JPanel();
-        all.setLayout(new GridLayout(0, 1));
-
+        Function<Graph, BufferedImage> dotToJpg = g -> g.visit(System.out::println).image(JPG);
         for (var images : list) {
+            System.out.println("======================================");
             var panel = new JPanel();
-            images.stream().map(ImageIcon::new).map(JLabel::new).forEach(panel::add);
-            all.add(panel);
+            images.stream().map(dotToJpg).map(ImageIcon::new).map(JLabel::new).forEach(panel::add);
+            allPanel.add(panel);
         }
 
         frame = new JFrame();
         frame.setDefaultCloseOperation(frame.DISPOSE_ON_CLOSE);
 
-        frame.add(new JScrollPane(all));
+        frame.add(new JScrollPane(allPanel));
 
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
 
-    private List<List<BufferedImage>> createGraphs() throws IOException, InterruptedException {
-        Function<Graph, BufferedImage> dotJpg = g -> g.visit(System.out::println).image(JPG);
+    private List<List<Graph>> createGraphs() {
 
         return List.of(
             List.of(
-                // old interface
-                dotToImage(JPG, """
-                    digraph {
-                      label="test"
-                      { A ->  { B C} } -> D
-                    }
-                    """)
-                )
-            ,
-            List.of(
-                // default unnamed undirected graph
+                // default graph
                 graph()
-                .add(node("A"))
+                .add(node("A").to(node("B")))
                 ,
-                // default undirected named
-                graph("name")
-                .add(node("B"))
+                // directed graph
+                graph()
+                .directed()
+                .add(node("A").to(node("B")))
                 ,
-                // strict
+                // un-directed graph
+                graph()
+                .directed(false)
+                .add(node("A").to(node("B")))
+                ,
+                // strict graph
                 graph()
                 .strict()
                 .add(edge(node("A"), node("B")))
                 .add(edge(node("B"), node("A")))
                 ,
-                // un-strict
+                // un-strict graph
                 graph()
                 .strict(false)
                 .add(edge(node("A"), node("B")))
                 .add(edge(node("B"), node("A")))
                 ,
-                //directed
+                // named graph
+                graph("the \"name\"")
+                .add(node("A"))
+                ,
+                // node without attributes
                 graph()
-                .directed()
+                .add(node("A"))
+                ,
+                // with attributes
+                graph()
+                .add(node("B").with(label("label")))
+                ,
+                // edge without attributes
+                graph()
                 .add(node("A").to(node("B")))
                 ,
+                // edge with attributes
                 graph()
-                .with(label("test label"))
-                ).stream().map(dotJpg).toList()
-//            ,
-//            List.of(
-//                // subgraph directly in graph
-//                graph()
-//                .add(subgraph(node("A")).to(node("B")))
-//                ,
-//                // subgraph source
-//                graph()
-//                .add(edge(
-//                    subgraph().add(node("A")).add(node("B")),
-//                    node("C")
-//                    ))
-//                ,
-//                // subgraph target
-//                graph()
-//                .add(edge(
-//                    node("A"),
-//                    subgraph().add(node("B")).add(node("C"))
-//                    ))
-//                ).stream().map(dotJpg).toList()
+                .add(node("A").to(node("B")).with(label("test")))
+                ,
+                // alternative edge
+                graph()
+                .add(edge(node("A"), (node("B"))))
+                )
+            ,
+            // attr_stmt
+            List.of(
+                // graph defaults
+                graph()
+                .graphdefs()
+                .graphdefs(label("Dummy"))
+                .graphdefs(label("Default"), fontsize(8))
+                .add(node("A"))
+                ,
+                // node defaults
+                graph()
+                .nodedefs()
+                .nodedefs(fontsize(22))
+                .add(node("A"))
+                .add(node("B"))
+                ,
+                // edge defaults
+                graph()
+                .edgedefs()
+                .edgedefs(label("Edge"))
+                .add(edge(node("A"), node("B")))
+                ,
+                // attribute statement
+                graph()
+                .with()
+                .with(label("Label"))
+                .add(node("A"))
+                ,
+                // subgraph
+                graph()
+                .add(subgraph())
+                .add(subgraph().add(node("A")).add(node("B")).to(node("C")))
+                .add(subgraph(node("D"), node("E")).to(subgraph().add(node("F")).add(node("G"))))
+                ,
+                // subgraph with ID
+                graph()
+                .add(subgraph("ID").add(node("A")).add(node("B")))
+                .add(node("C").from(subgraph("ID")))
+                )
+            ,
+            // attributes
+            List.of(
+                graph()
+//                .with(attribute("_background", "c 7 -#000000 C 7 -#ff0000 E 26 80 20 10"))
+                .with(_background(xdot("c 7 -#000000 C 7 -#ff0000 E 26 80 20 10")))
+                .with(label("Attributes"))
+                .add(edge(node("A"), node("B")))
+                )
+
+            // TODO ports
             );
     }
 

@@ -4,11 +4,13 @@
  */
 package cfh.jgraphviz;
 
-import static cfh.jgraphviz.Dot.*;
 import static java.util.Objects.*;
+import static java.util.stream.Collectors.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Carlos F. Heuberger, 2023-03-03
@@ -16,9 +18,9 @@ import java.util.List;
  */
 public interface StatementList<T extends StatementList<T>> {
 
-    public T graphs(GraphAttr first, GraphAttr... defaults);
-    public T nodes(NodeAttr first, NodeAttr... defaults);
-    public T edges(EdgeAttr first, EdgeAttr... defaults);
+    public T graphdefs(GraphAttr... defaults);
+    public T nodedefs(NodeAttr... defaults);
+    public T edgedefs(EdgeAttr... defaults);
     
     public T add(Node node);
     public T add(Edge edge);
@@ -30,20 +32,26 @@ class StatementListImpl<T extends StatementList<T>> implements StatementList<T> 
 
     private final List<Statement> statements = new ArrayList<>();
     @Override
-    public T graphs(GraphAttr first, GraphAttr... defaults) {
-        statements.add(new GraphDefaultStatement(first, defaults));
+    public T graphdefs(GraphAttr... defaults) {
+        if (defaults.length > 0) {
+            statements.add(new GraphDefaultStatement(defaults));
+        }
         return (T) this;
     }
 
     @Override
-    public T nodes(NodeAttr first, NodeAttr... defaults) {
-        statements.add(new NodeDefaultStatement(first, defaults));
+    public T nodedefs(NodeAttr... defaults) {
+        if (defaults.length > 0) {
+            statements.add(new NodeDefaultStatement(defaults));
+        }
         return (T) this;
     }
 
     @Override
-    public T edges(EdgeAttr first, EdgeAttr... defaults) {
-        statements.add(new EdgeDefaultStatement(first, defaults));
+    public T edgedefs(EdgeAttr... defaults) {
+        if (defaults.length > 0) {
+            statements.add(new EdgeDefaultStatement(defaults));
+        }
         return (T) this;
     }
 
@@ -65,14 +73,25 @@ class StatementListImpl<T extends StatementList<T>> implements StatementList<T> 
         return (T) this;
     }
 
-    protected void with(Attr first, Attr... attributes) {
-        statements.add(new AttrStatement(first));
+    protected void with(Attr... attributes) {
+        Arrays.stream(attributes).map(AttrStatement::new).forEach(statements::add);
+    }
+    
+    protected String scriptStatements(GraphImpl graph) {
+//        UnaryOperator<String> appendSemiColon = s -> s + ";";
+        return statements
+            .stream()
+            .map(s -> s.script(graph))
+            .filter(Objects::nonNull)
+//            .map(appendSemiColon)
+            .collect(joining("\n"));
     }
 
     //----------------------------------------------------------------------------------------------
     
     sealed static interface Statement {
-        //
+        
+        public String script(GraphImpl graph);
     }
     
     private static final class NodeStatement implements Statement {
@@ -81,6 +100,11 @@ class StatementListImpl<T extends StatementList<T>> implements StatementList<T> 
         
         NodeStatement(Node node) {
             this.node = (NodeImpl) requireNonNull(node, "null node");
+        }
+
+        @Override
+        public String script(GraphImpl graph) {
+            return node.script(graph);
         }
     }
     
@@ -91,6 +115,11 @@ class StatementListImpl<T extends StatementList<T>> implements StatementList<T> 
         EdgeStatement(Edge edge) {
             this.edge = (EdgeImpl) requireNonNull(edge, "null edge");
         }
+
+        @Override
+        public String script(GraphImpl graph) {
+            return edge.script(graph);
+        }
     }
     
     private static final class SubgraphStatement implements Statement {
@@ -99,50 +128,60 @@ class StatementListImpl<T extends StatementList<T>> implements StatementList<T> 
         SubgraphStatement(Subgraph subgraph) {
             this.subgraph = (SubgraphImpl) requireNonNull(subgraph, "null subgraph");
         }
+
+        @Override
+        public String script(GraphImpl graph) {
+            return subgraph.script(graph);
+        }
     }
     
     private static final class AttrStatement implements Statement {
 
-        final Attr attr; 
+        final Attribute attr; 
         
         AttrStatement(Attr attr) {
-            this.attr = requireNonNull(attr, "null attr");
+            this.attr = (Attribute) requireNonNull(attr, "null attr");
+        }
+
+        @Override
+        public String script(GraphImpl graph) {
+            return attr.script();
         }
     }
 
-    private sealed static class DefaultStatement implements Statement {
+    private sealed static class DefaultStatement extends AttributeHolder implements Statement {
 
-        final String name;
-        private final List<Attribute> attributes = new ArrayList<>();
+        final String type;
         
-        protected DefaultStatement(String name, Attr first, Attr... defaults) {
-            this.name = requireNonNull(name, "null name");
-            add(first);
-            add(defaults);
-        }
-        
-        private void add(Attr... attrs) {
-            for (var attr : attrs) {
-                attributes.add((Attribute) requireNonNull(attr, "null attribute"));
+        protected DefaultStatement(String type, Attr... defaults) {
+            this.type = requireNonNull(type, "null type");
+            if (defaults.length == 0) {
+                throw new IllegalArgumentException("empty defaults");
             }
+            addAll(defaults);
+        }
+
+        @Override
+        public String script(GraphImpl graph) {
+            return type + super.script();
         }
     }
     
     private final class GraphDefaultStatement extends DefaultStatement {
-        protected GraphDefaultStatement(GraphAttr first, GraphAttr... defaults) {
-            super("graph", first, defaults);
+        protected GraphDefaultStatement(GraphAttr... defaults) {
+            super("graph", defaults);
         }
     }
     
     private final class NodeDefaultStatement extends DefaultStatement {
-        protected NodeDefaultStatement(NodeAttr first, NodeAttr... defaults) {
-            super("node", first, defaults);
+        protected NodeDefaultStatement(NodeAttr... defaults) {
+            super("node", defaults);
         }
     }
     
     private final class EdgeDefaultStatement extends DefaultStatement {
-        protected EdgeDefaultStatement(EdgeAttr first, EdgeAttr... defaults) {
-            super("edge", first, defaults);
+        protected EdgeDefaultStatement(EdgeAttr... defaults) {
+            super("edge", defaults);
         }
     }
 }

@@ -4,10 +4,13 @@
  */
 package cfh.jgraphviz;
 
-import static java.util.Objects.requireNonNull;
+import static java.util.Objects.*;
+
+import static cfh.jgraphviz.Dot.*;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Formatter;
 import java.util.function.Consumer;
 
 import cfh.jgraphviz.Dot.Engine;
@@ -25,7 +28,7 @@ public interface Graph extends StatementList<Graph> {
     public default Graph directed() { return directed(true); }
     public Graph directed(boolean directed);
 
-    public Graph with(GraphAttr first, GraphAttr... attributes);
+    public Graph with(GraphAttr... attributes);
     
     public Graph visit(Consumer<String> visitor);
 
@@ -76,8 +79,8 @@ class GraphImpl extends StatementListImpl<Graph> implements Graph {
     }
     
     @Override
-    public Graph with(GraphAttr first, GraphAttr... attributes) {
-        super.with(first, attributes);
+    public Graph with(GraphAttr... attributes) {
+        super.with(attributes);
         return this;
     }
     
@@ -105,20 +108,23 @@ class GraphImpl extends StatementListImpl<Graph> implements Graph {
     }
 
     private String script() {
-        var dot = new StringBuilder();
-        if (strict) {
-            dot.append("strict ");
-        }
-        dot.append(directed ? "digraph " : "graph ");
-        if (id != null) {
-            dot.append(id).append(" ");
-        }
-        dot.append("{\n");
+        var formatter = new Formatter();
+        try (formatter) {
+            if (strict) {
+                formatter.format("strict ");
+            }
+            formatter.format("%s ", directed ? "digraph" : "graph");
+            if (id != null) {
+                formatter.format("%s ", quote(id));
+            }
+            formatter.format("""
+                {
+                %s
+                }
+                """, 
+                scriptStatements(this).indent(INDENT).stripTrailing());  // remove trailing linefeed
 
-        // TODO
-        
-        dot.append("}");
-        
-        return dot.toString();
+            return formatter.toString();
+        }
     }
 }

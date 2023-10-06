@@ -12,7 +12,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 
@@ -21,6 +24,11 @@ import javax.imageio.ImageIO;
  *
  */
 public class Dot {
+    
+    static final int INDENT = 2;
+    
+    private static final String PATH_PROPERTY = "GraphPath";
+    private static final String PATH_ENVIRONMENT = "GRAPHVIZ_HOME";
 
     /** Node Port. */
     public enum Port {
@@ -127,36 +135,64 @@ public class Dot {
     }
     /** Creates a new Subgraph. */
     public static Subgraph subgraph() {
-        return null; // TODO
+        return new SubgraphImpl();
     }
     
     /** Creates a new named Subgraph. */
     public static Subgraph subgraph(String id) {
-        return null; // TODO
+        return new SubgraphImpl(id);
     }
     
     /** Creates a new Subgraph. */
-    public static Subgraph subgraph(NodeId first, NodeId... nodes) {
-        return null; // TODO
+    public static Subgraph subgraph(NodeId... nodes) {
+        var sub = new SubgraphImpl();
+        Arrays.stream(nodes).forEach(sub::add);
+        return sub;
     }
     
     //----------------------------------------------------------------------------------------------
     
-    /** Creates a label attribute. */
-    public static LabelAttr label(String label) {
-        return new LabelAttr(label);
+    /** Create a <code>_background</code> (xdot) attribute. */
+    public static GraphAttr _background(XDot xdot) {
+        return new GAttribute("_background", xdot);
+    }
+    
+    /** Creates a <code>label</code> attribute. */
+    public static GNECAttribute label(String label) {
+        return new GNECAttribute("label", label);
+    }
+    
+    /** Creates a <code>fontsize</code> attribute. */
+    public static GNECAttribute fontsize(double size) {
+        return new GNECAttribute("fontsize", new BigDecimal(size).setScale(1, RoundingMode.HALF_UP));
+    }
+    
+    /** Creates an arbitrary attribute, mostly for testing. */
+    public static GNECAttribute attribute(String name, Object value) {
+        return new GNECAttribute(name, value);
+    }
+    
+    //----------------------------------------------------------------------------------------------
+    
+    /** Create a new XDot. 
+     *  @deprecated Just for testing, should be changed to functions
+     */
+    @Deprecated
+    public static XDot xdot(String... components) {  // TODO change parameter
+        return new XDotImpl(components);
     }
     
     //==============================================================================================
     
     private static final String PATH;
     static {
-        String cmd = System.getProperty("GraphPath");
+        String cmd = System.getProperty(PATH_PROPERTY);
         if (cmd == null) {
-            String path = System.getenv("GRAPHVIZ_HOME");
+            String path = System.getenv(PATH_ENVIRONMENT);
             if (path == null) {
                 cmd = "/usr/local/bin/";
-                System.err.println("neither \"Graph\" nor \"GRAPHVIZ_HOME\" environmrnt variables set, using \"" + cmd + "\"");
+                System.err.printf("neither \"%s\" property nor \"%s\" environmrnt variables set, using \"%s\"",
+                    PATH_PROPERTY, PATH_ENVIRONMENT, cmd);
             } else {
                 cmd = path + "/bin/";
             }
@@ -169,11 +205,15 @@ public class Dot {
     
     /** Creates a graph from given input stream and writes to the output stream. */
     public static void dot(Engine engine, Format format, InputStream dotInput, OutputStream output) throws IOException, InterruptedException {
-        Process process = Runtime.getRuntime().exec(
-            new String[] { 
-                    PATH + engine.name().toLowerCase(), 
-                    "-T" + format.asParameter() 
-                    });
+        String[] cmd = { PATH + engine.name().toLowerCase(), "-T" + format.asParameter() };
+        Process process;
+        try {
+            process = Runtime.getRuntime().exec(cmd);
+        } catch (IOException ex) {
+            System.err.printf("Exception starting %s, check the \"%s\" property or the \"%s\" environment variable%n", 
+                Arrays.toString(cmd), PATH_PROPERTY, PATH_ENVIRONMENT);
+            throw ex;
+        }
 
         try (OutputStream processIn = process.getOutputStream()) {
             writeAll(dotInput, processIn);
@@ -225,13 +265,13 @@ public class Dot {
         if (format.type != FormatType.IMAGE) {
             throw new IllegalArgumentException("non-image format: " + format);
         }
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        var output = new ByteArrayOutputStream();
         dot(engine, format, dotInput, output);
         return ImageIO.read(new ByteArrayInputStream(output.toByteArray()));
     }
     
     private static void writeAll(InputStream input, OutputStream output) throws IOException {
-        byte[] buffer = new byte[4096];
+        var buffer = new byte[4096];
 
         int count;
         while ((count = input.read(buffer)) != -1) {
@@ -246,8 +286,6 @@ public class Dot {
     }
     
     //==============================================================================================
-    
-    static final String INDENT = "  ";
     
     private Dot() {
         throw new AssertionError("do not instanciate");
