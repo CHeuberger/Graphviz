@@ -20,19 +20,27 @@ import cfh.jgraphviz.Dot.Format;
  * @author Carlos F. Heuberger, 2023-03-03
  *
  */
-public interface Graph extends StatementList<Graph> {
+public sealed interface Graph extends StatementList<Graph> {
 
+    /** Describe this a graph as <code>strict</code>, that is, forbids the creation of multi-edges. */
     public default Graph strict() { return strict(true); }
+    /** Forbids the creation of multi-edges, if <code>strict</code> is set to <code>true</code>. */
     public Graph strict(boolean strict);
     
+    /** Marks this Graph as direcred. */
     public default Graph directed() { return directed(true); }
+    /** Marks this Graph as directed (<code>true</code>) or undirected (<code>false</code>). */
     public Graph directed(boolean directed);
 
-    public Graph with(GraphAttr... attributes);
+    /** Add attributes to this Graph. */
+    public Graph with(Attr.G... attributes);
     
+    /** Calls <code>visitor</code> with the dot script for this Graph. For debugging. */
     public Graph visit(Consumer<String> visitor);
 
+    /** Creates the image of this Graph in given <code>format</code>. */
     public BufferedImage image(Format format);
+    /** Creates the image of this Graph in given <code>format</code> using <code>engine<code>. */
     public BufferedImage image(Engine engine, Format format);
 
 }
@@ -41,12 +49,12 @@ public interface Graph extends StatementList<Graph> {
  * @author Carlos F. Heuberger, 2023-03-03
  *
  */
-class GraphImpl extends StatementListImpl<Graph> implements Graph {
+final class GraphImpl extends StatementListImpl<Graph> implements Graph {
 
     private final String id;
     
     private boolean strict = false;
-    private boolean directed = false;
+    protected boolean directed = false;
     
     GraphImpl() {
         id = null;
@@ -69,7 +77,7 @@ class GraphImpl extends StatementListImpl<Graph> implements Graph {
     
     @Override
     public Graph directed(boolean b) {
-        // TODO allowed
+        // TODO allowed?
         this.directed = b;
         return this;
     }
@@ -79,7 +87,7 @@ class GraphImpl extends StatementListImpl<Graph> implements Graph {
     }
     
     @Override
-    public Graph with(GraphAttr... attributes) {
+    public Graph with(Attr.G... attributes) {
         super.with(attributes);
         return this;
     }

@@ -12,7 +12,7 @@ import static java.util.Objects.*;
  */
 public interface Edge {
 
-    public Edge with(EdgeAttr... attributes);
+    public Edge with(Attr.E... attributes);
 }
 
 /**
@@ -30,7 +30,7 @@ class EdgeImpl extends AttributeHolder implements Edge {
     }
     
     @Override
-    public Edge with(EdgeAttr... attributes) {
+    public Edge with(Attr.E... attributes) {
         addAll(attributes);
         return this;
     }

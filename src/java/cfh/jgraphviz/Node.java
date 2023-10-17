@@ -38,7 +38,7 @@ class NodeImpl extends AttributeHolder implements NodeId, SourceTarget {
     }
 
     @Override
-    public Node with(NodeAttr... attributes) {
+    public Node with(Attr.N... attributes) {
         addAll(attributes);
         return this;
     }

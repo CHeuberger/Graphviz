@@ -11,5 +11,5 @@ package cfh.jgraphviz;
 public interface NodeId extends Node, Source, Target {
 
     /** Adds attributes to this node. */
-    public Node with(NodeAttr... attributes);
+    public Node with(Attr.N... attributes);
 }

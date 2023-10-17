@@ -16,7 +16,7 @@ import java.util.Formatter;
  */
 public interface Subgraph extends StatementList<Subgraph>, Source, Target {
 
-    public Graph with(ClusterAttr... attributes);
+    public Subgraph with(Attr.S... attributes);
 }
 
 /**
@@ -46,9 +46,9 @@ class SubgraphImpl extends StatementListImpl<Subgraph> implements Subgraph, Sour
     }
     
     @Override
-    public Graph with(ClusterAttr... attributes) {
-        // TODO Auto-generated method stub
-        return null;
+    public Subgraph with(Attr.S... attributes) {
+        super.with(attributes);
+        return this;
     }
     
     @Override

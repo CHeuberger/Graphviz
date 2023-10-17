@@ -18,21 +18,26 @@ import java.util.Objects;
  */
 public interface StatementList<T extends StatementList<T>> {
 
-    public T graphdefs(GraphAttr... defaults);
-    public T nodedefs(NodeAttr... defaults);
-    public T edgedefs(EdgeAttr... defaults);
+    public T graphdefs(Attr.G... defaults);
+    public T nodedefs(Attr.N... defaults);
+    public T edgedefs(Attr.E... defaults);
     
-    public T add(Node node);
-    public T add(Edge edge);
-    public T add(Subgraph subgraph);
+    public T add(Node node1, Node... nodes);
+    public T add(Edge edge1, Edge... edges);
+    public T add(Subgraph subgraph1, Subgraph... subgraphs);
 }
 
 @SuppressWarnings("unchecked")
 class StatementListImpl<T extends StatementList<T>> implements StatementList<T> {
 
     private final List<Statement> statements = new ArrayList<>();
+    
+    StatementListImpl() {
+        //
+    }
+
     @Override
-    public T graphdefs(GraphAttr... defaults) {
+    public T graphdefs(Attr.G... defaults) {
         if (defaults.length > 0) {
             statements.add(new GraphDefaultStatement(defaults));
         }
@@ -40,7 +45,7 @@ class StatementListImpl<T extends StatementList<T>> implements StatementList<T> 
     }
 
     @Override
-    public T nodedefs(NodeAttr... defaults) {
+    public T nodedefs(Attr.N... defaults) {
         if (defaults.length > 0) {
             statements.add(new NodeDefaultStatement(defaults));
         }
@@ -48,7 +53,7 @@ class StatementListImpl<T extends StatementList<T>> implements StatementList<T> 
     }
 
     @Override
-    public T edgedefs(EdgeAttr... defaults) {
+    public T edgedefs(Attr.E... defaults) {
         if (defaults.length > 0) {
             statements.add(new EdgeDefaultStatement(defaults));
         }
@@ -56,20 +61,23 @@ class StatementListImpl<T extends StatementList<T>> implements StatementList<T> 
     }
 
     @Override
-    public T add(Node node) {
-        statements.add(new NodeStatement(node));
+    public T add(Node node1, Node... nodes) {
+        statements.add(new NodeStatement(node1));
+        Arrays.stream(nodes).map(NodeStatement::new).forEach(statements::add);
         return (T) this;
     }
 
     @Override
-    public T add(Edge edge) {
-        statements.add(new EdgeStatement(edge));
+    public T add(Edge edge1, Edge... edges) {
+        statements.add(new EdgeStatement(edge1));
+        Arrays.stream(edges).map(EdgeStatement::new).forEach(statements::add);
         return (T) this;
     }
 
     @Override
-    public T add(Subgraph subgraph) {
-        statements.add(new SubgraphStatement(subgraph));
+    public T add(Subgraph subgraph1, Subgraph... subgraphs) {
+        statements.add(new SubgraphStatement(subgraph1));
+        Arrays.stream(subgraphs).map(SubgraphStatement::new).forEach(statements::add);
         return (T) this;
     }
 
@@ -168,19 +176,19 @@ class StatementListImpl<T extends StatementList<T>> implements StatementList<T> 
     }
     
     private final class GraphDefaultStatement extends DefaultStatement {
-        protected GraphDefaultStatement(GraphAttr... defaults) {
+        protected GraphDefaultStatement(Attr.G... defaults) {
             super("graph", defaults);
         }
     }
     
     private final class NodeDefaultStatement extends DefaultStatement {
-        protected NodeDefaultStatement(NodeAttr... defaults) {
+        protected NodeDefaultStatement(Attr.N... defaults) {
             super("node", defaults);
         }
     }
     
     private final class EdgeDefaultStatement extends DefaultStatement {
-        protected EdgeDefaultStatement(EdgeAttr... defaults) {
+        protected EdgeDefaultStatement(Attr.E... defaults) {
             super("edge", defaults);
         }
     }

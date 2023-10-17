@@ -12,8 +12,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -45,7 +43,26 @@ public class Dot {
     
     /** Layout Engine. */
     public enum Engine {
-        DOT,NEATO, FDP, SFDP;
+        /** <a href="https://en.wikipedia.org/wiki/Layered_graph_drawing">Hierarchical or layered drawings</a>. */
+        DOT,
+        /** "Spring Model" layout. */
+        NEATO, 
+        /** <a href="https://en.wikipedia.org/wiki/Force-directed_graph_drawing">Force-Directed Placement</a>. */
+        FDP, 
+        /** Scalable <a href="https://en.wikipedia.org/wiki/Force-directed_graph_drawing">Force-Directed Placement</a>. */
+        SFDP,
+        /** <a href="https://en.wikipedia.org/wiki/Circular_layout">Circular Layout</a>. */
+        CIRCO,
+        /** Radial layout. */
+        TWOPI,
+        /** Pretty-print DOT graph file. */
+        NOP,
+        /** Pretty-print DOT graph file, assuming positions already known. */
+        NOP2,
+        /** Clustered graphs. */
+        OSAGE,
+        /** Map of clustered graph using a <a href="https://en.wikipedia.org/wiki/Treemapping">Squarified Treemap Layout</a>. */
+        PATCHWORK;
     }
 
     //----------------------------------------------------------------------------------------------
@@ -107,16 +124,39 @@ public class Dot {
         IMAGE, TEXT;
     }
     
+    //----------------------------------------------------------------------------------------------
+
+    public enum DirType {
+        FORWARD,
+        BACK,
+        BOTH,
+        NONE;
+        @Override
+        public String toString() {
+            return name().toLowerCase();
+        }
+    }
+    
     //==============================================================================================
 
-    /** Creates a new Graph. */
+    /** Creates a new (undirected) Graph. */
     public static Graph graph() {
         return new GraphImpl();
     }
     
-    /** Creates a new named Graph. */
+    /** Creates a new named (undirected) Graph. */
     public static Graph graph(String id) {
         return new GraphImpl(id);
+    }
+    
+    /** Creates a directed Graph. */
+    public static Graph digraph() {
+        return new GraphImpl().directed();
+    }
+    
+    /** Creates a directed named Graph. */
+    public static Graph digraph(String id) {
+        return new GraphImpl(id).directed();
     }
     
     /** Creates a new Node. */
@@ -129,10 +169,6 @@ public class Dot {
         return new EdgeImpl(source, target);
     }
     
-    /** Creates a Cluster. */
-    public static Subgraph cluster() {
-        return null; // TODO
-    }
     /** Creates a new Subgraph. */
     public static Subgraph subgraph() {
         return new SubgraphImpl();
@@ -144,7 +180,7 @@ public class Dot {
     }
     
     /** Creates a new Subgraph. */
-    public static Subgraph subgraph(NodeId... nodes) {
+    public static Subgraph subgraph(Node... nodes) {
         var sub = new SubgraphImpl();
         Arrays.stream(nodes).forEach(sub::add);
         return sub;
@@ -152,34 +188,202 @@ public class Dot {
     
     //----------------------------------------------------------------------------------------------
     
-    /** Create a <code>_background</code> (xdot) attribute. */
-    public static GraphAttr _background(XDot xdot) {
-        return new GAttribute("_background", xdot);
-    }
+    /** Arbitrary backgorund using the <a href="https://www.graphviz.org/docs/attr-types/xdot/">xodt format</a>. */
+    public static Attr.G _background(XDot xdot) { return new Attribute("_background", xdot); }
     
-    /** Creates a <code>label</code> attribute. */
-    public static GNECAttribute label(String label) {
-        return new GNECAttribute("label", label);
-    }
+    /** Preferred area for a node or empty cluster, default: <code>1.0</code>. <a href="https://www.graphviz.org/docs/layouts/patchwork/">patchwork</a> only. */
+    public static Attr.NS area(double area) { return new Attribute("area", positive(area, "area")); }
     
-    /** Creates a <code>fontsize</code> attribute. */
-    public static GNECAttribute fontsize(double size) {
-        return new GNECAttribute("fontsize", new BigDecimal(size).setScale(1, RoundingMode.HALF_UP));
-    }
+    /** Arrow style of the head node of an edge. */
+    public static Attr.E arrowhead(ArrowType type) { return new Attribute("arrowhead", type); }
     
-    /** Creates an arbitrary attribute, mostly for testing. */
-    public static GNECAttribute attribute(String name, Object value) {
-        return new GNECAttribute(name, value);
-    }
+    /** Multiplicative scale factor for arrow heads, default: <code>1.0</code>. */
+    public static Attr.E arrowsize(double scale) { return new Attribute("arrowsize", nonNegative(scale, "arrowsize")); }
+    
+    /** Arrow style of the tail node of an edge. */
+    public static Attr.E arrowtail(ArrowType type) { return new Attribute("arrowtail", type); }
+    
+    /** Draw leaf nodes uniformly in a circle around the root node in <code>sfdp</code>. */
+    public static Attr.G beautify() { return beautify(true); }
+    
+    /** Draw leaf nodes uniformly in a circle around the root node in <code>sfdp</code>, default: <code>false</code>. */
+    public static Attr.G beautify(boolean beautify) { return new Attribute("beautify", beautify); }
+    
+     /** Canvas background color. */
+    public static Attr.GS bgcolor(Color color) { return new Attribute("bgcolor", color); }
+    
+    /** Canvas background color. */
+    public static Attr.GS bgcolor(ColorList colors) { return new Attribute("bgcolor", colors); }
+    
+    /** Center the drawing in the output canvas. */
+    public static Attr.G center() { return center(true); }
+    
+    /** Center the drawing in the output canvas, default: <code>false</code>. */
+    public static Attr.G center(boolean center) { return new Attribute("center", center); }
+    
+    /** Character encoding used when interpreting string input as a text label, , default: <code>UTF-8</code>. 
+     * @deprecated testing */
+    @Deprecated
+    public static Attr.G charset(String charset) { return new Attribute("charset", charset); }
+    
+    /** Classnames to attach to the node, edge, graph, or cluster's SVG element; <code>svg</code> only. */
+    public static Attr.GNES classname(String... names) { return new Attribute("class", String.join(" ", names)); }
+    
+    /** Subgraph is a cluster. */
+    public static Attr.S cluster() { return cluster(true); }
+    
+    /** Whether the subgraph is a cluster, default: <code>false</code>. */
+    public static Attr.S cluster(boolean cluster) { return new Attribute("cluster", cluster); }
+    
+    /** Mode used for handling clusters, default: <code>true</code>. Bounding rectangle drawn arround cluster and label, if present. */
+    public static Attr.G clusterrank(boolean local) { return new Attribute("clusterrank", local ? "local" : "global"); }
+    
+    /**  Basic drawing color for graphics, not text. */
+    public static Attr.NES color(ColorList color) { return new Attribute("color", color); }
+    
+    /** A color scheme namespace: the context for interpreting color names. 
+     * @deprecated TODO testing only, need ColorScheme enum?. */
+    public static Attr.GNES colorscheme(String name) { return new Attribute("colorscheme", name); }
+    
+    /** Comments are inserted into output. */
+    public static Attr.GNE comment(String text) { return new Attribute("comment", text); }
+    
+    /** Allow edges between clusters. */
+    public static Attr.G compound() { return compound(true); }
+    
+    /** Allow edges between clusters. */
+    public static Attr.G compound(boolean allow) { return new Attribute("compound", allow); }
+    
+    /** Use edge concentrators - merges multiedges into a single edge and causes partially parallel edges to share part of their paths. */
+    public static Attr.G concentrate() { return concentrate(true); }
+    
+    /** Use edge concentrators, merges multiedges into a single edge and causes partially parallel edges to share part of their paths. */
+    public static Attr.G concentrate(boolean concentrate) { return new Attribute("concentrate", concentrate); }
+    
+    /** Edge is not used in ranking the nodes; <code>dot</code> only. */
+    public static Attr.E unconstraint() { return constraint(false); }
+    
+    /** If <code>false</code> Edge is not used in ranking the nodes; <code>dot</code> only. */
+    public static Attr.E constraint(boolean constraint) { return new Attribute("constraint", constraint); }
+    
+    /** Factor damping force motions; <code>neato</code> only. */
+    public static Attr.G damping(double factor) { return new Attribute("damping", nonNegative(factor, "damping")); }
+    
+    /** Connect the edge label to the edge with a line. */
+    public static Attr.E decorate() { return decorate(true); }
+    
+    /** Whether to connect the edge label to the edge with a line. */
+    public static Attr.E decorate(boolean decorate) { return new Attribute("decorate", decorate); }
+    
+    /** The distance between nodes in separate connected components; <code>neato</code> only. */
+    public static Attr.G defaultdist(double dist) { return new Attribute("defaultdist", nonNegative(dist, "defaultdist")); }
+    
+    /** Set the number of dimensions used for the layout (2-10); <code>neato</code>, <code>fdp</code> and <code>sfdp</code> only. */
+    public static Attr.G dim(int dim) { return new Attribute("dim", range(dim, 2, 10, "dim")); }
+    
+    /** Set the number of dimensions used for rendering (2-10); <code>neato</code>, <code>fdp</code> and <code>sfdp</code> only. */
+    public static Attr.G dimen(int dimen) { return new Attribute("dimen", range(dimen, 2, 10, "dimen")); }
+    
+    /** Edge type for drawing arrowheads. */
+    public static Attr.E dir(DirType dir) { return new Attribute("dir", dir); }
+    
+    /** Constrain most edges to point downwards; <code>neato</code> only. */
+    public static Attr.G diredgeconstraints() { return diredgeconstraints(true); }
+    
+    /** Constrain most edges to point downwards; <code>neato</code> only. */
+    public static Attr.G diredgeconstraints(boolean constrain) { return new Attribute("diredgeconstraints", constrain); }
+    
+    /** Distortion factor for <code>shape=polygon</code>. Positive values cause top part to be larger than bottom; negative values do the opposite. */
+    public static Attr.N distortion(double distortion) { return new Attribute("distortion", minimum(distortion, -100, "distortium")); }
+    
+    /** Specifies the expected number of pixels per inch on a display device; bitmap output, <code>svg</code> only. */
+    public static Attr.G dpi(double dpi) { return new Attribute("dpi", nonNegative(dpi, "dpi")); }
+    
+    /** The link for the non-label parts of an edge; map, <code>svg</code> only. */
+    public static Attr.E edgehref(String url) { return new Attribute("edgehref", url); }
+    
+    /** Browser window to use for the <code>edgeURL</code> link; map, <code>svg</code> only. */
+    public static Attr.E edgetarget(String target) { return new Attribute("edgetarget", target); }
+    
+    /** Tooltip annotation attached to the non-label part of an edge; <code>cmap</code>, <code>svg</code> only. */
+    public static Attr.E edgetooltip(String tooltip) { return new Attribute("edgetooltip", tooltip); }
+    
+    /** The link for the non-label parts of an edge; map, <code>svg</code> only. */
+    public static Attr.E edgeURL(String url) { return new Attribute("edgeURL", url); }
+    
+    epsilon
+    // TODO 
+    
+    
+    
+    
+    
+    /** Label attribute. */
+    public static Attr.GNES label(String label) { return new Attribute("label", label); }
+    
+    /** Font size attribute. */
+    public static Attr.GNES fontsize(double size) { return new Attribute("fontsize", size); }
+//        return new Attribute("fontsize", new BigDecimal(size).setScale(1, RoundingMode.HALF_UP));
+    
+    /** Arbitrary attribute. 
+     *  @deprecated for testing, maybe delted (or not) 
+     */
+    @Deprecated
+    public static Attr.GNES attribute(String name, Object value) { return new Attribute(name, value); }
     
     //----------------------------------------------------------------------------------------------
     
-    /** Create a new XDot. 
-     *  @deprecated Just for testing, should be changed to functions
-     */
+    /** Create an <code>ArrowTpe</code> with the given shape descriptions. 
+     * @deprecated mostly for testing. */  // TODO shape functions
     @Deprecated
-    public static XDot xdot(String... components) {  // TODO change parameter
-        return new XDotImpl(components);
+    public static ArrowType arrowtype(String... shapes) { return new ArrowTypeImpl(shapes); }
+    
+    /** TODO */
+    public static Color rgb(int r, int g, int b) { return new ColorImpl(r, g, b); }
+    
+    /** TODO */
+    public static Color rgb(int a, int r, int g, int b) { return new ColorImpl(a, r, g, b); }
+    
+    /** TODO */
+    public static Color hsv(double h, double s, double v) { return new ColorImpl(h, s, v); }
+    
+    /** TODO */
+    public static Color hsv(double a, double h, double s, double v) { return new ColorImpl(a, h, s, v); }
+    
+    /** Create a color with given description. 
+     * @deprecated mostly for testing. */
+    @Deprecated
+    public static Color color(String text) { return new ColorImpl(text); }
+    
+    /** TODO
+     * @deprecated mostly for testing, should be changed to function. */
+    @Deprecated
+    public static XDot xdot(String... components) { return new XDotImpl(components); }
+    
+    //----------------------------------------------------------------------------------------------
+
+    private static int range(int value, int min, int max, String name) {
+        if (value < min || value > max)
+            throw new IllegalArgumentException("invalid '%s' attribute: %d, expected between %d and %d".formatted(name, value, min, max));
+        return value;
+    }
+    
+    private static double positive(double value, String name) {
+        if (value <= 0)
+            throw new IllegalArgumentException("invalid '%s' attribute: %f, expected positive number".formatted(name, value));
+        return value;
+    }
+    
+    private static double nonNegative(double value, String name) {
+        if (value < 0)
+            throw new IllegalArgumentException("invalid '%s' attribute: %f, expected non negative number".formatted(name, value));
+        return value;
+    }
+    
+    private static double minimum(double value, double min, String name) {
+        if (value < min)
+            throw new IllegalArgumentException("invalid '%s' attribute: %f, expected minimum %f".formatted(name, value, min));
+        return value;
     }
     
     //==============================================================================================
@@ -226,7 +430,7 @@ public class Dot {
         int ret = process.waitFor();
         if (ret != 0) {
             writeAll(process.getErrorStream(), System.err);
-            throw new RuntimeException("dot to " + format + " conversion failed, returned: " + ret);
+            throw new IOException("dot to " + format + " conversion failed, returned: " + ret);
         }
     }
 
@@ -266,8 +470,18 @@ public class Dot {
             throw new IllegalArgumentException("non-image format: " + format);
         }
         var output = new ByteArrayOutputStream();
-        dot(engine, format, dotInput, output);
-        return ImageIO.read(new ByteArrayInputStream(output.toByteArray()));
+        try {
+            dot(engine, format, dotInput, output);
+            return ImageIO.read(new ByteArrayInputStream(output.toByteArray()));
+        } catch (IOException ex) {
+            byte[] data = output.toByteArray();
+            if (data.length > 0) {
+                ex.printStackTrace();
+                return ImageIO.read(new ByteArrayInputStream(output.toByteArray()));
+            } else {
+                throw ex;
+            }
+        }
     }
     
     private static void writeAll(InputStream input, OutputStream output) throws IOException {
@@ -282,7 +496,11 @@ public class Dot {
     //----------------------------------------------------------------------------------------------
     
     static String quote(String id) {
-        return '"'  + id.replace("\"", "\\\"") + '"';
+        if (id.matches(".*[^A-Za-z0-9].*")) {
+            return '"'  + id.replace("\"", "\\\"") + '"';
+        } else {
+            return id;
+        }
     }
     
     //==============================================================================================
