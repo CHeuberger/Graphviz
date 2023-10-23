@@ -6,6 +6,8 @@ package cfh.jgraphviz;
 
 import static java.util.Objects.*;
 
+import java.util.Locale;
+
 /**
  * @author Carlos F. Heuberger, 2023-03-03
  *
@@ -36,7 +38,8 @@ class EdgeImpl extends AttributeHolder implements Edge {
     }
     
     String script(GraphImpl graph) {
-        return "%s %s %s%s".formatted(
+        return String.format(Locale.ROOT, 
+            "%s %s %s%s",
             source.script(graph),
             graph.isDirected() ? "->" : "--",
             target.script(graph),

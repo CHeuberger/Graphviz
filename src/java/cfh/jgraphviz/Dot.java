@@ -9,11 +9,14 @@ import static java.util.Objects.requireNonNull;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Locale;
 
 import javax.imageio.ImageIO;
 
@@ -25,19 +28,195 @@ public class Dot {
     
     static final int INDENT = 2;
     
-    private static final String PATH_PROPERTY = "GraphPath";
+    /** Java Property ><code>-Dcfh.jgraphviz.path=...</code>with path to GraphViz binary diretory. */
+    private static final String PATH_PROPERTY = "cfh.jgraphviz.path";
+    
+    /** Environment variable poiting to GraphViz home, used if <code>cfh.jgraphviz.path</code> is not set. */
     private static final String PATH_ENVIRONMENT = "GRAPHVIZ_HOME";
-
-    /** Node Port. */
-    public enum Port {
-        // n | ne | e | se | s | sw | w | nw | c | _
-        N, NE, E, SE, S, Sw, W, NW, C, DEFAULT;
-
-        String format() {
-            if (this == DEFAULT) return "_";
-            else return name().toLowerCase();
-        }
-    }
+    
+    //----------------------------------------------------------------------------------------------
+    
+    /** Replaced by the name of the graph, valid for:<ul>
+     * <li><code>edgehref</code></li>
+     * <li><code>edgetarget</code></li>
+     * <li><code>edgetooltip</code></li>
+     * <li><code>edgeURL</code></li>
+     * <li><code>headhref</code></li>
+     * <li><code>headtarget</code></li>
+     * <li><code>headtooltip</code></li>
+     * <li><code>headURL</code></li>
+     * <li><code>href</code></li>
+     * <li><code>id</code></li>
+     * <li><code>labelhref</code></li>
+     * <li><code>labeltarget</code></li>
+     * <li><code>labeltooltip</code></li>
+     * <li><code>labelURL</code></li>
+     * <li><code>tailhref</code></li>
+     * <li><code>tailtarget</code></li>
+     * <li><code>tailtooltip</code></li>
+     * <li><code>tailURL</code></li>
+     * <li><code>target</code></li>
+     * <li><code>tooltip</code></li>
+     * <li><code>URL</code</li>
+     * </ul>
+     */
+    public static final String GRAPH_NAME = "\\G";
+    
+    /** Replaced by the name of the node, valid for:<ul>
+     * <li><code>edgehref</code></li>
+     * <li><code>edgetarget</code></li>
+     * <li><code>edgetooltip</code></li>
+     * <li><code>edgeURL</code></li>
+     * <li><code>headhref</code></li>
+     * <li><code>headtarget</code></li>
+     * <li><code>headtooltip</code></li>
+     * <li><code>headURL</code></li>
+     * <li><code>href</code></li>
+     * <li><code>id</code></li>
+     * <li><code>labelhref</code></li>
+     * <li><code>labeltarget</code></li>
+     * <li><code>labeltooltip</code></li>
+     * <li><code>labelURL</code></li>
+     * <li><code>tailhref</code></li>
+     * <li><code>tailtarget</code></li>
+     * <li><code>tailtooltip</code></li>
+     * <li><code>tailURL</code></li>
+     * <li><code>target</code></li>
+     * <li><code>tooltip</code></li>
+     * <li><code>URL</code</li>
+     * </ul>
+     */
+    public static final String NODE_NAME = "\\N";
+    
+    /** Replaced by the name of the edge, valid for:<ul>
+     * <li><code>edgehref</code></li>
+     * <li><code>edgetarget</code></li>
+     * <li><code>edgetooltip</code></li>
+     * <li><code>edgeURL</code></li>
+     * <li><code>headhref</code></li>
+     * <li><code>headtarget</code></li>
+     * <li><code>headtooltip</code></li>
+     * <li><code>headURL</code></li>
+     * <li><code>href</code></li>
+     * <li><code>id</code></li>
+     * <li><code>labelhref</code></li>
+     * <li><code>labeltarget</code></li>
+     * <li><code>labeltooltip</code></li>
+     * <li><code>labelURL</code></li>
+     * <li><code>tailhref</code></li>
+     * <li><code>tailtarget</code></li>
+     * <li><code>tailtooltip</code></li>
+     * <li><code>tailURL</code></li>
+     * <li><code>target</code></li>
+     * <li><code>tooltip</code></li>
+     * <li><code>URL</code</li>
+     * </ul>
+     */
+    public static final String EDGE_NAME = "\\E";
+    
+    /** Replaced by the name of the edge head: the string formed from the name of the tail node, 
+     * the edge operator (-- or ->) and the name of the head node, valid for:<ul>
+     * <li><code>edgehref</code></li>
+     * <li><code>edgetarget</code></li>
+     * <li><code>edgetooltip</code></li>
+     * <li><code>edgeURL</code></li>
+     * <li><code>headhref</code></li>
+     * <li><code>headtarget</code></li>
+     * <li><code>headtooltip</code></li>
+     * <li><code>headURL</code></li>
+     * <li><code>href</code></li>
+     * <li><code>id</code></li>
+     * <li><code>labelhref</code></li>
+     * <li><code>labeltarget</code></li>
+     * <li><code>labeltooltip</code></li>
+     * <li><code>labelURL</code></li>
+     * <li><code>tailhref</code></li>
+     * <li><code>tailtarget</code></li>
+     * <li><code>tailtooltip</code></li>
+     * <li><code>tailURL</code></li>
+     * <li><code>target</code></li>
+     * <li><code>tooltip</code></li>
+     * <li><code>URL</code</li>
+     * </ul>
+     */
+    public static final String HEAD_NAME = "\\H";
+    
+    /** Replaced by the name of the edge tail, valid for:<ul>
+     * <li><code>edgehref</code></li>
+     * <li><code>edgetarget</code></li>
+     * <li><code>edgetooltip</code></li>
+     * <li><code>edgeURL</code></li>
+     * <li><code>headhref</code></li>
+     * <li><code>headtarget</code></li>
+     * <li><code>headtooltip</code></li>
+     * <li><code>headURL</code></li>
+     * <li><code>href</code></li>
+     * <li><code>id</code></li>
+     * <li><code>labelhref</code></li>
+     * <li><code>labeltarget</code></li>
+     * <li><code>labeltooltip</code></li>
+     * <li><code>labelURL</code></li>
+     * <li><code>tailhref</code></li>
+     * <li><code>tailtarget</code></li>
+     * <li><code>tailtooltip</code></li>
+     * <li><code>tailURL</code></li>
+     * <li><code>target</code></li>
+     * <li><code>tooltip</code></li>
+     * <li><code>URL</code</li>
+     * </ul>
+     */
+    public static final String TAIL_NAME = "\\T";
+    
+    /** Replaced by the object's label, valid for:<ul>
+     * <li><code>edgehref</code></li>
+     * <li><code>edgetarget</code></li>
+     * <li><code>edgetooltip</code></li>
+     * <li><code>edgeURL</code></li>
+     * <li><code>headhref</code></li>
+     * <li><code>headtarget</code></li>
+     * <li><code>headtooltip</code></li>
+     * <li><code>headURL</code></li>
+     * <li><code>href</code></li>
+     * <li><code>id</code></li>
+     * <li><code>labelhref</code></li>
+     * <li><code>labeltarget</code></li>
+     * <li><code>labeltooltip</code></li>
+     * <li><code>labelURL</code></li>
+     * <li><code>tailhref</code></li>
+     * <li><code>tailtarget</code></li>
+     * <li><code>tailtooltip</code></li>
+     * <li><code>tailURL</code></li>
+     * <li><code>target</code></li>
+     * <li><code>tooltip</code></li>
+     * <li><code>URL</code</li>
+     * </ul>
+     */
+    public static final String LABEL_VALUE = "\\L";
+    
+    /** Actual text centered and start a new line, valid for:<ul>
+     * <li><code>label</code></li>
+     * <li><code>headlabel</code></li>
+     * <li><code>taillabel</code></li>
+     * </ul>
+     */
+    public static final String CENTER_LINE = "\\n";
+    
+    /** Actual text left-justified and start a new line, valid for:<ul>
+     * <li><code>label</code></li>
+     * <li><code>headlabel</code></li>
+     * <li><code>taillabel</code></li>
+     * </ul>
+     */
+    public static final String LEFT_LINE = "\\l";
+    
+    /** Actual text right-justified and start a new line, valid for:<ul>
+     * <li><code>label</code></li>
+     * <li><code>headlabel</code></li>
+     * <li><code>taillabel</code></li>
+     * <li><code>xlabel</code></li>
+     * </ul>
+     */
+    public static final String RIGHT_LINE = "\\r";
     
     //----------------------------------------------------------------------------------------------
     
@@ -126,60 +305,188 @@ public class Dot {
     
     //----------------------------------------------------------------------------------------------
 
+    /** Edge arrow direction type. */
     public enum DirType {
+        /** Forward arrow type, draw head glyph only. */  
         FORWARD,
+        /** Backward arrow type, draw tail glyph only. */  
         BACK,
+        /** Both arrow type, draw head and tail glyph. */  
         BOTH,
+        /** None arrow type, draw neither head nor tail glyph. */  
         NONE;
-        @Override
-        public String toString() {
-            return name().toLowerCase();
-        }
+        @Override public String toString() { return name().toLowerCase(); }
     }
+    
+    //----------------------------------------------------------------------------------------------
+
+    /** Fixed size type: whether to use the specified width and height attributes to choose node size. */
+    public enum FixedSize {
+        /** Size is specified by the values of the <code>width</code> and <code>height</code> attributes only and is not expanded to contain the text label. */
+        TRUE,
+        /** Size of a node is determined by smallest width and height needed to contain its label and image. */
+        FALSE,
+        /** The <code>width</code> and <code>height</code> attributes also determine the size of the node shape, but the label can be much larger. */
+        SHAPE;
+        @Override public String toString() { return name().toLowerCase(); }
+    }
+    
+    //----------------------------------------------------------------------------------------------
+    
+    /** How basic fontnames are represented in SVG output. */
+    public enum FontNames {
+        /** Try to use known SVG fontnames. */
+        SVG,
+        /** Use known PostScript font names. */
+        PS,
+        /** The fontconfig font conventions are used. */
+        HD;
+        @Override public String toString() { return name().toLowerCase(); }
+    }
+    
+    //----------------------------------------------------------------------------------------------
+
+    /** Compass point used for Port Positions. */
+    public enum Compass {
+        N, NE, E, SE, S, SW, W, NW, 
+        /** Center of node or port. */
+        CENTER 
+        { @Override public String toString() { return "c"; } },
+        /** Appropriate side of the port adjacent to the exterior of the node should be used, if such exists. Otherwise, the center is used. */
+        DEFAULT
+        { @Override public String toString() { return "_"; } };
+        @Override public String toString() { return name().toLowerCase(); }
+    }
+    
+    //----------------------------------------------------------------------------------------------
+
+    /** How an image is positioned within its containing node. */
+    public enum ImagePos {
+        /** Top Left. */         TopLeft("tl"),
+        /** Top Centered. */     TopCenter("tc"),
+        /** Top Right. */        TopRight("tr"),
+        /** Middle Left. */      MiddleLeft("ml"),
+        /** Middle Centered. */  MiddleCenter("mc"),
+        /** Middle Right. */     MiddleRight("mr"),
+        /** Bottom Left. */      BottomLeft("bl"),
+        /** Bottom Centered. */  BottomCenter("bc"),
+        /** Bottom Right. */     BottomRight("br"),
+        ;
+        private final String value;
+        private ImagePos(String value) { this.value = value; }
+        @Override public String toString() { return value; }
+    }
+    
+    //----------------------------------------------------------------------------------------------
+
+    /** How an image fills its containing node. */
+    public enum ImageScale {
+        /** Image retains its natural size. */         NONE("false"),
+        /** Image is uniformly scale. */               UNIFORMLY("true"),
+        /** The width of the image is scaled. */       WIDTH("width"),
+        /** The height of the image is scaled. */      HEIGHT("height"),
+        /** Height and Width are scaled separately. */ BOTH("both"),
+        ;
+        private final String value;
+        private ImageScale(String value) { this.value = value; }
+        @Override public String toString() { return value; }
+    }
+    
+    //----------------------------------------------------------------------------------------------
+    
+    /** How to treat a node whose name has the form <code>|edgelabel|*</code> as a special node representing an edge label. */
+    public enum LabelScheme {
+        /** Produces no effect, the default (<code>0</code>). */
+        NO_EFFECT(0),
+        /** Uses a penalty-based method to make that kind of node close to the center of its neighbor (<code>1</code>). */
+        NEIGHBOR(1),
+        /** Uses a penalty-based method to make that kind of node close to the old center of its neighbor (<code>2</code>). */
+        OLD_CENTER(2),
+        /** Two-step process of overlap removal and straightening (<code>3</code>). */
+        TWO_STEPS(3),
+        ;
+        private final int value;
+        private LabelScheme(int value) { this.value = value; }
+        @Override public String toString() { return Integer.toString(value); }
+    }
+    
+    //----------------------------------------------------------------------------------------------
+
+    /** Justification for graph & cluster labels. */
+    public enum LabelJust {
+        /** The label is centered (<code>c</code>), the default. */
+        CENTER,
+        /** The label is right-justified within bounding rectangle (<code>r</code>). */
+        RIGHT,
+        /** The label is left-justified (<code>l</code>). */
+        LEFT,
+        ;
+        private final String value = name().toLowerCase().substring(0, 1);
+        @Override public String toString() { return value; }
+    }
+    
+    //----------------------------------------------------------------------------------------------
+    
+    /** Vertical placement of labels for nodes, root graphs and clusters.*/
+    public enum LabelLoc {
+        CENTER,
+        TOP,
+        BOTTOM,
+        ;
+        private final String value = name().toLowerCase().substring(0, 1);
+        @Override public String toString() { return value; }
+    }
+    
+    //----------------------------------------------------------------------------------------------
     
     //==============================================================================================
 
-    /** Creates a new (undirected) Graph. */
+    /** Create a new (undirected) Graph. */
     public static Graph graph() {
         return new GraphImpl();
     }
     
-    /** Creates a new named (undirected) Graph. */
+    /** Create a new named (undirected) Graph. */
     public static Graph graph(String id) {
         return new GraphImpl(id);
     }
     
-    /** Creates a directed Graph. */
+    /** Create a directed Graph. */
     public static Graph digraph() {
         return new GraphImpl().directed();
     }
     
-    /** Creates a directed named Graph. */
+    /** Create a directed named Graph. */
     public static Graph digraph(String id) {
         return new GraphImpl(id).directed();
     }
     
-    /** Creates a new Node. */
+    /** Create a new Node. */
     public static NodeId node(String id) {
-        return new NodeImpl(id); // TODO
+        return new NodeImpl(id);
     }
-    
-    /** Creates a new Edge. */
+
+    /** Create a new Node with ID and Port. */
+    public static NodeId node(String id, Port port) {
+        return new NodeImpl(id, port);
+    }
+
+    /** Create a new Edge. */
     public static Edge edge(Source source, Target target) {
         return new EdgeImpl(source, target);
     }
     
-    /** Creates a new Subgraph. */
+    /** Create a new Subgraph. */
     public static Subgraph subgraph() {
         return new SubgraphImpl();
     }
     
-    /** Creates a new named Subgraph. */
+    /** Create a new named Subgraph. */
     public static Subgraph subgraph(String id) {
         return new SubgraphImpl(id);
     }
     
-    /** Creates a new Subgraph. */
+    /** Create a new Subgraph. */
     public static Subgraph subgraph(Node... nodes) {
         var sub = new SubgraphImpl();
         Arrays.stream(nodes).forEach(sub::add);
@@ -189,147 +496,328 @@ public class Dot {
     //----------------------------------------------------------------------------------------------
     
     /** Arbitrary backgorund using the <a href="https://www.graphviz.org/docs/attr-types/xdot/">xodt format</a>. */
-    public static Attr.G _background(XDot xdot) { return new Attribute("_background", xdot); }
+    public static Attr.G _background(XDot xdot) { return new AttributeImpl("_background", xdot); }
     
-    /** Preferred area for a node or empty cluster, default: <code>1.0</code>. <a href="https://www.graphviz.org/docs/layouts/patchwork/">patchwork</a> only. */
-    public static Attr.NS area(double area) { return new Attribute("area", positive(area, "area")); }
+    /** Preferred area for a node or empty cluster, default: <code>1.0</code>, minimum: <code>&gt; 0.0</code>. <a href="https://www.graphviz.org/docs/layouts/patchwork/">patchwork</a> only. */
+    public static Attr.SN area(double area) { return positiveAttribute("area", area); }
     
     /** Arrow style of the head node of an edge. */
-    public static Attr.E arrowhead(ArrowType type) { return new Attribute("arrowhead", type); }
+    public static Attr.E arrowhead(ArrowType type) { return new AttributeImpl("arrowhead", type); }
     
-    /** Multiplicative scale factor for arrow heads, default: <code>1.0</code>. */
-    public static Attr.E arrowsize(double scale) { return new Attribute("arrowsize", nonNegative(scale, "arrowsize")); }
+    /** Multiplicative scale factor for arrow heads, default: <code>1.0</code>, minimum: <code>0.0</code>. */
+    public static Attr.E arrowsize(double scale) { return nonNegativeAttribute("arrowsize", scale); }
     
     /** Arrow style of the tail node of an edge. */
-    public static Attr.E arrowtail(ArrowType type) { return new Attribute("arrowtail", type); }
+    public static Attr.E arrowtail(ArrowType type) { return new AttributeImpl("arrowtail", type); }
     
     /** Draw leaf nodes uniformly in a circle around the root node in <code>sfdp</code>. */
     public static Attr.G beautify() { return beautify(true); }
     
     /** Draw leaf nodes uniformly in a circle around the root node in <code>sfdp</code>, default: <code>false</code>. */
-    public static Attr.G beautify(boolean beautify) { return new Attribute("beautify", beautify); }
+    public static Attr.G beautify(boolean beautify) { return new AttributeImpl("beautify", beautify); }
     
      /** Canvas background color. */
-    public static Attr.GS bgcolor(Color color) { return new Attribute("bgcolor", color); }
+    public static Attr.GS bgcolor(Color color) { return new AttributeImpl("bgcolor", color); }
     
     /** Canvas background color. */
-    public static Attr.GS bgcolor(ColorList colors) { return new Attribute("bgcolor", colors); }
+    public static Attr.GS bgcolor(ColorList colors) { return new AttributeImpl("bgcolor", colors); }
     
     /** Center the drawing in the output canvas. */
     public static Attr.G center() { return center(true); }
     
     /** Center the drawing in the output canvas, default: <code>false</code>. */
-    public static Attr.G center(boolean center) { return new Attribute("center", center); }
+    public static Attr.G center(boolean center) { return new AttributeImpl("center", center); }
     
     /** Character encoding used when interpreting string input as a text label, , default: <code>UTF-8</code>. 
      * @deprecated testing */
     @Deprecated
-    public static Attr.G charset(String charset) { return new Attribute("charset", charset); }
+    public static Attr.G charset(String charset) { return new AttributeImpl("charset", charset); }
     
     /** Classnames to attach to the node, edge, graph, or cluster's SVG element; <code>svg</code> only. */
-    public static Attr.GNES classname(String... names) { return new Attribute("class", String.join(" ", names)); }
+    public static Attr.GSNE classname(String... names) { return new AttributeImpl("class", String.join(" ", names)); }
     
     /** Subgraph is a cluster. */
     public static Attr.S cluster() { return cluster(true); }
     
     /** Whether the subgraph is a cluster, default: <code>false</code>. */
-    public static Attr.S cluster(boolean cluster) { return new Attribute("cluster", cluster); }
+    public static Attr.S cluster(boolean cluster) { return new AttributeImpl("cluster", cluster); }
     
     /** Mode used for handling clusters, default: <code>true</code>. Bounding rectangle drawn arround cluster and label, if present. */
-    public static Attr.G clusterrank(boolean local) { return new Attribute("clusterrank", local ? "local" : "global"); }
+    public static Attr.G clusterrank(boolean local) { return new AttributeImpl("clusterrank", local ? "local" : "global"); }
     
     /**  Basic drawing color for graphics, not text. */
-    public static Attr.NES color(ColorList color) { return new Attribute("color", color); }
+    public static Attr.SNE color(ColorList color) { return new AttributeImpl("color", color); }
     
     /** A color scheme namespace: the context for interpreting color names. 
      * @deprecated TODO testing only, need ColorScheme enum?. */
-    public static Attr.GNES colorscheme(String name) { return new Attribute("colorscheme", name); }
+    public static Attr.GSNE colorscheme(String name) { return new AttributeImpl("colorscheme", name); }
     
     /** Comments are inserted into output. */
-    public static Attr.GNE comment(String text) { return new Attribute("comment", text); }
+    public static Attr.GNE comment(String text) { return new AttributeImpl("comment", text); }
     
     /** Allow edges between clusters. */
     public static Attr.G compound() { return compound(true); }
     
     /** Allow edges between clusters. */
-    public static Attr.G compound(boolean allow) { return new Attribute("compound", allow); }
+    public static Attr.G compound(boolean allow) { return new AttributeImpl("compound", allow); }
     
     /** Use edge concentrators - merges multiedges into a single edge and causes partially parallel edges to share part of their paths. */
     public static Attr.G concentrate() { return concentrate(true); }
     
     /** Use edge concentrators, merges multiedges into a single edge and causes partially parallel edges to share part of their paths. */
-    public static Attr.G concentrate(boolean concentrate) { return new Attribute("concentrate", concentrate); }
+    public static Attr.G concentrate(boolean concentrate) { return new AttributeImpl("concentrate", concentrate); }
     
     /** Edge is not used in ranking the nodes; <code>dot</code> only. */
     public static Attr.E unconstraint() { return constraint(false); }
     
     /** If <code>false</code> Edge is not used in ranking the nodes; <code>dot</code> only. */
-    public static Attr.E constraint(boolean constraint) { return new Attribute("constraint", constraint); }
+    public static Attr.E constraint(boolean constraint) { return new AttributeImpl("constraint", constraint); }
     
-    /** Factor damping force motions; <code>neato</code> only. */
-    public static Attr.G damping(double factor) { return new Attribute("damping", nonNegative(factor, "damping")); }
+    /** Factor damping force motions, default: <code>0.99</code>, minimum: <code>0.0</code>; <code>neato</code> only. */
+    public static Attr.G damping(double factor) { return nonNegativeAttribute("Damping", factor); }
     
     /** Connect the edge label to the edge with a line. */
     public static Attr.E decorate() { return decorate(true); }
     
     /** Whether to connect the edge label to the edge with a line. */
-    public static Attr.E decorate(boolean decorate) { return new Attribute("decorate", decorate); }
+    public static Attr.E decorate(boolean decorate) { return new AttributeImpl("decorate", decorate); }
     
-    /** The distance between nodes in separate connected components; <code>neato</code> only. */
-    public static Attr.G defaultdist(double dist) { return new Attribute("defaultdist", nonNegative(dist, "defaultdist")); }
+    /** The distance between nodes in separate connected components, minimum: <code>epsilon</code>; <code>neato</code> only. */
+    public static Attr.G defaultdist(double dist) { return positiveAttribute("defaultdist", dist); }
     
-    /** Set the number of dimensions used for the layout (2-10); <code>neato</code>, <code>fdp</code> and <code>sfdp</code> only. */
-    public static Attr.G dim(int dim) { return new Attribute("dim", range(dim, 2, 10, "dim")); }
+    /** Set the number of dimensions used for the layout (<code>2</code>-<code>10</code>); <code>neato</code>, <code>fdp</code> and <code>sfdp</code> only. */
+    public static Attr.G dim(int dim) { return rangedAttribute("dim", dim, 2, 10); }
     
-    /** Set the number of dimensions used for rendering (2-10); <code>neato</code>, <code>fdp</code> and <code>sfdp</code> only. */
-    public static Attr.G dimen(int dimen) { return new Attribute("dimen", range(dimen, 2, 10, "dimen")); }
+    /** Set the number of dimensions used for rendering (<code>2</code>-<code>10</code>); <code>neato</code>, <code>fdp</code> and <code>sfdp</code> only. */
+    public static Attr.G dimen(int dimen) { return rangedAttribute("dimen", dimen, 2, 10); }
     
     /** Edge type for drawing arrowheads. */
-    public static Attr.E dir(DirType dir) { return new Attribute("dir", dir); }
+    public static Attr.E dir(DirType dir) { return new AttributeImpl("dir", dir); }
     
-    /** Constrain most edges to point downwards; <code>neato</code> only. */
+    /** Constrain most edges to point downwards; <code>mode=ipsep</code>, <code>neato</code> only. */
     public static Attr.G diredgeconstraints() { return diredgeconstraints(true); }
     
-    /** Constrain most edges to point downwards; <code>neato</code> only. */
-    public static Attr.G diredgeconstraints(boolean constrain) { return new Attribute("diredgeconstraints", constrain); }
+    /** Constrain most edges to point downwards; <code>mode=ipsep</code>, <code>neato</code> only. */
+    public static Attr.G diredgeconstraints(boolean constrain) { return new AttributeImpl("diredgeconstraints", constrain); }
     
-    /** Distortion factor for <code>shape=polygon</code>. Positive values cause top part to be larger than bottom; negative values do the opposite. */
-    public static Attr.N distortion(double distortion) { return new Attribute("distortion", minimum(distortion, -100, "distortium")); }
+    /** Distortion factor for <code>shape=polygon</code>. </P>
+     * Positive values cause top part to be larger than bottom; negative values do the opposite, default: <code>0.0</code>, minimum: <code>-100.0</code>.
+     */
+    public static Attr.N distortion(double distortion) { return minimumAttribute("distortion", distortion, -100.0); }
     
     /** Specifies the expected number of pixels per inch on a display device; bitmap output, <code>svg</code> only. */
-    public static Attr.G dpi(double dpi) { return new Attribute("dpi", nonNegative(dpi, "dpi")); }
+    public static Attr.G dpi(double dpi) { return nonNegativeAttribute("dpi", dpi); }
     
     /** The link for the non-label parts of an edge; map, <code>svg</code> only. */
-    public static Attr.E edgehref(String url) { return new Attribute("edgehref", url); }
+    public static Attr.E edgehref(String url) { return new AttributeImpl("edgehref", url); }
     
     /** Browser window to use for the <code>edgeURL</code> link; map, <code>svg</code> only. */
-    public static Attr.E edgetarget(String target) { return new Attribute("edgetarget", target); }
+    public static Attr.E edgetarget(String target) { return new AttributeImpl("edgetarget", target); }
     
     /** Tooltip annotation attached to the non-label part of an edge; <code>cmap</code>, <code>svg</code> only. */
-    public static Attr.E edgetooltip(String tooltip) { return new Attribute("edgetooltip", tooltip); }
+    public static Attr.E edgetooltip(String tooltip) { return new AttributeImpl("edgetooltip", tooltip); }
     
     /** The link for the non-label parts of an edge; map, <code>svg</code> only. */
-    public static Attr.E edgeURL(String url) { return new Attribute("edgeURL", url); }
+    public static Attr.E edgeURL(String url) { return new AttributeImpl("edgeURL", url); }
     
-    epsilon
+    /** Terminating condition, if the length squared of all energy gradients are less than epsilon, the algorithm stops; <code>neato</code> only. */
+    public static Attr.G epsilon(double epsilon) { return positiveAttribute("epsilon", epsilon); }
+    
+    /** Margin used around polygons for purposes of spline edge routing; <code>neato</code> only. */
+    public static Attr.G esep(double separation) { return new AttributeImpl("esep", new PointImpl(false, separation)); }
+    
+    /** Margin used around polygons for purposes of spline edge routing; <code>neato</code> only. */
+    public static Attr.G esep(double w, double h) { return new AttributeImpl("esep", new PointImpl(false, w, h)); }
+    
+    /** Margin added around polygons for purposes of spline edge routing; <code>neato</code> only. */
+    public static Attr.G esep(Point add) { return new AttributeImpl("esep", add); }
+    
+    /** Color used to fill the background of a node or cluster. */
+    public static Attr.SNE fillcolor(ColorList color) { return new AttributeImpl("fillcolor", color); }
+    
+    /** Whether to use the specified <code>width</code> and <code>height</code> attributes to choose node size (rather than sizing to fit the node contents.) */
+    public static Attr.N fixedsize(boolean fixed) { return new AttributeImpl("fixedsize", fixed); }
+    
+    /** Use the specified <code>width</code> and <code>height</code> attributes to choose node size. */
+    public static Attr.N fixedsize() { return new AttributeImpl("fixedsize", true); }
+    
+    /** Whether to use the specified <code>width</code> and <code>height</code> attributes to choose node size (rather than sizing to fit the node contents.) */
+    public static Attr.N fixedsize(FixedSize fixed) { return new AttributeImpl("fixedsize", fixed); }
+    
+    /** Color used for text. */
+    public static Attr.GSNE fontcolor(ColorList color) { return new AttributeImpl("fontcolor", color); }
+    
+    /** Font used for text, default: <code>"Times-Roman"</code>. */
+    public static Attr.GSNE fontname(String name) { return new AttributeImpl("fontname", name); }
+    
+    /** How basic fontnames are represented in SVG output; <code>svg</code> only. */
+    public static Attr.G fontnames(FontNames handling) { return new AttributeImpl("fontnames", handling); }
+    
+    /** Directory list used by libgd to search for bitmap fonts. */
+    public static Attr.G fontpath(Path path) { return new AttributeImpl("fontpath", path.toString()); }
+    
+    /** Font size, in points, used for text, default: <code>14.0</code>, minimum: <code>1.0</code>. */
+    public static Attr.GSNE fontsize(double size) { return minimumAttribute("fontsize", size, 1.0); }
+    
+    /** Do not force placement of all <code>xlabels</code>, even if overlapping. */
+    public static Attr.G unforcelabels() { return forcelabels(false); }
+    
+    /** Force placement of all <code>xlabels</code>, even if overlapping, default: <code>true</code>. */
+    public static Attr.G forcelabels(boolean force) { return new AttributeImpl("forcelabels", force); }
+    
+    /** If a gradient fill is being used, this determines the angle of the fill, default: <code>0</code>, minimum: <code>0</code>. */
+    public static Attr.GSN gradientangle(int angle) { return nonNegativeAttribute("gradientangle", angle); }
+    
+    /** Name for a group of nodes, for bundling edges avoiding crossings; <code>dot</code> only. */
+    public static Attr.N group(String name) { return new AttributeImpl("group", name); }
+    
+    /** The end of the edge goes to the center. */
+    public static Attr.E noheadclip() { return headclip(false); }
+    
+    /** Clip the head of an edge to the boundary of the head node, otherwise the end of the edge goes to the center, default: <code>true</code>. */
+    public static Attr.E headclip(boolean clip) { return new AttributeImpl("headclip", clip); }
+    
+    /** Hyperlink output as part of the head label of the edge; <code>map</code>, <code>svg</code> only. */
+    public static Attr.E headhref(String url) { return new AttributeImpl("headhref", url); }
+    
+    /** Text label to be placed near head of edge. */
+    public static Attr.E headlabel(String label) { return new AttributeImpl("headlabel", label); }
+    
+    /** Text label to be placed near head of edge. */
+    public static Attr.E headlabel(HTML label) { return new AttributeImpl("headlabel", label); }
+    
+    /** Indicates where on the head node to attach the head of the edge. 
+     * @depreceted testing */
+    @Deprecated
+    public static Attr.E headport(String port) { return new AttributeImpl("headport", port); }
+    
+    /** Indicates where on the head node to attach the head of the edge. */
+    public static Attr.E headport(Compass port) { return new AttributeImpl("headport", port); }
+    
+    /** Indicates where on the head node to attach the head of the edge. */
+    public static Attr.E headport(Port port) { return new AttributeImpl("headport", port); }
+    
+    /** Browser window to use for the <code>headURL</code> link; <code>map</code>, <code>svg</code> only. */
+    public static Attr.E headtarget(String target) { return new AttributeImpl("headtarget", target); }
+    
+    /** Tooltip annotation attached to the head of an edge; <code>cmap</code>, <code>svg</code> only. */
+    public static Attr.E headtooltip(String tooltip) { return new AttributeImpl("headtooltip", tooltip); }
+    
+    /** Hyperlink output as part of the head label of the edge; <code>map</code>, <code>svg</code> only. */
+    public static Attr.E headURL(String url) { return new AttributeImpl("headURL", url); }
+    
+    /** The initial, minimum height of the node in inches, default: <code>0.5</code<, minimum: <code>0.02</code>. */
+    public static Attr.N height(double inches) { return minimumAttribute("height", inches, 0.02); }
+    
+    /** Hyperlinks incorporated into device-dependent output; <code>map</code>, <code>postscript</code>, <code>svg</code> only. */
+    public static Attr.GSNE href(String url) { return new AttributeImpl("href", url); }
+    
+    /** Identifier for graph objects; <code>map</code>, <code>postscript</code>, <code>svg</code> only. */
+    public static Attr.GSNE id(String id) { return new AttributeImpl("id", id); }
+    
+    /** Gives the name of a file containing an image to be displayed inside a node. */
+    public static Attr.N image(String path) { return new AttributeImpl("image", path); }
+    
+    /** A list of directories in which to look for image files. */
+    public static Attr.G imagepath(String... paths) { return new AttributeImpl("imagepath", String.join(File.pathSeparator, paths)); }
+    
+    /** How an image is positioned within its containing node, only has an effect when the image is smaller than the containing node. */
+    public static Attr.N imagepos(ImagePos pos) { return new AttributeImpl("imagepos", pos); }
+    
+    /** How an image fills its containing node. */
+    public static Attr.N imagescale(ImageScale scale) { return new AttributeImpl("imagescale", scale); }
+    
+    /** Scales the input <code>positions</code> to convert between length units; <code>neato</code>, <code>fdp</code> only. */
+    public static Attr.G inputscale(double scale) { return new AttributeImpl("inputscale", scale); }
+    
+    /** Spring constant used in virtual physical model, default: <code>0.3</code>, minimum: <code>0.0</code>; <code>fdp</code>, <code>sfdp</code> only. */
+    public static Attr.GS K(double inches) { return nonNegativeAttribute("K", inches); }
+    
+    /** Label attribute. */
+    public static Attr.GSNE label(String label) { return new AttributeImpl("label", label); }
+    
+    /** Label attribute. */
+    public static Attr.GSNE label(HTML label) { return new AttributeImpl("label", label); }
+    // TODO
+//    public static Attr.GSNE label(Record rec) { return new AttributeImpl("label", label); }
+
+    /** How to treat a node whose name has the form <code>|edgelabel|*</code> as a special node representing an edge label; <code>sfdp</code> only. */
+    public static Attr.G label_scheme(LabelScheme scheme) { return new AttributeImpl("label_scheme", scheme); }
+    
+    /** How to treat a node whose name has the form <code>|edgelabel|*</code> as a special node representing an edge label,
+     * default: <code>0</code>, minimum: <code>0</code>; <code>sfdp</code> only.
+     */
+    public static Attr.G label_scheme(int scheme) { return nonNegativeAttribute("label_scheme", scheme); }
+    
+    /** The angle (in degrees) in polar coordinates of the head & tail edge labels, default: <code>-25.0</code>, minimum: <code>-180.0</code>.</P>
+     * The ray of 0 degrees goes from the origin back along the edge, parallel to the edge at the origin.
+     * The angle, in degrees, specifies the rotation from the 0 degree ray, with positive angles moving counterclockwise and negative angles moving clockwise.
+     */
+    public static Attr.E labelangle(double angle) { return minimumAttribute("labelangle", angle, -180.0); }
+    
+    /** Scaling factor for the distance of <code>headlabel</code> / <code>taillabel</code> from the head / tail nodes, default: <code>1.0</code>, minimum: <code>0.0</code>. */
+    public static Attr.E labeldistance(double scale) { return nonNegativeAttribute("labeldistance", scale); }
+    
+    /** Allows edge labels to be less constrained in position. */
+    public static Attr.E labelfloat() { return labelfloat(true); }
+    
+    /** Allows edge labels to be less constrained in position. */
+    public static Attr.E labelfloat(boolean allow) { return new AttributeImpl("labelfloat", allow); }
+    
+    /** Color used for <code>headlabel</code> and <code>taillabel</code>. */
+    public static Attr.E labelfontcolor(Color color) { return new AttributeImpl("labelfontcolor", color); }
+    
+    /** Font for <code>headlabel</code> and <code>taillabel</code>. */
+    public static Attr.E labelfontname(String name) { return new AttributeImpl("labelfontname", name); }
+    
+    /** Font size of <code>headlabel</code> and <code>taillabel</code>, default: <code>14.0</code>, minimum: <code>1.0</code>. */
+    public static Attr.E labelfontsize(double size) { return minimumAttribute("labelfontsize", size, 1.0); }
+    
+    /** The link used for the label of an edge; <code>map</code>, <code>svg</code> only. */
+    public static Attr.E labelhref(String url) { return new AttributeImpl("labelhref", url); }
+    
+    /** Justification for graph & cluster labels. */
+    public static Attr.GS labeljust(LabelJust just) { return new AttributeImpl("labeljust", just); }
+    
+    /** Vertical placement of labels for nodes, root graphs and clusters. */
+    public static Attr.GSN labelloc(LabelLoc loc) { return new AttributeImpl("labelloc", loc); }
+    
+    /** Browser window to open <code>labelURL</code> links in; <code>map</code>, <code>svg</code> only. */
+    public static Attr.E labeltarget(String target) { return new AttributeImpl("labeltarget", target); }
+    
+    /** Tooltip annotation attached to label of an edge; <code>cmap</code>, <code>svg</code> only. */
+    public static Attr.E labeltooltip(String tooltip) { return new AttributeImpl("labeltooltip", tooltip); }
+    
+    /** The link used for the label of an edge; <code>map</code>, <code>svg</code> only. */
+    public static Attr.E labelURL(String url) { return new AttributeImpl("labelURL", url); }
+    
+    /** Render the graph in landscape mode. */
+    public static Attr.G landscape() { return landscape(true); }
+    
+    /** Render the graph in landscape mode. */
+    public static Attr.G landscape(boolean landscape) { return new AttributeImpl("landscape", landscape); }
+    
+    /** Specifies layers in which the node, edge or cluster is present. */
+    public static Attr.SNE layer(LayerRange range) { return new AttributeImpl("layer", range); }
+
+    
+    
+    
+    
+    
+    
     // TODO 
     
     
     
     
     
-    /** Label attribute. */
-    public static Attr.GNES label(String label) { return new Attribute("label", label); }
-    
-    /** Font size attribute. */
-    public static Attr.GNES fontsize(double size) { return new Attribute("fontsize", size); }
-//        return new Attribute("fontsize", new BigDecimal(size).setScale(1, RoundingMode.HALF_UP));
     
     /** Arbitrary attribute. 
      *  @deprecated for testing, maybe delted (or not) 
      */
     @Deprecated
-    public static Attr.GNES attribute(String name, Object value) { return new Attribute(name, value); }
+    public static Attr.GSNE attribute(String name, Object value) { return new AttributeImpl(name, value); }
     
     //----------------------------------------------------------------------------------------------
     
@@ -355,6 +843,34 @@ public class Dot {
     @Deprecated
     public static Color color(String text) { return new ColorImpl(text); }
     
+    /** Create an HTML Label. */
+    public static HTML html(String html) { return new HTMLImpl(html); }
+    
+    /** Create a 2D <code>Point</code. */
+    public static Point point(double x, double y) { return new PointImpl(false, x, y); }
+    
+    /** Create a 3D <code>Point</code>. */
+    public static Point point(double x, double y, double z) { return new PointImpl(false, x, y, z); }
+    
+    /** Create a 2D <code>Point</code> with a prepended <code>+</code> to be used for <code>sep</code> and  <code>esep</code>. */
+    public static Point add(double x, double y) { return new PointImpl(true, x, y); }
+    
+    /** Create a 3D <code>Point</code> with a prepended <code>+</code> to be used for <code>sep</code> and  <code>esep</code>. */
+    public static Point add(double x, double y, double z) { return new PointImpl(true, x, y, z); }
+    
+    /** Create a <code>Port</code> with the given name. */
+    public static Port port(String name) { return new PortImpl(name, null); }
+    
+    /** Create a <code>Port</code> with the given name and compass direction. */
+    public static Port port(String name, Compass compass) { return new PortImpl(name, compass); }
+    
+    /** Create an empty <code>LayerRange</code>. */
+    public static LayerRange range() { return new LayerRangeImpl(); }
+    /** Create a <code>LayerRange</code> with the given layer. */
+    public static LayerRange range(String layer) { return new LayerRangeImpl(layer); }
+    /** Create a <code>LayerRange</code> with the given range. */
+    public static LayerRange range(String first, String last) { return new LayerRangeImpl(first, last); }
+    
     /** TODO
      * @deprecated mostly for testing, should be changed to function. */
     @Deprecated
@@ -362,49 +878,55 @@ public class Dot {
     
     //----------------------------------------------------------------------------------------------
 
-    private static int range(int value, int min, int max, String name) {
+    private static Attribute rangedAttribute(String name, int value, int min, int max) {
         if (value < min || value > max)
-            throw new IllegalArgumentException("invalid '%s' attribute: %d, expected between %d and %d".formatted(name, value, min, max));
-        return value;
+            throw new IllegalArgumentException(String.format(Locale.ROOT, "invalid '%s' attribute: %d, expected between %d and %d", name, value, min, max));
+        return new AttributeImpl(name, value);
     }
     
-    private static double positive(double value, String name) {
-        if (value <= 0)
-            throw new IllegalArgumentException("invalid '%s' attribute: %f, expected positive number".formatted(name, value));
-        return value;
-    }
-    
-    private static double nonNegative(double value, String name) {
+    private static Attribute nonNegativeAttribute(String name, int value) {
         if (value < 0)
-            throw new IllegalArgumentException("invalid '%s' attribute: %f, expected non negative number".formatted(name, value));
-        return value;
+            throw new IllegalArgumentException(String.format(Locale.ROOT, "invalid '%s' attribute: %d, expected non negative integer", name, value));
+        return new AttributeImpl(name, value);
     }
     
-    private static double minimum(double value, double min, String name) {
+    private static Attribute positiveAttribute(String name, double value) {
+        if (value <= 0)
+            throw new IllegalArgumentException(String.format(Locale.ROOT, "invalid '%s' attribute: %f, expected positive number", name, value));
+        return new AttributeImpl(name, value);
+    }
+    
+    private static Attribute nonNegativeAttribute(String name, double value) {
+        if (value < 0)
+            throw new IllegalArgumentException(String.format(Locale.ROOT, "invalid '%s' attribute: %f, expected non negative number", name, value));
+        return new AttributeImpl(name, value);
+    }
+    
+    private static Attribute minimumAttribute(String name, double value, double min) {
         if (value < min)
-            throw new IllegalArgumentException("invalid '%s' attribute: %f, expected minimum %f".formatted(name, value, min));
-        return value;
+            throw new IllegalArgumentException(String.format(Locale.ROOT, "invalid '%s' attribute: %f, expected minimum %f", name, value, min));
+        return new AttributeImpl(name, value);
     }
     
     //==============================================================================================
     
     private static final String PATH;
     static {
-        String cmd = System.getProperty(PATH_PROPERTY);
-        if (cmd == null) {
-            String path = System.getenv(PATH_ENVIRONMENT);
+        String path = System.getProperty(PATH_PROPERTY);
+        if (path == null) {
+            path = System.getenv(PATH_ENVIRONMENT);
             if (path == null) {
-                cmd = "/usr/local/bin/";
+                path = "/usr/local/bin/";
                 System.err.printf("neither \"%s\" property nor \"%s\" environmrnt variables set, using \"%s\"",
-                    PATH_PROPERTY, PATH_ENVIRONMENT, cmd);
+                    PATH_PROPERTY, PATH_ENVIRONMENT, path);
             } else {
-                cmd = path + "/bin/";
+                path += "/bin/";
             }
         }
-        if (!cmd.endsWith("/")) {
-            cmd += "/";
+        if (!path.endsWith("/")) {
+            path += "/";
         }
-        PATH = cmd;
+        PATH = path;
     }
     
     /** Creates a graph from given input stream and writes to the output stream. */

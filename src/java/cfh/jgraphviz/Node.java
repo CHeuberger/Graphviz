@@ -12,7 +12,7 @@ import static java.util.Objects.*;
  *
  */
 public interface Node {
-
+    //
 }
 
 /**
@@ -21,12 +21,19 @@ public interface Node {
  */
 class NodeImpl extends AttributeHolder implements NodeId, SourceTarget {
     
-    final String id;
+    private final String id;
+    private final Port port; 
     
     NodeImpl(String id) {
         this.id = requireNonNull(id, "null id");
+        this.port = null;
     }
     
+    NodeImpl(String id, Port port) {
+        this.id = requireNonNull(id, "null id");
+        this.port = requireNonNull(port, "null port");
+    }
+
     @Override
     public Edge to(Target target) {
         return new EdgeImpl(this, target);
@@ -45,6 +52,8 @@ class NodeImpl extends AttributeHolder implements NodeId, SourceTarget {
     
     @Override
     public String script(GraphImpl graph) {
-        return quote(id) + super.script();
+        return quote(id)
+            + (port == null ? "" : ":" + port.toString())
+            + super.script();
     }
 }

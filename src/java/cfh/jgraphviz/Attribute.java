@@ -9,18 +9,23 @@ import static cfh.jgraphviz.Attr.*;
 import static java.util.Objects.*;
 
 import cfh.jgraphviz.Attr.GNE;
-import cfh.jgraphviz.Attr.NES;
+import cfh.jgraphviz.Attr.GSN;
+import cfh.jgraphviz.Attr.SNE;
 
 /**
  * @author Carlos F. Heuberger, 2023-03-04
  *
  */
-final class Attribute implements GS, NS, GNES, NES, GNE  {
+non-sealed interface Attribute extends GS, SN, SNE, GNE, GSNE, GSN {
+    public String script();
+}
+
+final class AttributeImpl implements Attribute  {
 
     final String name;
     final Object value;
     
-    protected Attribute(String name, Object value) {
+    protected AttributeImpl(String name, Object value) {
         this.name = requireNonNull(name, "null name");
         if (value instanceof String) {
             this.value = quote((String) value);
@@ -29,7 +34,8 @@ final class Attribute implements GS, NS, GNES, NES, GNE  {
         }
     }
     
-    String script() {
+    @Override
+    public String script() {
         return quote(name) + "=" + value;
     }
 }

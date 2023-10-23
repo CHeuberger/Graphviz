@@ -6,31 +6,43 @@ package cfh.jgraphviz;
 
 import static java.util.Objects.*;
 
-import cfh.jgraphviz.Attr.GNES;
+import java.util.Locale;
+
+import static cfh.jgraphviz.Dot.*;
 
 /**
  * @author Carlos F. Heuberger, 2023-10-16
  *
  */
-public sealed interface ColorList permits Color, ColorListImpl {
+public sealed interface ColorList extends Attr.SNE permits Color, ColorListImpl {
 
-    /** Add another color to the actual color (list). */
-    public ColorList and(Color second);
+    /** Point another color to the actual color (list). */
+    public ColorList to(Color second);
     
-    /** Add another color to the actual color and given fraction (0.0-1.0). */
+    /** Point another color to the actual color and given fraction (0.0-1.0). */
     public ColorList split(Color second, double fraction);
     
-    /** Add another color to the actual color, setting the fraction (0.0-1.0) for the previous last color. */
+    /** Point another color to the actual color, setting the fraction (0.0-1.0) for the previous last color. */
     public ColorList split(double fraction, Color second);
 
     /** Canvas background color. */
     public Attr.GS bgcolor();
     
     /**  Basic drawing color for graphics, not text. */
-    public Attr.GNES color();
+    public Attr.SNE color();
+    
+    /** Color used to fill the background of a node or cluster. */
+    public Attr.SNE fill();
+    
+    /** Color used for text. */
+    public Attr.GSNE font();
 }
 
-final class ColorListImpl implements ColorList {
+/**
+ * @author Carlos F. Heuberger, 2023-10-16
+ *
+ */
+final class ColorListImpl implements ColorList, Attribute {
 
     private static final double NO_FRACTION = -1;
     
@@ -67,7 +79,7 @@ final class ColorListImpl implements ColorList {
     }
     
     @Override
-    public ColorList and(Color color) {
+    public ColorList to(Color color) {
         append((ColorImpl) color, NO_FRACTION);
         return this;
     }
@@ -102,21 +114,36 @@ final class ColorListImpl implements ColorList {
     
     @Override
     public Attr.GS bgcolor() {
-        return new Attribute("bgcolor", this);
+        return Dot.bgcolor(this);
     }
     
     @Override
-    public GNES color() {
-        return new Attribute("color", this);
+    public Attr.SNE color() {
+        return Dot.color(this);
+    }
+    
+    @Override
+    public Attr.SNE fill() {
+        return Dot.fillcolor(this);
+    }
+    
+    @Override
+    public Attr.GSNE font() {
+        return Dot.fontcolor(this);
+    }
+    
+    @Override
+    public String script() {
+        return "color=" + quote(value());
     }
     
     @Override
     public String toString() {
-        return "\"" + value() + "\"";
+        return quote(value());
     }
     
     private String value() {
-        var f = (fraction == NO_FRACTION) ? "" : ";%.2f".formatted(fraction);
+        var f = String.format(Locale.ROOT, fraction == NO_FRACTION ? "" : ";%.2f", fraction);
         if (next == null)
             return color.value() + f;
         else

@@ -5,9 +5,10 @@
 package cfh.jgraphviz;
 
 import static java.util.Objects.*;
-import static cfh.jgraphviz.Dot.*;
 
-import cfh.jgraphviz.Attr.GNES;
+import java.util.Locale;
+
+import static cfh.jgraphviz.Dot.*;
 
 /**
  * @author Carlos F. Heuberger, 2023-10-16
@@ -703,7 +704,7 @@ public sealed interface Color extends ColorList {
  * @author Carlos F. Heuberger, 2023-10-16
  *
  */
-final class ColorImpl implements Color {
+final class ColorImpl implements Color, Attribute {
 
     private final String value;
     
@@ -712,33 +713,43 @@ final class ColorImpl implements Color {
     }
     
     ColorImpl(int r, int g, int b) {
-        value = String.format("#%02X%02X%02X", hex2(r), hex2(g), hex2(b));
+        value = String.format(Locale.ROOT, "#%02X%02X%02X", hex2(r), hex2(g), hex2(b));
     }
     
     ColorImpl(int a, int r, int g, int b) {
-        value = String.format("#%02X%02X%02X%02X", hex2(r), hex2(g), hex2(b), hex2(a));
+        value = String.format(Locale.ROOT, "#%02X%02X%02X%02X", hex2(r), hex2(g), hex2(b), hex2(a));
     }
     
     ColorImpl(double h, double s, double v) {
-        value = String.format("%.3f %.3f %.3f", unit(h), unit(s), unit(v));
+        value = String.format(Locale.ROOT, "%.3f %.3f %.3f", unit(h), unit(s), unit(v));
     }
     
     ColorImpl(double a, double h, double s, double v) {
-        value = String.format("%.3f %.3f %.3f %.3f", unit(h), unit(s), unit(v), unit(a));
+        value = String.format(Locale.ROOT, "%.3f %.3f %.3f %.3f", unit(h), unit(s), unit(v), unit(a));
     }
     
     @Override
     public Attr.GS bgcolor() {
-        return new Attribute("bgcolor", this);
+        return Dot.bgcolor(this);
     }
     
     @Override
-    public GNES color() {
-        return new Attribute("color", this);
+    public Attr.SNE color() {
+        return Dot.color(this);
     }
     
     @Override
-    public ColorList and(Color second) {
+    public Attr.SNE fill() {
+        return Dot.fillcolor(this);
+    }
+    
+    @Override
+    public Attr.GSNE font() {
+        return Dot.fontcolor(this);
+    }
+
+    @Override
+    public ColorList to(Color second) {
         return new ColorListImpl(this, (ColorImpl) second);
     }
     
@@ -750,6 +761,11 @@ final class ColorImpl implements Color {
     @Override
     public ColorList split(double fraction, Color second) {
         return new ColorListImpl(this, fraction, (ColorImpl) second);
+    }
+    
+    @Override
+    public String script() {
+        return "color=" + quote(value);
     }
     
     @Override

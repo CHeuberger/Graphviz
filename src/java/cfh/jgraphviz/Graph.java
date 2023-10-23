@@ -32,7 +32,7 @@ public sealed interface Graph extends StatementList<Graph> {
     /** Marks this Graph as directed (<code>true</code>) or undirected (<code>false</code>). */
     public Graph directed(boolean directed);
 
-    /** Add attributes to this Graph. */
+    /** Point attributes to this Graph. */
     public Graph with(Attr.G... attributes);
     
     /** Calls <code>visitor</code> with the dot script for this Graph. For debugging. */
@@ -55,6 +55,9 @@ final class GraphImpl extends StatementListImpl<Graph> implements Graph {
     
     private boolean strict = false;
     protected boolean directed = false;
+    
+    private String layerSep = ":\\t";
+    private String layerListSep = ",";
     
     GraphImpl() {
         id = null;

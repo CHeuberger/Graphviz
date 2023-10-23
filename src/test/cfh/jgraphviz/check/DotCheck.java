@@ -7,22 +7,26 @@ package cfh.jgraphviz.check;
 import static cfh.jgraphviz.Dot.*;
 import static cfh.jgraphviz.Color.X11.*;
 
-import java.awt.GridLayout;
+import java.awt.BorderLayout;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Function;
 
 import javax.swing.Box;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
 import cfh.jgraphviz.Graph;
+import cfh.jgraphviz.NodeId;
+import cfh.jgraphviz.Port;
+import cfh.jgraphviz.Source;
 
 /**
  * @author Carlos F. Heuberger, 2023-03-03
@@ -30,6 +34,8 @@ import cfh.jgraphviz.Graph;
  */
 public class DotCheck {
 
+    private static final Engine ENGINE = Engine.DOT;
+    
     public static void main(String[] args) {
         SwingUtilities.invokeLater(DotCheck::new);
     }
@@ -40,63 +46,46 @@ public class DotCheck {
 
     private DotCheck() {
         List<List<Graph>> list = createDotGraphs();
-        var tabbed = new JTabbedPane();
 
-        {
-            var allPanel = Box.createVerticalBox();
+        var allPanel = Box.createVerticalBox();
 
-            try {
-                var dot = """
-                    digraph {
-                      label="old interface"
-                      { A ->  { B C} } -> D
-                    }
-                    """;
-                System.out.println(dot);
-                allPanel.add(new JLabel(new ImageIcon(dotToImage(JPG, dot))));
-            } catch (IOException | InterruptedException ex) {
-                throw new RuntimeException(ex);
-            }
-
-            Function<Graph, BufferedImage> dotToJpg = g -> g.visit(System.out::println).image(Engine.DOT, JPG);
-            for (var images : list) {
-                System.out.println("======================================");
-                var panel = new JPanel();
-                images.stream().map(dotToJpg).map(ImageIcon::new).map(JLabel::new).forEach(panel::add);
-                allPanel.add(panel);
-            }
-
-            var scroll = new JScrollPane(allPanel);
-            SwingUtilities.invokeLater( () -> scroll.getVerticalScrollBar().setValue(Integer.MAX_VALUE) );
-            tabbed.add("DOT", scroll);
+        try {
+            var dot = """
+                digraph {
+                  label="old interface"
+                  { A ->  { B C} } -> D
+                }
+                """;
+            System.out.println(dot);
+            allPanel.add(new JLabel(new ImageIcon(dotToImage(ENGINE, JPG, dot))));
+        } catch (IOException | InterruptedException ex) {
+            throw new RuntimeException(ex);
         }
-        
-//        if (false)
-        {
-            var allPanel = Box.createVerticalBox();
 
-            Function<Graph, BufferedImage> neatoToJpg = g -> g.visit(System.out::println).image(Engine.NEATO, JPG);
-            for (var images : list) {
-                System.out.println("======================================");
-                var panel = new JPanel();
-                images.stream().map(neatoToJpg).map(ImageIcon::new).map(JLabel::new).forEach(panel::add);
-                allPanel.add(panel);
-            }
-
-            var scroll = new JScrollPane(allPanel);
-            SwingUtilities.invokeLater( () -> scroll.getVerticalScrollBar().setValue(Integer.MAX_VALUE) );
-
-            tabbed.add("NEATO", scroll);
+        Function<Graph, BufferedImage> dotToJpg = g -> g.visit(System.out::println).image(ENGINE, JPG);
+        for (var graph : list) {
+            System.out.println("======================================");
+            var panel = new JPanel();
+            graph.stream().map(dotToJpg).map(ImageIcon::new).map(JLabel::new).forEach(panel::add);
+            allPanel.add(panel);
         }
+
+        var scrollpane = new JScrollPane(allPanel);
+        SwingUtilities.invokeLater( () -> scrollpane.getVerticalScrollBar().setValue(Integer.MAX_VALUE) );
         
-        frame = new JFrame();
+        var close = new JButton("close");
+        
+        frame = new JFrame(ENGINE.toString());
         frame.setDefaultCloseOperation(frame.DISPOSE_ON_CLOSE);
 
-        frame.add(tabbed);
+        frame.add(scrollpane);
+        frame.add(close, BorderLayout.PAGE_END);
 
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+        
+        close.addActionListener(ev -> frame.dispose());
     }
 
     private List<List<Graph>> createDotGraphs() {
@@ -228,7 +217,7 @@ public class DotCheck {
                 .add(edge(node("A"), subgraph(node("b"), node("c"), node("d"), node("e"))))
                 ,
                 digraph()
-                .with(attribute("style", "radial"), RED.and(BLUE).bgcolor())
+                .with(attribute("style", "radial"), RED.to(BLUE).bgcolor())
                 .with(classname("test"))
                 .add(edge(node("A"), node("B")).with(arrowsize(3.1)))
                 )
@@ -244,7 +233,7 @@ public class DotCheck {
                     .with(label("test3"))
                     .add(node("E").to(node("F")).with(color(AQUAMARINE)))
                     )
-                .add(node("G").with(ORANGE.color()))
+                .add(node("G").with(ORANGE))
                 ,
                 digraph()
                 .with(comment("Just a comment"))
@@ -278,15 +267,15 @@ public class DotCheck {
                 .add(edge(node("C"), node("D")))
                 ,
                 digraph()
-                .add(edge(node("A"), node("C")))
+                .add(edge(node("A"), node("C")).with(RED))
                 .add(edge(node("A"), node("B")))
                 .add(edge(node("B"), node("C")).with(unconstraint()))
                 ,
                 digraph()
-                .add(edge(node("A"), node("B")).with(GREEN.and(RED).and(BLUE).and(BEIGE).color()))  // green:red:blue
-                .add(edge(node("B"), node("C")).with(GREEN.split(0.3, RED).split(0.4, BLUE).color()))  // green;0.3:red;0.4:blue
-                .add(edge(node("C"), node("D")).with(GREEN.split(0.3, RED).split(BLUE, 0.3).color()))  // green;0.3:red:blue;0.3
-                .add(edge(node("D"), node("E")).with(GREEN.split(RED, 0.4).split(BLUE, 0.3).color()))  // green:red;0.4:blue;0.3
+                .add(edge(node("A"), node("B")).with(GREEN.to(RED).to(BLUE).to(BEIGE)))  // green:red:blue
+                .add(edge(node("B"), node("C")).with(GREEN.split(0.3, RED).split(0.4, BLUE)))  // green;0.3:red;0.4:blue
+                .add(edge(node("C"), node("D")).with(GREEN.split(0.3, RED).split(BLUE, 0.3)))  // green;0.3:red:blue;0.3
+                .add(edge(node("D"), node("E")).with(GREEN.split(RED, 0.4).split(BLUE, 0.3)))  // green:red;0.4:blue;0.3
                 ,
                 digraph()
                 .with(dim(5))
@@ -300,22 +289,73 @@ public class DotCheck {
                 .add(edge(node("B"), node("C")).with(dir(DirType.BACK)))
                 .add(edge(node("D"), node("E")).with(dir(DirType.BOTH)))
                 .add(edge(node("E"), node("F")).with(dir(DirType.NONE)))
+                .add(node("B").with(attribute("xlabel", "Additional label")))
                 ,
                 digraph()
-                .with(diredgeconstraints(), attribute("mode", "ipsep"))
+                .with(diredgeconstraints(), attribute("mode", "ipsep"), forcelabels(false))
                 .add(edge(node("A"), node("B")))
-                .add(edge(node("A"), node("C")))
+                .add(edge(node("A"), node("C")).with(attribute("xlabel", "some more text")))
                 .add(edge(node("B"), node("C")))
+                .add(edge(node("A"), node("D")))
+                .add(edge(node("D"), node("C")))
                 )
             ,
             List.of(
                 graph()
                 .with(dpi(96))
+                .with(fontpath(Path.of("/tmp")))
+                .nodedefs(fontsize(8))
+                .nodedefs(GREEN.to(AQUAMARINE4).fill(), attribute("style", "filled"))
                 .add(node("Bottom").with(distortion(-0.5), attribute("shape", "polygon"), attribute("sides", 4)))
                 .add(node("Top").with(distortion(+0.5), attribute("shape", "polygon"), attribute("sides", 4)))
+                .add(node("A").with(attribute("style", "filled"), fillcolor(BLUE)))
+                ,
+                digraph()
+                .add(node("A1").with(group("A")))
+                .add(node("A2").with(group("A")))
+                .add(node("A3").with(group("A")))
+                .add(node("A4").with(group("A")))
+                .add(edge(node("A1"), node("A2")).with(attribute("headlabel", new StringBuilder("<head<br/>line>"))))
+                .add(edge(node("A1"), node("A3")))
+                .add(edge(node("A1"), node("A4")))
+                .add(edge(node("A2"), node("A3")))
+                .add(edge(node("A2"), node("A4")))
+                .add(edge(node("A3"), node("A4")))
+                ,
+                digraph()
+                .with(imagepath("build"))
+                .add(edge(node("A1"), node("A2")))
+                .add(edge(node("A1"), node("A3")).with(headport(Compass.E)))
+                .add(edge(node("A1"), node("A4")).with(headport(port("b"))))
+                .add(edge(node("A1"), node("A5")).with(headport(port("c", Compass.W))))
+                .add(node("C").with(image("icon.png"), imagepos(ImagePos.TopCenter), height(1), imagescale(ImageScale.WIDTH)))
+                ,
+                digraph()
+                .with(label(html("test <b>bold</b>")))
+                .nodedefs(attribute("shape","record"))
+                .add(node("A").with(label("<a>a|<b>"), height(1)))
+                .add(node("B").with(label("{<c>c|<d>}")))
+                .add(edge(node("A", port("a")), node("B", port("c", Compass.W))))
+                )
+            ,
+            List.of(
+                graph()
+                .with(landscape(false))
+                .with(labelloc(LabelLoc.TOP), labeljust(LabelJust.RIGHT), label("X"))
+                .add(edge(node("A1"), node("B1")).with(label("plain"), headlabel("head"), labelfontsize(8.0), attribute("taillabel", "tail")))
+                .add(edge(node("A2"), node("B2")).with(label("angle 0"), labelangle(0), headlabel("head"), attribute("taillabel", "tail")))
+                .add(edge(node("A3"), node("B3")).with(label("angle 45"), labelangle(45), headlabel("head"), attribute("taillabel", "tail")))
+                .add(edge(node("A4"), node("B4")).with(label("angle 90"), labelangle(90), headlabel("head"), attribute("taillabel", "tail")))
+                .add(edge(node("A5"), node("B5")).with(label("distance 0.0"), labeldistance(0.0), headlabel("head"), attribute("taillabel", "tail")))
+                .add(edge(node("A6"), node("B6")).with(label("distance 1.0"), labeldistance(1.0), headlabel("head"), attribute("taillabel", "tail")))
+                .add(edge(node("A7"), node("B7")).with(label("float") ,labelfloat(), labelfontcolor(RED), headlabel("head"), attribute("taillabel", "tail")))
+                )
+            ,
+            List.of(
+                graph("Layers")
+                .add(node("A").with(layer(range().include("a").include("c", "d"))))
                 )
             // TODO ports
             );
     }
-
 }

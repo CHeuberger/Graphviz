@@ -11,18 +11,18 @@ package cfh.jgraphviz;
 sealed interface Attr {
 
     public sealed interface G extends Attr { }
+    public sealed interface S extends Attr { }
     public sealed interface N extends Attr { }
     public sealed interface E extends Attr { }
-    public sealed interface S extends Attr { }
 //    public sealed interface GN extends G, N permits Attribute { }
 //    public sealed interface GE extends G, E permits Attribute { }
     public sealed interface GS extends G, S permits Attribute { }
 //    public sealed interface NE extends N, E { }
-    public sealed interface NS extends N, S permits Attribute { }
-//    public sealed interface EC extends E, S permits Attribute { }
+    public sealed interface SN extends S, N permits Attribute { }
+//    public sealed interface SE extends S, E permits Attribute { }
     public sealed interface GNE extends G, N, E permits Attribute { }
-//    public sealed interface GNS extends G, N, S permits Attribute { }
-//    public sealed interface GES extends G, E, S permits Attribute { }
-    public sealed interface NES extends N, E, S permits Attribute { }
-    public sealed interface GNES extends G, N, E, S permits Attribute { }
+    public sealed interface GSN extends G, S, N permits Attribute { }
+//    public sealed interface GSE extends G, S, E permits Attribute { }
+    public sealed interface SNE extends S, N, E permits Attribute, ColorList { }
+    public sealed interface GSNE extends G, S, N, E permits Attribute { }
 }
