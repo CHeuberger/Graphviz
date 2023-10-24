@@ -6,9 +6,9 @@ package cfh.jgraphviz;
 
 import static java.util.Objects.*;
 
-import java.util.Locale;
-
 import static cfh.jgraphviz.Dot.*;
+
+import java.util.Locale;
 
 /**
  * @author Carlos F. Heuberger, 2023-10-16
@@ -47,6 +47,7 @@ final class ColorListImpl implements ColorList, Attribute {
     private static final double NO_FRACTION = -1;
     
     private final ColorImpl color;
+    
     private double fraction;
     private ColorListImpl next;
     

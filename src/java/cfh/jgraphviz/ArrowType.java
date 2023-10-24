@@ -8,6 +8,7 @@ import static java.util.stream.Collectors.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -24,10 +25,10 @@ public sealed interface ArrowType {
  */
 final class ArrowTypeImpl implements ArrowType {
 
-    private final List<String> shapes = new ArrayList<>();
+    private final List<String> shapes;
     
     ArrowTypeImpl(String... shapes) {
-        this.shapes.addAll(Arrays.asList(shapes));
+        this.shapes = Collections.unmodifiableList( new ArrayList<>( Arrays.asList(shapes) ) );
     }
     
     @Override

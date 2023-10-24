@@ -4,8 +4,9 @@
  */
 package cfh.jgraphviz;
 
-import static cfh.jgraphviz.Dot.*;
 import static java.util.Objects.*;
+
+import static cfh.jgraphviz.Dot.*;
 
 /**
  * @author Carlos F. Heuberger, 2023-03-03
@@ -32,6 +33,12 @@ class NodeImpl extends AttributeHolder implements NodeId, SourceTarget {
     NodeImpl(String id, Port port) {
         this.id = requireNonNull(id, "null id");
         this.port = requireNonNull(port, "null port");
+    }
+    
+    NodeImpl(NodeImpl org) {
+        super(org);
+        this.id = org.id;
+        this.port = org.port;
     }
 
     @Override

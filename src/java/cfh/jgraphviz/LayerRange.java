@@ -5,11 +5,6 @@
 package cfh.jgraphviz;
 
 import static java.util.Objects.*;
-import static java.util.stream.Collectors.*;
-import static cfh.jgraphviz.Dot.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Carlos F. Heuberger, 2023-10-23
@@ -40,7 +35,7 @@ final class LayerRangeImpl implements LayerRange {
 
     LayerRangeImpl(String listSep, String rangeSep, String layer) {
         this(listSep, rangeSep);
-        ranges.append(layer);
+        include(layer);
     }
     
     LayerRangeImpl(String listSep, String rangeSep, int layer) {
@@ -49,7 +44,7 @@ final class LayerRangeImpl implements LayerRange {
     
     LayerRangeImpl(String listSep, String rangeSep, String first, String last) {
         this(listSep, rangeSep);
-        ranges.append(first).append(this.rangeSep).append(last);
+        include(first, last);
     }
     
     LayerRangeImpl(String listSep, String rangeSep, int first, int last) {
@@ -61,7 +56,7 @@ final class LayerRangeImpl implements LayerRange {
         if (!ranges.isEmpty()) {
             ranges.append(listSep);
         }
-        ranges.append(layer);
+        ranges.append(requireNonNull(layer, "null layer"));
         return this;
     }
     
@@ -75,7 +70,10 @@ final class LayerRangeImpl implements LayerRange {
         if (!ranges.isEmpty()) {
             ranges.append(listSep);
         }
-        ranges.append(first).append(rangeSep).append(last);
+        ranges
+        .append(requireNonNull(first, "null first"))
+        .append(this.rangeSep)
+        .append(requireNonNull(last, "null last"));
         return this;
     }
     

@@ -8,7 +8,7 @@ package cfh.jgraphviz;
  * @author Carlos F. Heuberger, 2023-09-27
  *
  */
-interface SourceTarget {
+interface SourceTarget {  // TODO Scriptable for all?
 
     public String script(GraphImpl graph);
 }

@@ -6,9 +6,9 @@ package cfh.jgraphviz;
 
 import static java.util.Objects.*;
 
-import java.util.Locale;
-
 import static cfh.jgraphviz.Dot.*;
+
+import java.util.Locale;
 
 /**
  * @author Carlos F. Heuberger, 2023-10-16
@@ -16,7 +16,7 @@ import static cfh.jgraphviz.Dot.*;
  */
 public sealed interface Color extends ColorList {
     
-    public static interface X11 {
+    public static interface X11 {  // TODO wanted? or better move to some Colors?
         public static final String SCHEME = "x11";
         public static final Color ALICEBLUE  = new ColorImpl("/" + SCHEME + "/aliceblue");
         public static final Color ANTIQUEWHITE  = new ColorImpl("/" + SCHEME + "/antiquewhite");

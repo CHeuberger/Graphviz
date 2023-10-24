@@ -620,6 +620,7 @@ public class Dot {
     
     /** A color scheme namespace: the context for interpreting color names. 
      * @deprecated TODO testing only, need ColorScheme enum?. */
+    @Deprecated
     public static Attr.GSNE colorscheme(String name) { return new AttributeImpl("colorscheme", name); }
     
     /** Comments are inserted into output. */

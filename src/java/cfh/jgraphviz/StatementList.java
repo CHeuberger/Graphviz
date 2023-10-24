@@ -18,6 +18,7 @@ import java.util.Objects;
  */
 public interface StatementList<T extends StatementList<T>> {
 
+    // TODO javadoc
     public T graphdefs(Attr.G... defaults);
     public T nodedefs(Attr.N... defaults);
     public T edgedefs(Attr.E... defaults);
@@ -30,10 +31,15 @@ public interface StatementList<T extends StatementList<T>> {
 @SuppressWarnings("unchecked")
 class StatementListImpl<T extends StatementList<T>> implements StatementList<T> {
 
-    private final List<Statement> statements = new ArrayList<>();
+    private final List<Statement> statements;
     
     StatementListImpl() {
-        //
+        statements = new ArrayList<>();
+    }
+    
+    protected StatementListImpl(StatementListImpl<T> org) {
+        this.statements = new ArrayList<>();
+        org.statements.stream().map(Statement::copy).forEach(statements::add);
     }
 
     @Override
@@ -86,12 +92,10 @@ class StatementListImpl<T extends StatementList<T>> implements StatementList<T> 
     }
     
     protected String scriptStatements(GraphImpl graph) {
-//        UnaryOperator<String> appendSemiColon = s -> s + ";";
         return statements
             .stream()
             .map(s -> s.script(graph))
             .filter(Objects::nonNull)
-//            .map(appendSemiColon)
             .collect(joining("\n"));
     }
 
@@ -100,6 +104,8 @@ class StatementListImpl<T extends StatementList<T>> implements StatementList<T> 
     sealed static interface Statement {
         
         public String script(GraphImpl graph);
+        
+        public Statement copy();
     }
     
     private static final class NodeStatement implements Statement {
@@ -113,6 +119,11 @@ class StatementListImpl<T extends StatementList<T>> implements StatementList<T> 
         @Override
         public String script(GraphImpl graph) {
             return node.script(graph);
+        }
+
+        @Override
+        public Statement copy() {
+            return new NodeStatement(new NodeImpl(node));
         }
     }
     
@@ -128,6 +139,11 @@ class StatementListImpl<T extends StatementList<T>> implements StatementList<T> 
         public String script(GraphImpl graph) {
             return edge.script(graph);
         }
+
+        @Override
+        public Statement copy() {
+            return new EdgeStatement(new EdgeImpl(edge));
+        }
     }
     
     private static final class SubgraphStatement implements Statement {
@@ -140,6 +156,11 @@ class StatementListImpl<T extends StatementList<T>> implements StatementList<T> 
         @Override
         public String script(GraphImpl graph) {
             return subgraph.script(graph);
+        }
+
+        @Override
+        public Statement copy() {
+            return new SubgraphStatement(new SubgraphImpl(subgraph));
         }
     }
     
@@ -155,6 +176,11 @@ class StatementListImpl<T extends StatementList<T>> implements StatementList<T> 
         public String script(GraphImpl graph) {
             return attr.script();
         }
+
+        @Override
+        public Statement copy() {
+            return new AttrStatement(attr);
+        }
     }
 
     private sealed static class DefaultStatement extends AttributeHolder implements Statement {
@@ -168,10 +194,20 @@ class StatementListImpl<T extends StatementList<T>> implements StatementList<T> 
             }
             addAll(defaults);
         }
+        
+        private DefaultStatement(DefaultStatement org) {
+            super(org);
+            this.type = org.type;
+        }
 
         @Override
         public String script(GraphImpl graph) {
             return type + super.script();
+        }
+
+        @Override
+        public Statement copy() {
+            return new DefaultStatement(this);
         }
     }
     

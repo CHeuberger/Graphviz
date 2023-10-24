@@ -43,6 +43,8 @@ public sealed interface Graph extends StatementList<Graph> {
     /** Creates the image of this Graph in given <code>format</code> using <code>engine<code>. */
     public BufferedImage image(Engine engine, Format format);
 
+    /** Makes a copy of this Graph. */
+    public Graph copy();
 }
 
 /**
@@ -62,6 +64,13 @@ final class GraphImpl extends StatementListImpl<Graph> implements Graph {
     
     GraphImpl(String id) {
         this.id = requireNonNull(id, "null id");
+    }
+    
+    private GraphImpl(GraphImpl org) {
+        super(org);
+        this.id = org.id;
+        this.strict = org.strict;
+        this.directed = org.directed;
     }
     
     @Override
@@ -113,6 +122,11 @@ final class GraphImpl extends StatementListImpl<Graph> implements Graph {
         } catch (IOException | InterruptedException ex) {
             throw new RuntimeException(ex);
         }
+    }
+    
+    @Override
+    public Graph copy() {
+        return new GraphImpl(this);
     }
 
     private String script() {

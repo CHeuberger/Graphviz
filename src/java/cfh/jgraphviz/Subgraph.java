@@ -35,6 +35,11 @@ class SubgraphImpl extends StatementListImpl<Subgraph> implements Subgraph, Sour
         this.id = requireNonNull(id, "null id");
     }
 
+    SubgraphImpl(SubgraphImpl org) {
+        super(org);
+        this.id = org.id;
+    }
+
     @Override
     public Edge to(Target target) {
         return new EdgeImpl(this, target);

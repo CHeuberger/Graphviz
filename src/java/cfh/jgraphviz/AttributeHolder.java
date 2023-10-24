@@ -16,11 +16,16 @@ import java.util.List;
  */
 abstract class AttributeHolder {
 
-    private final List<Attribute> attributes = new ArrayList<>();
+    private final List<Attribute> attributes;
     
     protected AttributeHolder() {
+        attributes = new ArrayList<>();
     }
     
+    protected AttributeHolder(AttributeHolder org) {
+        this.attributes = new ArrayList<>((org.attributes));  // TODO create new attributes with copy()?
+    }
+
     protected void addAll(Attr... attrs) {
         Arrays.stream(attrs).map(a -> (Attribute) a).forEach(attributes::add);
     }

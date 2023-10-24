@@ -420,7 +420,7 @@ public class DotCheck {
                     )
                 .add(edge("A2", "B2"))
                 ,
-                tmp.with(newrank())
+                tmp.copy().with(newrank())
                 )
             // TODO ports
             );

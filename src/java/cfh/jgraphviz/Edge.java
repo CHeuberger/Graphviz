@@ -23,14 +23,20 @@ public interface Edge {
  */
 class EdgeImpl extends AttributeHolder implements Edge {
 
-    final SourceTarget source;
-    final SourceTarget target;
+    private final SourceTarget source;
+    private final SourceTarget target;
     
     EdgeImpl(Source source, Target target) {
         this.source = (SourceTarget) requireNonNull(source, "null source");
         this.target = (SourceTarget) requireNonNull(target, "null target");
     }
     
+    EdgeImpl(EdgeImpl org) {
+        super(org);
+        this.source = org.source;
+        this.target = org.target;
+    }
+
     @Override
     public Edge with(Attr.E... attributes) {
         addAll(attributes);

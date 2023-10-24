@@ -8,6 +8,7 @@ import static java.util.stream.Collectors.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -24,13 +25,10 @@ public sealed interface XDot {
  */
 final class XDotImpl implements XDot {
     
-    private final List<String> components = new ArrayList<>(); // TODO change to List<Component>
+    private final List<String> components; // TODO change to List<Component>?
 
-    XDotImpl() {
-    }
-    
     XDotImpl(String... components) {
-        this.components.addAll(Arrays.asList(components));
+        this.components = Collections.unmodifiableList( new ArrayList<>( Arrays.asList(components) ) );
     }
     
     @Override
