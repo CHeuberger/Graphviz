@@ -56,9 +56,6 @@ final class GraphImpl extends StatementListImpl<Graph> implements Graph {
     private boolean strict = false;
     protected boolean directed = false;
     
-    private String layerSep = ":\\t";
-    private String layerListSep = ",";
-    
     GraphImpl() {
         id = null;
     }

@@ -4,7 +4,8 @@
  */
 package cfh.jgraphviz;
 
-import static java.util.Objects.requireNonNull;
+import static java.util.Objects.*;
+import static java.util.stream.Collectors.*;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -241,7 +242,9 @@ public class Dot {
         /** Clustered graphs. */
         OSAGE,
         /** Map of clustered graph using a <a href="https://en.wikipedia.org/wiki/Treemapping">Squarified Treemap Layout</a>. */
-        PATCHWORK;
+        PATCHWORK,
+        ;
+        @Override public String toString() { return name().toLowerCase(); }
     }
 
     //----------------------------------------------------------------------------------------------
@@ -314,7 +317,8 @@ public class Dot {
         /** Both arrow type, draw head and tail glyph. */  
         BOTH,
         /** None arrow type, draw neither head nor tail glyph. */  
-        NONE;
+        NONE,
+        ;
         @Override public String toString() { return name().toLowerCase(); }
     }
     
@@ -327,7 +331,8 @@ public class Dot {
         /** Size of a node is determined by smallest width and height needed to contain its label and image. */
         FALSE,
         /** The <code>width</code> and <code>height</code> attributes also determine the size of the node shape, but the label can be much larger. */
-        SHAPE;
+        SHAPE,
+        ;
         @Override public String toString() { return name().toLowerCase(); }
     }
     
@@ -340,7 +345,8 @@ public class Dot {
         /** Use known PostScript font names. */
         PS,
         /** The fontconfig font conventions are used. */
-        HD;
+        HD,
+        ;
         @Override public String toString() { return name().toLowerCase(); }
     }
     
@@ -354,7 +360,8 @@ public class Dot {
         { @Override public String toString() { return "c"; } },
         /** Appropriate side of the port adjacent to the exterior of the node should be used, if such exists. Otherwise, the center is used. */
         DEFAULT
-        { @Override public String toString() { return "_"; } };
+        { @Override public String toString() { return "_"; } },
+        ;
         @Override public String toString() { return name().toLowerCase(); }
     }
     
@@ -438,8 +445,66 @@ public class Dot {
     }
     
     //----------------------------------------------------------------------------------------------
+
+    /** Technique for optimizing the layout; <code>neato</code>, <code>sfdp</code>? only. */
+    public enum Mode {
+        /** Use stress majorization, the default. */
+        MAJOR,
+        /** Use the Kamada-Kawai2 version of the gradient descent method. </P>
+         * KK is sometimes appreciably faster for small (number of nodes < 100) graphs. 
+         * A significant disadvantage is that KK may cycle. 
+         */
+        KK("KK"), 
+        /** Use a version of the Stochastic Gradient Descent3 method. </P>
+         * <code>sgd</code>'s advantage is faster and more reliable convergence than both the previous methods, while <code>sgd</code>'s 
+         * disadvantage is that it runs in a fixed number of iterations and may require larger values of maxiter in some graphs.
+         */
+        SGC,
+        /** Adds a top-down directionality similar to the layout used in <code>dot</code>, <i>experimental</i>. */
+        HIER,
+        /** Allows the graph to specify minimum vertical and horizontal distances between nodes.
+         * @see #sep(double)
+         */
+        IPSEP,
+        /** For <code>sfdp</code>, use a spring-electrical model, the default. */
+        SPRING,
+        /** For <code>sfdp</code>, use a spring-electrical model but take into account edge lengths specified by the <code>len</code> attribute. */
+        MAXENT,
+        ;
+        private final String value;
+        private Mode() { this.value = name().toLowerCase(); }
+        private Mode(String value ) { this.value = value; }
+        @Override public String toString() { return value; }
+    }
+    
+    //----------------------------------------------------------------------------------------------
+    
+    /** Specifies how the distance matrix is computed for the input graph; <code>neato</code> only. */
+    public enum Model {
+        /** Use the length of the shortest path, where the length of each edge is given by its <code>len</code> attribute, the default. */
+        SHORTPATH,
+        /** Use the circuit resistance model to compute the distances. This tends to emphasize clusters. */
+        CIRCUIT,
+        /** Use the subset model. </P>
+         * This sets the edge length to be the number of nodes that are neighbors of exactly one of the end points, 
+         * and then calculates the shortest paths. This helps to separate nodes with high degree.
+         */
+        SUBSET,
+        /** Use the <code>len</code> of an edge as the ideal distance between its vertices. */
+        MDS,
+        ;
+        @Override public String toString() { return name().toLowerCase(); }
+    }
+    
+    //----------------------------------------------------------------------------------------------
     
     //==============================================================================================
+    
+    private static String layerSep = Character.toString(":\\t".codePointAt(0));
+    private static String layerListSep = Character.toString(",".codePointAt(0));
+    
+    //==============================================================================================
+    
 
     /** Create a new (undirected) Graph. */
     public static Graph graph() {
@@ -474,6 +539,11 @@ public class Dot {
     /** Create a new Edge. */
     public static Edge edge(Source source, Target target) {
         return new EdgeImpl(source, target);
+    }
+    
+    /** Create a new Edge between the given nodes. */
+    public static Edge edge(String source, String target) {
+        return edge(node(source), node(target));
     }
     
     /** Create a new Subgraph. */
@@ -798,9 +868,90 @@ public class Dot {
     public static Attr.G landscape(boolean landscape) { return new AttributeImpl("landscape", landscape); }
     
     /** Specifies layers in which the node, edge or cluster is present. */
-    public static Attr.SNE layer(LayerRange range) { return new AttributeImpl("layer", range); }
+    public static Attr.SNE layer(LayerRange... ranges) { 
+        return new AttributeImpl("layer", Arrays.stream(ranges).map(LayerRange::toString).collect(joining(layerListSep)));
+    }
 
+    /** The separator characters used to split attributes of type <code>layerRange</code> into a list of ranges, default: <code>","</code>. */
+    public static Attr.G layerlistsep(String separators) {
+        layerListSep = Character.toString(separators.codePointAt(0));
+        return new AttributeImpl("layerlistsep", separators);
+    }
     
+    /** A linearly ordered list of layer names attached to the graph. */
+    public static Attr.G layers(String... layers) { return new AttributeImpl("layers", String.join(layerSep, layers)); }
+    
+    /** Selects a list of layers to be emitted. */
+    public static Attr.G layerselect(LayerRange... ranges) {
+        return new AttributeImpl("layerselect", Arrays.stream(ranges).map(LayerRange::toString).collect(joining(layerListSep)));
+    }
+    
+    /** The separator characters for splitting the layers attribute into a list of layer names, default: <code>":\t "</code>. */
+    public static Attr.G layersep(String separators) {
+        layerSep = Character.toString(separators.codePointAt(0));
+        return new AttributeImpl("layersep", separators);
+    }
+    
+    /** Which layout engine to use. */
+    public static Attr.G layout(Engine engine) { return new AttributeImpl("layout", engine); }
+    
+    /** Preferred edge length, in inches, default: <code>1.0</code (<i>neato</i>), <code>0.3</code> (<i>fdp</i>); <code>neato</code>, <code>fdp</code> only. */
+    public static Attr.E len(double inches) { return nonNegativeAttribute("len", inches); }
+    
+    /** Number of levels allowed in the multilevel scheme, default: INT_MAX, minimum: <code>0</code>; <code>sfpd</code> only. */
+    public static Attr.G levels(int levels) { return nonNegativeAttribute("levels", levels); }
+    
+    /** Strictness of neato level constraints, default: <code>0.0</code>; <code>neato</code> only. */
+    public static Attr.G levelsgap(double strictness) { return new AttributeImpl("levelsgap", strictness); }
+    
+    /** Logical head of an edge; <code>compound=true</code>, <code>dot</code> only. */
+    public static Attr.E lhead(String head) { return new AttributeImpl("lhead", head); }
+
+    /** How long strings should get before overflowing to next line, for text output, default: <code>128</code>, minimum: <code>60</code>. */
+    public static Attr.G linelength(int characters) {return minimumAttribute("linelength", characters, 60); }
+    
+    /** Logical tail of an edge; <code>compound=true</code>, <code>dot</code> only. */
+    public static Attr.E ltail(String tail) { return new AttributeImpl("ltail", tail); }
+    
+    /** For graphs, this sets both x and y margins of canvas, in inches.</br>
+     *  For clusters, margin specifies the space between the nodes in the cluster and the cluster bounding box, in points, default <code>8</code> points.</br> 
+     *  For nodes, this attribute specifies space left around the node's label, in inches, default <code>0.11,0.055</code>.
+     */
+    public static Attr.GSN margin(double margin) { return new AttributeImpl("margin", margin); }
+    
+    /** For graphs, this sets x and y margins of canvas, in inches.</br>
+     *  For nodes, this attribute specifies space left around the node's label, in inches, default <code>0.11,0.055</code>.
+     */
+    public static Attr.GN margin(double x, double y) { return new AttributeImpl("margin", new PointImpl(false, x, y)); }
+    
+    /** For graphs, this sets x and y margins of canvas, in inches.</br>
+     *  For nodes, this attribute specifies space left around the node's label, in inches, default <code>0.11,0.055</code>.
+     */
+    public static Attr.GN margin(Point margin) { return new AttributeImpl("margin", margin); }
+    
+    /** Sets the number of iterations used; <code>neato</code>, <code>fdp</code> only. */
+    public static Attr.G maxiter(int iterations) { return new AttributeImpl("maxiter", iterations); }
+    
+    /** Scale factor for mincross (mc) edge crossing minimiser parameters, default: <code>1.0</code>; <code>dot</code> only. */
+    public static Attr.G mclimit(double factor) { return new AttributeImpl("mclimit", factor); }
+    
+    /** Specifies the minimum separation between all nodes, default: <code>1.0</code>, minimum: <code>0.0</code>; <code>circo</code> only. */
+    public static Attr.G mindist(double separation) { return nonNegativeAttribute("mindist", separation); }
+    
+    /** Minimum edge length (rank difference between head and tail), default: <code>1</code>, minimum: <code>0</code>; <code>dot</code> only. */
+    public static Attr.E minlen(int rank) { return nonNegativeAttribute("minlen", rank); }
+    
+    /** Technique for optimizing the layout, default: <code>MAJOR</code>; <code>neato</code>, <code>sfdp</code>? only. */
+    public static Attr.G mode(Mode mode) { return new AttributeImpl("mode", mode); }
+    
+    /** Specifies how the distance matrix is computed for the input graph, deafult: <code>SHORTPATH</code>; <code>neato</code> only. */
+    public static Attr.G model(Model model) { return new AttributeImpl("model", model); }
+    
+    /** Use a single global ranking, ignoring clusters; <code>dot</code> only. */
+    public static Attr.G newrank() { return newrank(true); }
+    
+    /** Use a single global ranking, ignoring clusters; <code>dot</code> only. */
+    public static Attr.G newrank(boolean ignore) { return new AttributeImpl("newrank", ignore); }
     
     
     
@@ -865,11 +1016,15 @@ public class Dot {
     public static Port port(String name, Compass compass) { return new PortImpl(name, compass); }
     
     /** Create an empty <code>LayerRange</code>. */
-    public static LayerRange range() { return new LayerRangeImpl(); }
+    public static LayerRange range() { return new LayerRangeImpl(layerListSep, layerSep); }
     /** Create a <code>LayerRange</code> with the given layer. */
-    public static LayerRange range(String layer) { return new LayerRangeImpl(layer); }
+    public static LayerRange range(String layer) { return new LayerRangeImpl(layerListSep, layerSep, layer); }
+    /** Create a <code>LayerRange</code> with the given layer. */
+    public static LayerRange range(int layer) { return new LayerRangeImpl(layerListSep, layerSep, layer); }
     /** Create a <code>LayerRange</code> with the given range. */
-    public static LayerRange range(String first, String last) { return new LayerRangeImpl(first, last); }
+    public static LayerRange range(String first, String last) { return new LayerRangeImpl(layerListSep, layerSep, first, last); }
+    /** Create a <code>LayerRange</code> with the given range. */
+    public static LayerRange range(int first, int last) { return new LayerRangeImpl(layerListSep, layerSep, first, last); }
     
     /** TODO
      * @deprecated mostly for testing, should be changed to function. */
@@ -887,6 +1042,12 @@ public class Dot {
     private static Attribute nonNegativeAttribute(String name, int value) {
         if (value < 0)
             throw new IllegalArgumentException(String.format(Locale.ROOT, "invalid '%s' attribute: %d, expected non negative integer", name, value));
+        return new AttributeImpl(name, value);
+    }
+    
+    private static Attribute minimumAttribute(String name, int value, int min) {
+        if (value < min)
+            throw new IllegalArgumentException(String.format(Locale.ROOT, "invalid '%s' attribute: %d, expected minimum %d", name, value, min));
         return new AttributeImpl(name, value);
     }
     

@@ -24,9 +24,7 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
 import cfh.jgraphviz.Graph;
-import cfh.jgraphviz.NodeId;
-import cfh.jgraphviz.Port;
-import cfh.jgraphviz.Source;
+import cfh.jgraphviz.LayerRange;
 
 /**
  * @author Carlos F. Heuberger, 2023-03-03
@@ -89,6 +87,7 @@ public class DotCheck {
     }
 
     private List<List<Graph>> createDotGraphs() {
+        Graph tmp;
 
         return List.of(
             List.of(
@@ -353,7 +352,75 @@ public class DotCheck {
             ,
             List.of(
                 graph("Layers")
-                .add(node("A").with(layer(range().include("a").include("c", "d"))))
+                .with(layerlistsep(Character.toString(0x1F600)))
+                .with(layersep(Character.toString(0x1F601)))
+                .with(layers("a", "b", "c", "d:e:f:g"))
+                .with(layerselect(range("a"), range("c")))
+                .add(node("A").with(layer(range("a", "b").include("d").include("f", LayerRange.ALL))))
+                .add(node("B").with(layer(range("a", "b"), range("d"), range("f", LayerRange.ALL))))
+                ,
+                digraph()
+                .with(layout(Engine.NEATO))
+                .with(levelsgap(-1.0), attribute("mode", "hier"))
+                .add(edge("A", "B").with(len(1.5)))
+                .add(edge("B", "C"))
+                .add(edge("A", "C"))
+                .add(edge("A", "D"))
+                ,
+                digraph()
+                .with(layout(Engine.NEATO))
+                .with(levelsgap(1.0), attribute("mode", "hier"))
+                .add(edge("A", "B").with(len(1.5)))
+                .add(edge("B", "C"))
+                .add(edge("A", "C"))
+                .add(edge("A", "D"))
+                ,
+                digraph()
+                .with(layout(Engine.DOT), compound())
+                .with(margin(point(0.3, 0.1)))
+                .add(subgraph("cluster_a").add(node("A1"), node("A2"), node("A3")).with(margin(16)))
+                .add(subgraph("cluster_b").add(node("B1"), node("B2"), node("B3")))
+                .add(edge("A1", "B1"))
+                .add(edge("A2", "B2").with(lhead("cluster_b")))
+                .add(edge("A3", "B3").with(ltail("cluster_a")))
+                .add(node("A1").with(margin(point(0.3, 0.1))))
+                )
+            ,
+            List.of(
+                digraph()
+                .with(mclimit(1))
+                .add(edge("A", "B"))
+                .add(edge("A", "C"))
+                .add(edge("A", "D"))
+                .add(edge("A", "E"))
+                .add(edge("B", "C"))
+                .add(edge("B", "D"))
+                .add(edge("B", "E"))
+                ,
+                digraph()
+                .with(mclimit(2.0))
+                .edgedefs(minlen(0))
+                .add(edge("A", "B"))
+                .add(edge("A", "C"))
+                .add(edge("A", "D"))
+                .add(edge("A", "E"))
+                .add(edge("B", "C"))
+                .add(edge("B", "D"))
+                .add(edge("B", "E"))
+                ,
+                tmp = graph()
+                .with(compound())
+                .add(subgraph("cluster_a")
+                    .with(label("a"))
+                    .add(edge("A1", "A2"), edge("A2", "A3"))
+                    )
+                .add(subgraph("cluster_b")
+                    .with(label("b"))
+                    .add(edge("B1", "B2"), edge("B1", "B3"))
+                    )
+                .add(edge("A2", "B2"))
+                ,
+                tmp.with(newrank())
                 )
             // TODO ports
             );

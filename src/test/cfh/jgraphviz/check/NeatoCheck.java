@@ -5,7 +5,7 @@
 package cfh.jgraphviz.check;
 
 import static cfh.jgraphviz.Dot.*;
-import static cfh.jgraphviz.Color.X11.*;
+import static cfh.jgraphviz.Color.*;
 
 import java.awt.BorderLayout;
 import java.awt.image.BufferedImage;
@@ -91,7 +91,7 @@ public class NeatoCheck {
             List.of(
                 // default graph
                 graph()
-                .add(node("B").with(GREEN))
+                .add(node("B").with(X11.GREEN))
                 .add(node("A").to(node("B")))
                 ,
                 // directed graph
@@ -136,12 +136,12 @@ public class NeatoCheck {
             List.of(
                 digraph()
                 .with(fontname("Symbol"), label("Font Symbol"), fontnames(FontNames.HD))
-                .nodedefs(RED.font())
-                .edgedefs(BLUE.font())
+                .nodedefs(X11.RED.font())
+                .edgedefs(X11.BLUE.font())
                 .add(node("A").to(node("B")).with(label(" test")))
                 ,
                 graph()
-                .nodedefs(attribute("style", "filled"), RED.split(0.3, BLUE))
+                .nodedefs(attribute("style", "filled"), X11.RED.split(0.3, X11.BLUE))
                 .add(node("A").with(gradientangle(0)))
                 .add(node("B").with(gradientangle(135)))
                 ,
@@ -157,8 +157,42 @@ public class NeatoCheck {
                 ,
                 graph()
                 .with(K(2))
+                .with(maxiter(0))
                 .add(subgraph().add(edge(node("A"), node("B"))))
                 .add(subgraph().add(edge(node("C"), node("D"))))
+                ,
+                graph()
+                .with(layout(Engine.CIRCO), mindist(2))
+                .add(subgraph().add(edge(node("A"), node("B"))))
+                .add(subgraph().add(edge(node("C"), node("D"))))
+                ,
+                graph()
+                .with(layout(Engine.SFDP), mode(Mode.MAXENT))
+                .add(edge(node("A"), node("B")))
+                .add(edge(node("A"), node("C")))
+                .add(edge(node("A"), node("D")))
+                .add(edge(node("A"), node("E")).with(len(2)))
+                .add(edge(node("C"), node("F")))
+                .add(edge(node("E"), node("F")))
+                ),
+            List.of(
+                graph()
+                .add(edge(node("A"), node("B")))
+                .add(edge(node("A"), node("C")))
+                .add(edge(node("A"), node("D")))
+                .add(edge(node("A"), node("E")).with(len(2)))
+                .add(edge(node("C"), node("F")))
+                .add(edge(node("E"), node("F")))
+                ,
+                graph()
+                .with(model(Model.MDS))
+                .edgedefs(len(0.8))
+                .add(edge(node("A"), node("B")))
+                .add(edge(node("A"), node("C")))
+                .add(edge(node("A"), node("D")))
+                .add(edge(node("A"), node("E")))
+                .add(edge(node("C"), node("F")).with(len(1.5)))
+                .add(edge(node("E"), node("F")))
                 )
             );
     }

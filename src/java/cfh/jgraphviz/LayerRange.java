@@ -16,8 +16,11 @@ import java.util.List;
  *
  */
 public sealed interface LayerRange {
+    public static final String ALL = "all";
     public LayerRange include(String layer);
+    public LayerRange include(int layer);
     public LayerRange include(String first, String last);
+    public LayerRange include(int first, int last);
 }
 
 /**
@@ -26,55 +29,63 @@ public sealed interface LayerRange {
  */
 final class LayerRangeImpl implements LayerRange {
     
-    private final List<RangeImpl> ranges; 
+    private final String listSep;
+    private final String rangeSep;
+    private final StringBuilder ranges = new StringBuilder(); 
     
-    LayerRangeImpl() {
-        this.ranges = new ArrayList<>();
+    LayerRangeImpl(String listSep, String rangeSep) {
+        this.listSep = Character.toString(listSep.codePointAt(0));
+        this.rangeSep = Character.toString(rangeSep.codePointAt(0));
+    }
+
+    LayerRangeImpl(String listSep, String rangeSep, String layer) {
+        this(listSep, rangeSep);
+        ranges.append(layer);
     }
     
-    LayerRangeImpl(String layer) {
-        this.ranges = new ArrayList<>();
-        ranges.add(new RangeImpl(layer));
+    LayerRangeImpl(String listSep, String rangeSep, int layer) {
+        this(listSep, rangeSep, Integer.toString(layer));
     }
     
-    LayerRangeImpl(String first, String last) {
-        this.ranges = new ArrayList<>();
-        ranges.add(new RangeImpl(first, last));
+    LayerRangeImpl(String listSep, String rangeSep, String first, String last) {
+        this(listSep, rangeSep);
+        ranges.append(first).append(this.rangeSep).append(last);
+    }
+    
+    LayerRangeImpl(String listSep, String rangeSep, int first, int last) {
+        this(listSep, rangeSep, Integer.toString(first), Integer.toString(last));
     }
     
     @Override
     public LayerRange include(String layer) {
-        ranges.add(new RangeImpl(layer));
+        if (!ranges.isEmpty()) {
+            ranges.append(listSep);
+        }
+        ranges.append(layer);
         return this;
+    }
+    
+    @Override
+    public LayerRange include(int layer) {
+        return include(Integer.toString(layer));
     }
     
     @Override
     public LayerRange include(String first, String last) {
-        ranges.add(new RangeImpl(first, last));
+        if (!ranges.isEmpty()) {
+            ranges.append(listSep);
+        }
+        ranges.append(first).append(rangeSep).append(last);
         return this;
     }
     
     @Override
-    public String toString() {
-        return quote(ranges.stream().map(RangeImpl::toString).collect(joining(",")));
+    public LayerRange include(int first, int last) {
+        return include(Integer.toString(first), Integer.toString(last));
     }
-    
-    private class RangeImpl {
-        private final String first;
-        private final String last;
         
-        private RangeImpl(String layer) {
-            this.first = requireNonNull(layer, "null layer");
-            this.last = null;
-        }
-        private RangeImpl(String first, String last) {
-            this.first = requireNonNull(first, "null first");
-            this.last = requireNonNull(last, "null first");
-        }
-        
-        @Override
-        public String toString() {
-            return last == null ? first : first + ":" + last;
-        }
+    @Override
+    public String toString() {
+        return ranges.toString();
     }
 }

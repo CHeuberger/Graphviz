@@ -14,7 +14,7 @@ sealed interface Attr {
     public sealed interface S extends Attr { }
     public sealed interface N extends Attr { }
     public sealed interface E extends Attr { }
-//    public sealed interface GN extends G, N permits Attribute { }
+    public sealed interface GN extends G, N permits Attribute { }
 //    public sealed interface GE extends G, E permits Attribute { }
     public sealed interface GS extends G, S permits Attribute { }
 //    public sealed interface NE extends N, E { }

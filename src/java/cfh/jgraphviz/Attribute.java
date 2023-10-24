@@ -8,6 +8,7 @@ import static cfh.jgraphviz.Dot.*;
 import static cfh.jgraphviz.Attr.*;
 import static java.util.Objects.*;
 
+import cfh.jgraphviz.Attr.GN;
 import cfh.jgraphviz.Attr.GNE;
 import cfh.jgraphviz.Attr.GSN;
 import cfh.jgraphviz.Attr.SNE;
@@ -16,7 +17,7 @@ import cfh.jgraphviz.Attr.SNE;
  * @author Carlos F. Heuberger, 2023-03-04
  *
  */
-non-sealed interface Attribute extends GS, SN, SNE, GNE, GSNE, GSN {
+non-sealed interface Attribute extends GN, GS, SN, SNE, GNE, GSNE, GSN {
     public String script();
 }
 
