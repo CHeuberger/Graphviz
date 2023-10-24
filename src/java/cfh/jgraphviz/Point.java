@@ -17,7 +17,7 @@ public sealed interface Point {
     //
 }
 
-final class PointImpl implements Point {
+final class PointImpl implements Point, Valuable {
     
     private final boolean add;
     private final double[] coords;
@@ -30,7 +30,7 @@ final class PointImpl implements Point {
     }
     
     @Override
-    public String toString() {
+    public String value() {
         return quote( (add ? "+" : "") + Arrays.stream(coords).mapToObj(Double::toString).collect(Collectors.joining(",")) );
     }
 }

@@ -222,7 +222,7 @@ public class Dot {
     //----------------------------------------------------------------------------------------------
     
     /** Layout Engine. */
-    public enum Engine {
+    public enum Engine implements Valuable {
         /** <a href="https://en.wikipedia.org/wiki/Layered_graph_drawing">Hierarchical or layered drawings</a>. */
         DOT,
         /** "Spring Model" layout. */
@@ -244,7 +244,8 @@ public class Dot {
         /** Map of clustered graph using a <a href="https://en.wikipedia.org/wiki/Treemapping">Squarified Treemap Layout</a>. */
         PATCHWORK,
         ;
-        @Override public String toString() { return name().toLowerCase(); }
+        private final String value = name().toLowerCase();
+        @Override public String value() { return value; }
     }
 
     //----------------------------------------------------------------------------------------------
@@ -309,7 +310,7 @@ public class Dot {
     //----------------------------------------------------------------------------------------------
 
     /** Edge arrow direction type. */
-    public enum DirType {
+    public enum DirType implements Valuable {
         /** Forward arrow type, draw head glyph only. */  
         FORWARD,
         /** Backward arrow type, draw tail glyph only. */  
@@ -319,13 +320,14 @@ public class Dot {
         /** None arrow type, draw neither head nor tail glyph. */  
         NONE,
         ;
-        @Override public String toString() { return name().toLowerCase(); }
+        private final String value = name().toLowerCase();
+        @Override public String value() { return value; }
     }
     
     //----------------------------------------------------------------------------------------------
 
     /** Fixed size type: whether to use the specified width and height attributes to choose node size. */
-    public enum FixedSize {
+    public enum FixedSize implements Valuable {
         /** Size is specified by the values of the <code>width</code> and <code>height</code> attributes only and is not expanded to contain the text label. */
         TRUE,
         /** Size of a node is determined by smallest width and height needed to contain its label and image. */
@@ -333,13 +335,14 @@ public class Dot {
         /** The <code>width</code> and <code>height</code> attributes also determine the size of the node shape, but the label can be much larger. */
         SHAPE,
         ;
-        @Override public String toString() { return name().toLowerCase(); }
+        private final String value = name().toLowerCase();
+        @Override public String value() { return value; }
     }
     
     //----------------------------------------------------------------------------------------------
     
     /** How basic fontnames are represented in SVG output. */
-    public enum FontNames {
+    public enum FontNames implements Valuable {
         /** Try to use known SVG fontnames. */
         SVG,
         /** Use known PostScript font names. */
@@ -347,47 +350,49 @@ public class Dot {
         /** The fontconfig font conventions are used. */
         HD,
         ;
-        @Override public String toString() { return name().toLowerCase(); }
+        private final String value = name().toLowerCase();
+        @Override public String value() { return value; }
     }
     
     //----------------------------------------------------------------------------------------------
 
     /** Compass point used for Port Positions. */
-    public enum Compass {
+    public enum Compass implements Valuable {
         N, NE, E, SE, S, SW, W, NW, 
         /** Center of node or port. */
-        CENTER 
-        { @Override public String toString() { return "c"; } },
+        CENTER("c"),
         /** Appropriate side of the port adjacent to the exterior of the node should be used, if such exists. Otherwise, the center is used. */
-        DEFAULT
-        { @Override public String toString() { return "_"; } },
+        DEFAULT("_"),
         ;
-        @Override public String toString() { return name().toLowerCase(); }
+        private final String value;
+        private Compass() { this.value = name().toLowerCase(); }
+        private Compass(String value) { this.value = value; }
+        @Override public String value() { return value; }
     }
     
     //----------------------------------------------------------------------------------------------
 
     /** How an image is positioned within its containing node. */
-    public enum ImagePos {
-        /** Top Left. */         TopLeft("tl"),
-        /** Top Centered. */     TopCenter("tc"),
-        /** Top Right. */        TopRight("tr"),
-        /** Middle Left. */      MiddleLeft("ml"),
-        /** Middle Centered. */  MiddleCenter("mc"),
-        /** Middle Right. */     MiddleRight("mr"),
-        /** Bottom Left. */      BottomLeft("bl"),
-        /** Bottom Centered. */  BottomCenter("bc"),
-        /** Bottom Right. */     BottomRight("br"),
+    public enum ImagePos implements Valuable {
+        TOP_LEFT("tl"),
+        TOP_CENTER("tc"),
+        TOP_RIGHT("tr"),
+        MIDDLE_LEFT("ml"),
+        MIDDLE_CENTER("mc"),
+        MIDDLE_RIGHT("mr"),
+        BOTTOM_LEFT("bl"),
+        BOTTOM_CENTER("bc"),
+        BOTTOM_RIGHT("br"),
         ;
         private final String value;
         private ImagePos(String value) { this.value = value; }
-        @Override public String toString() { return value; }
+        @Override public String value() { return value; }
     }
     
     //----------------------------------------------------------------------------------------------
 
     /** How an image fills its containing node. */
-    public enum ImageScale {
+    public enum ImageScale implements Valuable {
         /** Image retains its natural size. */         NONE("false"),
         /** Image is uniformly scale. */               UNIFORMLY("true"),
         /** The width of the image is scaled. */       WIDTH("width"),
@@ -396,13 +401,13 @@ public class Dot {
         ;
         private final String value;
         private ImageScale(String value) { this.value = value; }
-        @Override public String toString() { return value; }
+        @Override public String value() { return value; }
     }
     
     //----------------------------------------------------------------------------------------------
     
     /** How to treat a node whose name has the form <code>|edgelabel|*</code> as a special node representing an edge label. */
-    public enum LabelScheme {
+    public enum LabelScheme implements Valuable {
         /** Produces no effect, the default (<code>0</code>). */
         NO_EFFECT(0),
         /** Uses a penalty-based method to make that kind of node close to the center of its neighbor (<code>1</code>). */
@@ -412,15 +417,15 @@ public class Dot {
         /** Two-step process of overlap removal and straightening (<code>3</code>). */
         TWO_STEPS(3),
         ;
-        private final int value;
-        private LabelScheme(int value) { this.value = value; }
-        @Override public String toString() { return Integer.toString(value); }
+        private final String value;
+        private LabelScheme(int value) { this.value = Integer.toString(value); }
+        @Override public String value() { return value; }
     }
     
     //----------------------------------------------------------------------------------------------
 
     /** Justification for graph & cluster labels. */
-    public enum LabelJust {
+    public enum LabelJust implements Valuable {
         /** The label is centered (<code>c</code>), the default. */
         CENTER,
         /** The label is right-justified within bounding rectangle (<code>r</code>). */
@@ -429,25 +434,25 @@ public class Dot {
         LEFT,
         ;
         private final String value = name().toLowerCase().substring(0, 1);
-        @Override public String toString() { return value; }
+        @Override public String value() { return value; }
     }
     
     //----------------------------------------------------------------------------------------------
     
     /** Vertical placement of labels for nodes, root graphs and clusters.*/
-    public enum LabelLoc {
+    public enum LabelLoc implements Valuable {
         CENTER,
         TOP,
         BOTTOM,
         ;
         private final String value = name().toLowerCase().substring(0, 1);
-        @Override public String toString() { return value; }
+        @Override public String value() { return value; }
     }
     
     //----------------------------------------------------------------------------------------------
 
     /** Technique for optimizing the layout; <code>neato</code>, <code>sfdp</code>? only. */
-    public enum Mode {
+    public enum Mode implements Valuable {
         /** Use stress majorization, the default. */
         MAJOR,
         /** Use the Kamada-Kawai2 version of the gradient descent method. </P>
@@ -474,13 +479,13 @@ public class Dot {
         private final String value;
         private Mode() { this.value = name().toLowerCase(); }
         private Mode(String value ) { this.value = value; }
-        @Override public String toString() { return value; }
+        @Override public String value() { return value; }
     }
     
     //----------------------------------------------------------------------------------------------
     
     /** Specifies how the distance matrix is computed for the input graph; <code>neato</code> only. */
-    public enum Model {
+    public enum Model implements Valuable {
         /** Use the length of the shortest path, where the length of each edge is given by its <code>len</code> attribute, the default. */
         SHORTPATH,
         /** Use the circuit resistance model to compute the distances. This tends to emphasize clusters. */
@@ -493,7 +498,8 @@ public class Dot {
         /** Use the <code>len</code> of an edge as the ideal distance between its vertices. */
         MDS,
         ;
-        @Override public String toString() { return name().toLowerCase(); }
+        private final String value = name().toLowerCase();
+        @Override public String value() { return value; }
     }
     
     //----------------------------------------------------------------------------------------------
@@ -584,7 +590,7 @@ public class Dot {
     public static Attr.G beautify() { return beautify(true); }
     
     /** Draw leaf nodes uniformly in a circle around the root node in <code>sfdp</code>, default: <code>false</code>. */
-    public static Attr.G beautify(boolean beautify) { return new AttributeImpl("beautify", beautify); }
+    public static Attr.G beautify(boolean beautify) { return booleanAttribute("beautify", beautify); }
     
      /** Canvas background color. */
     public static Attr.GS bgcolor(Color color) { return new AttributeImpl("bgcolor", color); }
@@ -596,7 +602,7 @@ public class Dot {
     public static Attr.G center() { return center(true); }
     
     /** Center the drawing in the output canvas, default: <code>false</code>. */
-    public static Attr.G center(boolean center) { return new AttributeImpl("center", center); }
+    public static Attr.G center(boolean center) { return booleanAttribute("center", center); }
     
     /** Character encoding used when interpreting string input as a text label, , default: <code>UTF-8</code>. 
      * @deprecated testing */
@@ -610,7 +616,7 @@ public class Dot {
     public static Attr.S cluster() { return cluster(true); }
     
     /** Whether the subgraph is a cluster, default: <code>false</code>. */
-    public static Attr.S cluster(boolean cluster) { return new AttributeImpl("cluster", cluster); }
+    public static Attr.S cluster(boolean cluster) { return booleanAttribute("cluster", cluster); }
     
     /** Mode used for handling clusters, default: <code>true</code>. Bounding rectangle drawn arround cluster and label, if present. */
     public static Attr.G clusterrank(boolean local) { return new AttributeImpl("clusterrank", local ? "local" : "global"); }
@@ -630,19 +636,19 @@ public class Dot {
     public static Attr.G compound() { return compound(true); }
     
     /** Allow edges between clusters. */
-    public static Attr.G compound(boolean allow) { return new AttributeImpl("compound", allow); }
+    public static Attr.G compound(boolean allow) { return booleanAttribute("compound", allow); }
     
     /** Use edge concentrators - merges multiedges into a single edge and causes partially parallel edges to share part of their paths. */
     public static Attr.G concentrate() { return concentrate(true); }
     
     /** Use edge concentrators, merges multiedges into a single edge and causes partially parallel edges to share part of their paths. */
-    public static Attr.G concentrate(boolean concentrate) { return new AttributeImpl("concentrate", concentrate); }
+    public static Attr.G concentrate(boolean concentrate) { return booleanAttribute("concentrate", concentrate); }
     
     /** Edge is not used in ranking the nodes; <code>dot</code> only. */
     public static Attr.E unconstraint() { return constraint(false); }
     
     /** If <code>false</code> Edge is not used in ranking the nodes; <code>dot</code> only. */
-    public static Attr.E constraint(boolean constraint) { return new AttributeImpl("constraint", constraint); }
+    public static Attr.E constraint(boolean constraint) { return booleanAttribute("constraint", constraint); }
     
     /** Factor damping force motions, default: <code>0.99</code>, minimum: <code>0.0</code>; <code>neato</code> only. */
     public static Attr.G damping(double factor) { return nonNegativeAttribute("Damping", factor); }
@@ -651,7 +657,7 @@ public class Dot {
     public static Attr.E decorate() { return decorate(true); }
     
     /** Whether to connect the edge label to the edge with a line. */
-    public static Attr.E decorate(boolean decorate) { return new AttributeImpl("decorate", decorate); }
+    public static Attr.E decorate(boolean decorate) { return booleanAttribute("decorate", decorate); }
     
     /** The distance between nodes in separate connected components, minimum: <code>epsilon</code>; <code>neato</code> only. */
     public static Attr.G defaultdist(double dist) { return positiveAttribute("defaultdist", dist); }
@@ -669,7 +675,7 @@ public class Dot {
     public static Attr.G diredgeconstraints() { return diredgeconstraints(true); }
     
     /** Constrain most edges to point downwards; <code>mode=ipsep</code>, <code>neato</code> only. */
-    public static Attr.G diredgeconstraints(boolean constrain) { return new AttributeImpl("diredgeconstraints", constrain); }
+    public static Attr.G diredgeconstraints(boolean constrain) { return booleanAttribute("diredgeconstraints", constrain); }
     
     /** Distortion factor for <code>shape=polygon</code>. </P>
      * Positive values cause top part to be larger than bottom; negative values do the opposite, default: <code>0.0</code>, minimum: <code>-100.0</code>.
@@ -707,10 +713,10 @@ public class Dot {
     public static Attr.SNE fillcolor(ColorList color) { return new AttributeImpl("fillcolor", color); }
     
     /** Whether to use the specified <code>width</code> and <code>height</code> attributes to choose node size (rather than sizing to fit the node contents.) */
-    public static Attr.N fixedsize(boolean fixed) { return new AttributeImpl("fixedsize", fixed); }
+    public static Attr.N fixedsize(boolean fixed) { return booleanAttribute("fixedsize", fixed); }
     
     /** Use the specified <code>width</code> and <code>height</code> attributes to choose node size. */
-    public static Attr.N fixedsize() { return new AttributeImpl("fixedsize", true); }
+    public static Attr.N fixedsize() { return booleanAttribute("fixedsize", true); }
     
     /** Whether to use the specified <code>width</code> and <code>height</code> attributes to choose node size (rather than sizing to fit the node contents.) */
     public static Attr.N fixedsize(FixedSize fixed) { return new AttributeImpl("fixedsize", fixed); }
@@ -734,7 +740,7 @@ public class Dot {
     public static Attr.G unforcelabels() { return forcelabels(false); }
     
     /** Force placement of all <code>xlabels</code>, even if overlapping, default: <code>true</code>. */
-    public static Attr.G forcelabels(boolean force) { return new AttributeImpl("forcelabels", force); }
+    public static Attr.G forcelabels(boolean force) { return booleanAttribute("forcelabels", force); }
     
     /** If a gradient fill is being used, this determines the angle of the fill, default: <code>0</code>, minimum: <code>0</code>. */
     public static Attr.GSN gradientangle(int angle) { return nonNegativeAttribute("gradientangle", angle); }
@@ -746,7 +752,7 @@ public class Dot {
     public static Attr.E noheadclip() { return headclip(false); }
     
     /** Clip the head of an edge to the boundary of the head node, otherwise the end of the edge goes to the center, default: <code>true</code>. */
-    public static Attr.E headclip(boolean clip) { return new AttributeImpl("headclip", clip); }
+    public static Attr.E headclip(boolean clip) { return booleanAttribute("headclip", clip); }
     
     /** Hyperlink output as part of the head label of the edge; <code>map</code>, <code>svg</code> only. */
     public static Attr.E headhref(String url) { return new AttributeImpl("headhref", url); }
@@ -799,7 +805,7 @@ public class Dot {
     public static Attr.N imagescale(ImageScale scale) { return new AttributeImpl("imagescale", scale); }
     
     /** Scales the input <code>positions</code> to convert between length units; <code>neato</code>, <code>fdp</code> only. */
-    public static Attr.G inputscale(double scale) { return new AttributeImpl("inputscale", scale); }
+    public static Attr.G inputscale(double scale) { return doubleAttribute("inputscale", scale); }
     
     /** Spring constant used in virtual physical model, default: <code>0.3</code>, minimum: <code>0.0</code>; <code>fdp</code>, <code>sfdp</code> only. */
     public static Attr.GS K(double inches) { return nonNegativeAttribute("K", inches); }
@@ -833,7 +839,7 @@ public class Dot {
     public static Attr.E labelfloat() { return labelfloat(true); }
     
     /** Allows edge labels to be less constrained in position. */
-    public static Attr.E labelfloat(boolean allow) { return new AttributeImpl("labelfloat", allow); }
+    public static Attr.E labelfloat(boolean allow) { return booleanAttribute("labelfloat", allow); }
     
     /** Color used for <code>headlabel</code> and <code>taillabel</code>. */
     public static Attr.E labelfontcolor(Color color) { return new AttributeImpl("labelfontcolor", color); }
@@ -866,11 +872,11 @@ public class Dot {
     public static Attr.G landscape() { return landscape(true); }
     
     /** Render the graph in landscape mode. */
-    public static Attr.G landscape(boolean landscape) { return new AttributeImpl("landscape", landscape); }
+    public static Attr.G landscape(boolean landscape) { return booleanAttribute("landscape", landscape); }
     
     /** Specifies layers in which the node, edge or cluster is present. */
     public static Attr.SNE layer(LayerRange... ranges) { 
-        return new AttributeImpl("layer", Arrays.stream(ranges).map(LayerRange::toString).collect(joining(layerListSep)));
+        return new AttributeImpl("layer", Arrays.stream(ranges).map(lr -> (Valuable)lr).map(Valuable::value).collect(joining(layerListSep)));
     }
 
     /** The separator characters used to split attributes of type <code>layerRange</code> into a list of ranges, default: <code>","</code>. */
@@ -884,7 +890,7 @@ public class Dot {
     
     /** Selects a list of layers to be emitted. */
     public static Attr.G layerselect(LayerRange... ranges) {
-        return new AttributeImpl("layerselect", Arrays.stream(ranges).map(LayerRange::toString).collect(joining(layerListSep)));
+        return new AttributeImpl("layerselect", Arrays.stream(ranges).map(lr -> (Valuable)lr).map(Valuable::value).collect(joining(layerListSep)));
     }
     
     /** The separator characters for splitting the layers attribute into a list of layer names, default: <code>":\t "</code>. */
@@ -903,7 +909,7 @@ public class Dot {
     public static Attr.G levels(int levels) { return nonNegativeAttribute("levels", levels); }
     
     /** Strictness of neato level constraints, default: <code>0.0</code>; <code>neato</code> only. */
-    public static Attr.G levelsgap(double strictness) { return new AttributeImpl("levelsgap", strictness); }
+    public static Attr.G levelsgap(double strictness) { return doubleAttribute("levelsgap", strictness); }
     
     /** Logical head of an edge; <code>compound=true</code>, <code>dot</code> only. */
     public static Attr.E lhead(String head) { return new AttributeImpl("lhead", head); }
@@ -918,7 +924,7 @@ public class Dot {
      *  For clusters, margin specifies the space between the nodes in the cluster and the cluster bounding box, in points, default <code>8</code> points.</br> 
      *  For nodes, this attribute specifies space left around the node's label, in inches, default <code>0.11,0.055</code>.
      */
-    public static Attr.GSN margin(double margin) { return new AttributeImpl("margin", margin); }
+    public static Attr.GSN margin(double margin) { return doubleAttribute("margin", margin); }
     
     /** For graphs, this sets x and y margins of canvas, in inches.</br>
      *  For nodes, this attribute specifies space left around the node's label, in inches, default <code>0.11,0.055</code>.
@@ -931,10 +937,10 @@ public class Dot {
     public static Attr.GN margin(Point margin) { return new AttributeImpl("margin", margin); }
     
     /** Sets the number of iterations used; <code>neato</code>, <code>fdp</code> only. */
-    public static Attr.G maxiter(int iterations) { return new AttributeImpl("maxiter", iterations); }
+    public static Attr.G maxiter(int iterations) { return intAttribute("maxiter", iterations); }
     
     /** Scale factor for mincross (mc) edge crossing minimiser parameters, default: <code>1.0</code>; <code>dot</code> only. */
-    public static Attr.G mclimit(double factor) { return new AttributeImpl("mclimit", factor); }
+    public static Attr.G mclimit(double factor) { return doubleAttribute("mclimit", factor); }
     
     /** Specifies the minimum separation between all nodes, default: <code>1.0</code>, minimum: <code>0.0</code>; <code>circo</code> only. */
     public static Attr.G mindist(double separation) { return nonNegativeAttribute("mindist", separation); }
@@ -952,7 +958,7 @@ public class Dot {
     public static Attr.G newrank() { return newrank(true); }
     
     /** Use a single global ranking, ignoring clusters; <code>dot</code> only. */
-    public static Attr.G newrank(boolean ignore) { return new AttributeImpl("newrank", ignore); }
+    public static Attr.G newrank(boolean ignore) { return booleanAttribute("newrank", ignore); }
     
     
     
@@ -969,7 +975,12 @@ public class Dot {
      *  @deprecated for testing, maybe delted (or not) 
      */
     @Deprecated
-    public static Attr.GSNE attribute(String name, Object value) { return new AttributeImpl(name, value); }
+    public static Attr.GSNE attribute(String name, CharSequence value) { return new AttributeImpl(name, value); }
+    /** Arbitrary attribute. 
+     *  @deprecated for testing, maybe delted (or not) 
+     */
+    @Deprecated
+    public static Attr.GSNE attribute(String name, Object value) { return new AttributeImpl(name, String.valueOf(value)); }
     
     //----------------------------------------------------------------------------------------------
     
@@ -1033,41 +1044,53 @@ public class Dot {
     public static XDot xdot(String... components) { return new XDotImpl(components); }
     
     //----------------------------------------------------------------------------------------------
+    
+    private static Attribute booleanAttribute(String name, boolean value) {
+        return new AttributeImpl(name, Boolean.toString(value), false);
+    }
+    
+    private static Attribute intAttribute(String name, int value) {
+        return new AttributeImpl(name, Integer.toString(value), false);
+    }
+    
+    private static Attribute doubleAttribute(String name, double value) {
+        return new AttributeImpl(name, Double.toString(value), false);
+    }
 
     private static Attribute rangedAttribute(String name, int value, int min, int max) {
         if (value < min || value > max)
             throw new IllegalArgumentException(String.format(Locale.ROOT, "invalid '%s' attribute: %d, expected between %d and %d", name, value, min, max));
-        return new AttributeImpl(name, value);
+        return intAttribute(name, value);
     }
     
     private static Attribute nonNegativeAttribute(String name, int value) {
         if (value < 0)
             throw new IllegalArgumentException(String.format(Locale.ROOT, "invalid '%s' attribute: %d, expected non negative integer", name, value));
-        return new AttributeImpl(name, value);
+        return intAttribute(name, value);
     }
     
     private static Attribute minimumAttribute(String name, int value, int min) {
         if (value < min)
             throw new IllegalArgumentException(String.format(Locale.ROOT, "invalid '%s' attribute: %d, expected minimum %d", name, value, min));
-        return new AttributeImpl(name, value);
+        return intAttribute(name, value);
     }
     
     private static Attribute positiveAttribute(String name, double value) {
         if (value <= 0)
             throw new IllegalArgumentException(String.format(Locale.ROOT, "invalid '%s' attribute: %f, expected positive number", name, value));
-        return new AttributeImpl(name, value);
+        return doubleAttribute(name, value);
     }
     
     private static Attribute nonNegativeAttribute(String name, double value) {
         if (value < 0)
             throw new IllegalArgumentException(String.format(Locale.ROOT, "invalid '%s' attribute: %f, expected non negative number", name, value));
-        return new AttributeImpl(name, value);
+        return doubleAttribute(name, value);
     }
     
     private static Attribute minimumAttribute(String name, double value, double min) {
         if (value < min)
             throw new IllegalArgumentException(String.format(Locale.ROOT, "invalid '%s' attribute: %f, expected minimum %f", name, value, min));
-        return new AttributeImpl(name, value);
+        return doubleAttribute(name, value);
     }
     
     //==============================================================================================

@@ -18,7 +18,7 @@ public sealed interface HTML {
  * @author Carlos F. Heuberger, 2023-10-20
  *
  */
-final class HTMLImpl implements HTML {
+final class HTMLImpl implements HTML, Valuable {
 
     private final String html;
     
@@ -27,7 +27,7 @@ final class HTMLImpl implements HTML {
     }
 
     @Override
-    public String toString() {
+    public String value() {
         return "< " + html + " >";
     }
 }

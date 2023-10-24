@@ -4,8 +4,6 @@
  */
 package cfh.jgraphviz;
 
-import static java.util.stream.Collectors.*;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,7 +21,7 @@ public sealed interface XDot {
  * @author Carlos F. Heuberger, 2023-10-05
  *
  */
-final class XDotImpl implements XDot {
+final class XDotImpl implements XDot, Valuable {
     
     private final List<String> components; // TODO change to List<Component>?
 
@@ -32,7 +30,7 @@ final class XDotImpl implements XDot {
     }
     
     @Override
-    public String toString() {
-        return components.stream().collect(joining(" ", "\"", "\""));
+    public String value() {
+        return '"' + String.join(" ", components) + '"';
     }
 }

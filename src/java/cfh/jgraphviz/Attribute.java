@@ -19,14 +19,30 @@ non-sealed interface Attribute extends GN, GS, SN, SNE, GNE, GSNE, GSN {
 final class AttributeImpl implements Attribute  {
 
     final String name;
-    final Object value;
+    final String value;
     
-    protected AttributeImpl(String name, Object value) {
+    AttributeImpl(String name, CharSequence value) {
         this.name = requireNonNull(name, "null name");
-        if (value instanceof String) {
-            this.value = quote((String) value);
+        this.value = quote(value.toString());
+    }
+    
+    // TODO needed?
+    AttributeImpl(String name, CharSequence value, boolean quote) {
+        this.name = requireNonNull(name, "null name");
+        this.value = quote ? quote(value.toString()) : value.toString();
+    }
+    
+    AttributeImpl(String name, Valuable v) {
+        this.name = requireNonNull(name, "null name");
+        this.value = v.value();
+    }
+    
+    AttributeImpl(String name, Object value) {
+        if (value instanceof Valuable v) {
+            this.name = requireNonNull(name, "null name");
+            this.value = v.value();
         } else {
-            this.value = requireNonNull(value, "null value");
+            throw new IllegalArgumentException("invalid attribute type " + value.getClass() + " (" + value + ")");
         }
     }
     

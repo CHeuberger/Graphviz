@@ -4,8 +4,6 @@
  */
 package cfh.jgraphviz;
 
-import static java.util.stream.Collectors.*;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,7 +21,7 @@ public sealed interface ArrowType {
  * @author Carlos F. Heuberger, 2023-10-06
  *
  */
-final class ArrowTypeImpl implements ArrowType {
+final class ArrowTypeImpl implements ArrowType, Valuable {
 
     private final List<String> shapes;
     
@@ -32,7 +30,7 @@ final class ArrowTypeImpl implements ArrowType {
     }
     
     @Override
-    public String toString() {
-        return shapes.stream().collect(joining("", "\"", "\""));
+    public String value() {
+        return '"' + String.join("", shapes) + '"';
     }
 }

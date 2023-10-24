@@ -6,6 +6,8 @@ package cfh.jgraphviz;
 
 import static java.util.Objects.*;
 
+import static cfh.jgraphviz.Dot.*;
+
 /**
  * @author Carlos F. Heuberger, 2023-10-23
  *
@@ -22,7 +24,7 @@ public sealed interface LayerRange {
  * @author Carlos F. Heuberger, 2023-10-23
  *
  */
-final class LayerRangeImpl implements LayerRange {
+final class LayerRangeImpl implements LayerRange, Valuable {
     
     private final String listSep;
     private final String rangeSep;
@@ -83,7 +85,7 @@ final class LayerRangeImpl implements LayerRange {
     }
         
     @Override
-    public String toString() {
-        return ranges.toString();
+    public String value() {
+        return quote( ranges.toString() );
     }
 }

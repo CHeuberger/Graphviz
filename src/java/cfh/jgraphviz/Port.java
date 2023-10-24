@@ -16,7 +16,7 @@ public sealed interface Port {
     //
 }
 
-final class PortImpl implements Port {
+final class PortImpl implements Port, Valuable {
 
     private final String name;
     private final Compass compass;
@@ -27,7 +27,7 @@ final class PortImpl implements Port {
     }
     
     @Override
-    public String toString() {
+    public String value() {
         if (compass == null)
             return name;
         else

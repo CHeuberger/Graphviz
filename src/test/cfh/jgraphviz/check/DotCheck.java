@@ -96,103 +96,103 @@ public class DotCheck {
                 .add(node("A").to(node("B")))
                 ,
                 // directed graph
-                graph()
+                graph("11")
                 .directed()
                 .add(node("A").to(node("B")))
                 ,
                 // un-directed graph
-                graph()
+                graph("12")
                 .directed(false)
                 .add(node("A").to(node("B")))
                 ,
                 // strict graph
-                graph()
+                graph("13")
                 .strict()
                 .add(edge(node("A"), node("B")))
                 .add(edge(node("B"), node("A")))
                 ,
                 // un-strict graph
-                graph()
+                graph("14")
                 .strict(false)
                 .add(edge(node("A"), node("B")))
                 .add(edge(node("B"), node("A")))
                 ,
                 // named graph
-                graph("the \"name\"")
+                graph("25 the \"name\"")
                 .add(node("A"))
                 ,
                 // node without attributes
-                graph()
+                graph("16")
                 .add(node("A"))
                 ,
                 // with attributes
-                graph()
+                graph("17")
                 .add(node("B").with(label("label")))
                 ,
                 // edge without attributes
-                graph()
+                graph("18")
                 .add(node("A").to(node("B")))
                 ,
                 // edge with attributes
-                graph()
+                graph("19")
                 .add(node("A").to(node("B")).with(label("test")))
                 ,
                 // alternative edge
-                graph()
+                graph("20")
                 .add(edge(node("A"), (node("B"))))
                 )
             ,
             // attr_stmt
             List.of(
                 // graph defaults
-                graph()
+                graph("21")
                 .graphdefs()
                 .graphdefs(label("Dummy"))
                 .graphdefs(label("Default"), fontsize(8))
                 .add(node("A"))
                 ,
                 // node defaults
-                graph()
+                graph("22")
                 .nodedefs()
                 .nodedefs(fontsize(22))
                 .add(node("A"))
                 .add(node("B"))
                 ,
                 // edge defaults
-                graph()
+                graph("23")
                 .edgedefs()
                 .edgedefs(label("Edge"))
                 .add(edge(node("A"), node("B")))
                 ,
                 // attribute statement
-                graph()
+                graph("24")
                 .with()
                 .with(label("Label"))
                 .add(node("A"))
                 ,
                 // subgraph
-                graph()
+                graph("25")
                 .add(subgraph())
                 .add(subgraph().add(node("A")).add(node("B")).to(node("S")))
                 .add(subgraph(node("D"), node("E")).to(subgraph().add(node("F")).add(node("G"))))
                 ,
                 // subgraph with ID
-                graph()
+                graph("26")
                 .add(subgraph("ID").add(node("A")).add(node("B")))
                 .add(node("S").from(subgraph("ID")))
                 )
             ,
             // attributes
             List.of(
-                graph()
+                graph("31")
                 .with(_background(xdot("c 7 -#000000 S 7 -#ff0000 E 26 95 20 10")))
                 .with(bgcolor(rgb(200, 140, 200, 140)))
                 .with(label("Attributes"))
                 .add(edge(node("A"), node("B")))
                 ,
-                graph()
+                graph("32")
                 .with(center())
-                .with(attribute("layout", Engine.PATCHWORK.toString().toLowerCase()))
+                .with(attribute("layout", Engine.PATCHWORK.value()))
                 .with(bgcolor(RED))
                 .with(AQUA.bgcolor())
                 .nodedefs(attribute("style", "filled"))
@@ -201,13 +201,13 @@ public class DotCheck {
                 .add(node("2").with(area(2)))
                 .add(node("2+").with(area(2)))
                 ,
-                digraph()
+                digraph("33")
                 .with(bgcolor(hsv(0.0, 0.8, 1.0)))
                 .edgedefs(arrowhead(arrowtype("odot", "lbox")))
                 .add(edge(node("A"), node("B")).with(arrowsize(1.5)))
                 .add(edge(node("B"), node("S")).with(attribute("dir", "both"), arrowtail(arrowtype("tee"))))
                 ,
-                graph()
+                graph("34")
                 .with(
                     attribute("layout", "sfdp"),
                     beautify()
@@ -215,7 +215,7 @@ public class DotCheck {
                 .nodedefs(label("\\N"))
                 .add(edge(node("A"), subgraph(node("b"), node("c"), node("d"), node("e"))))
                 ,
-                digraph()
+                digraph("35")
                 .with(attribute("style", "radial"), RED.to(BLUE).bgcolor())
                 .with(classname("test"))
                 .add(edge(node("A"), node("B")).with(arrowsize(3.1)))
@@ -223,7 +223,7 @@ public class DotCheck {
             ,
             // subgraph
             List.of(
-                digraph()
+                digraph("41")
                 .with(clusterrank(true))
                 .add(subgraph(node("A").with(color(ORANGE)), node("B")).with(cluster()))
                 .add(subgraph(node("C"), node("D")).with(cluster(false)))
@@ -234,7 +234,7 @@ public class DotCheck {
                     )
                 .add(node("G").with(ORANGE))
                 ,
-                digraph()
+                digraph("42")
                 .with(comment("Just a comment"))
                 .nodedefs(attribute("style", "filled"), colorscheme("oranges9"), color(color("2")))
                 .add(node("A"))
@@ -242,7 +242,7 @@ public class DotCheck {
                 .add(edge(node("A"), node("B")))
                 .add(edge(node("B"), node("C")))
                 ,
-                digraph()
+                digraph("43")
                 .with(compound())
                 .add(subgraph("A")
                     .with(label("A"), cluster())
@@ -259,38 +259,38 @@ public class DotCheck {
                 )
             ,
             List.of(
-                digraph()
+                digraph("51")
                 .with(concentrate())
                 .add(edge(node("A"), node("D")).with(label("1")))
                 .add(edge(node("B"), node("D")))
                 .add(edge(node("C"), node("D")))
                 ,
-                digraph()
+                digraph("52")
                 .add(edge(node("A"), node("C")).with(RED))
                 .add(edge(node("A"), node("B")))
                 .add(edge(node("B"), node("C")).with(unconstraint()))
                 ,
-                digraph()
+                digraph("53")
                 .add(edge(node("A"), node("B")).with(GREEN.to(RED).to(BLUE).to(BEIGE)))  // green:red:blue
                 .add(edge(node("B"), node("C")).with(GREEN.split(0.3, RED).split(0.4, BLUE)))  // green;0.3:red;0.4:blue
                 .add(edge(node("C"), node("D")).with(GREEN.split(0.3, RED).split(BLUE, 0.3)))  // green;0.3:red:blue;0.3
                 .add(edge(node("D"), node("E")).with(GREEN.split(RED, 0.4).split(BLUE, 0.3)))  // green:red;0.4:blue;0.3
                 ,
-                digraph()
+                digraph("54")
                 .with(dim(5))
                 .add(edge(node("A"), node("B")).with(label("first")))
                 .add(edge(node("B"), node("C")).with(label("second"), decorate()))
                 .add(edge(node("D"), node("E")).with(label("third"), decorate(true)))
                 .add(edge(node("E"), node("F")).with(label("fourth"), decorate(false)))
                 ,
-                digraph()
+                digraph("55")
                 .add(edge(node("A"), node("B")).with(dir(DirType.FORWARD)))
                 .add(edge(node("B"), node("C")).with(dir(DirType.BACK)))
                 .add(edge(node("D"), node("E")).with(dir(DirType.BOTH)))
                 .add(edge(node("E"), node("F")).with(dir(DirType.NONE)))
                 .add(node("B").with(attribute("xlabel", "Additional label")))
                 ,
-                digraph()
+                digraph("56")
                 .with(diredgeconstraints(), attribute("mode", "ipsep"), forcelabels(false))
                 .add(edge(node("A"), node("B")))
                 .add(edge(node("A"), node("C")).with(attribute("xlabel", "some more text")))
@@ -300,7 +300,7 @@ public class DotCheck {
                 )
             ,
             List.of(
-                graph()
+                graph("61")
                 .with(dpi(96))
                 .with(fontpath(Path.of("/tmp")))
                 .nodedefs(fontsize(8))
@@ -309,7 +309,7 @@ public class DotCheck {
                 .add(node("Top").with(distortion(+0.5), attribute("shape", "polygon"), attribute("sides", 4)))
                 .add(node("A").with(attribute("style", "filled"), fillcolor(BLUE)))
                 ,
-                digraph()
+                digraph("62")
                 .add(node("A1").with(group("A")))
                 .add(node("A2").with(group("A")))
                 .add(node("A3").with(group("A")))
@@ -321,15 +321,15 @@ public class DotCheck {
                 .add(edge(node("A2"), node("A4")))
                 .add(edge(node("A3"), node("A4")))
                 ,
-                digraph()
+                digraph("63")
                 .with(imagepath("build"))
                 .add(edge(node("A1"), node("A2")))
                 .add(edge(node("A1"), node("A3")).with(headport(Compass.E)))
                 .add(edge(node("A1"), node("A4")).with(headport(port("b"))))
                 .add(edge(node("A1"), node("A5")).with(headport(port("c", Compass.W))))
-                .add(node("C").with(image("icon.png"), imagepos(ImagePos.TopCenter), height(1), imagescale(ImageScale.WIDTH)))
+                .add(node("C").with(image("icon.png"), imagepos(ImagePos.TOP_CENTER), height(1), imagescale(ImageScale.WIDTH)))
                 ,
-                digraph()
+                digraph("64")
                 .with(label(html("test <b>bold</b>")))
                 .nodedefs(attribute("shape","record"))
                 .add(node("A").with(label("<a>a|<b>"), height(1)))
@@ -338,7 +338,7 @@ public class DotCheck {
                 )
             ,
             List.of(
-                graph()
+                graph("71")
                 .with(landscape(false))
                 .with(labelloc(LabelLoc.TOP), labeljust(LabelJust.RIGHT), label("X"))
                 .add(edge(node("A1"), node("B1")).with(label("plain"), headlabel("head"), labelfontsize(8.0), attribute("taillabel", "tail")))
@@ -359,7 +359,7 @@ public class DotCheck {
                 .add(node("A").with(layer(range("a", "b").include("d").include("f", LayerRange.ALL))))
                 .add(node("B").with(layer(range("a", "b"), range("d"), range("f", LayerRange.ALL))))
                 ,
-                digraph()
+                digraph("82")
                 .with(layout(Engine.NEATO))
                 .with(levelsgap(-1.0), attribute("mode", "hier"))
                 .add(edge("A", "B").with(len(1.5)))
@@ -367,7 +367,7 @@ public class DotCheck {
                 .add(edge("A", "C"))
                 .add(edge("A", "D"))
                 ,
-                digraph()
+                digraph("83")
                 .with(layout(Engine.NEATO))
                 .with(levelsgap(1.0), attribute("mode", "hier"))
                 .add(edge("A", "B").with(len(1.5)))
@@ -375,7 +375,7 @@ public class DotCheck {
                 .add(edge("A", "C"))
                 .add(edge("A", "D"))
                 ,
-                digraph()
+                digraph("84")
                 .with(layout(Engine.DOT), compound())
                 .with(margin(point(0.3, 0.1)))
                 .add(subgraph("cluster_a").add(node("A1"), node("A2"), node("A3")).with(margin(16)))
@@ -387,7 +387,7 @@ public class DotCheck {
                 )
             ,
             List.of(
-                digraph()
+                digraph("91")
                 .with(mclimit(1))
                 .add(edge("A", "B"))
                 .add(edge("A", "C"))
@@ -397,7 +397,7 @@ public class DotCheck {
                 .add(edge("B", "D"))
                 .add(edge("B", "E"))
                 ,
-                digraph()
+                digraph("92")
                 .with(mclimit(2.0))
                 .edgedefs(minlen(0))
                 .add(edge("A", "B"))
@@ -408,7 +408,7 @@ public class DotCheck {
                 .add(edge("B", "D"))
                 .add(edge("B", "E"))
                 ,
-                tmp = graph()
+                tmp = graph("93+94")
                 .with(compound())
                 .add(subgraph("cluster_a")
                     .with(label("a"))

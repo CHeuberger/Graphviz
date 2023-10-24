@@ -42,7 +42,7 @@ public sealed interface ColorList extends Attr.SNE permits Color, ColorListImpl 
  * @author Carlos F. Heuberger, 2023-10-16
  *
  */
-final class ColorListImpl implements ColorList, Attribute {
+final class ColorListImpl implements ColorList, Attribute, Valuable {
 
     private static final double NO_FRACTION = -1;
     
@@ -135,19 +135,24 @@ final class ColorListImpl implements ColorList, Attribute {
     
     @Override
     public String script() {
-        return "color=" + quote(value());
+        return "color=" + value();
+    }
+    
+    String code() {
+        var f = String.format(Locale.ROOT, fraction == NO_FRACTION ? "" : ";%.2f", fraction);
+        if (next == null)
+            return color.code() + f;
+        else
+            return color.code() + f + ":" + next.code();
+    }
+    
+    @Override
+    public String value() {
+        return quote( code() );
     }
     
     @Override
     public String toString() {
-        return quote(value());
-    }
-    
-    private String value() {
-        var f = String.format(Locale.ROOT, fraction == NO_FRACTION ? "" : ";%.2f", fraction);
-        if (next == null)
-            return color.value() + f;
-        else
-            return color.value() + f + ":" + next.value();
+        return code();
     }
 }

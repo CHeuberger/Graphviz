@@ -704,7 +704,7 @@ public sealed interface Color extends ColorList {
  * @author Carlos F. Heuberger, 2023-10-16
  *
  */
-final class ColorImpl implements Color, Attribute {
+final class ColorImpl implements Color, Attribute, Valuable {
 
     private final String value;
     
@@ -769,11 +769,16 @@ final class ColorImpl implements Color, Attribute {
     }
     
     @Override
-    public String toString() {
+    public String value() {
         return quote(value);
     }
     
-    String value() {
+    @Override
+    public java.lang.String toString() {
+        return code();
+    }
+    
+    String code() {
         return value;
     }
     

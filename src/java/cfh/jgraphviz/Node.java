@@ -23,7 +23,7 @@ public interface Node {
 class NodeImpl extends AttributeHolder implements NodeId, SourceTarget {
     
     private final String id;
-    private final Port port; 
+    private final PortImpl port; 
     
     NodeImpl(String id) {
         this.id = requireNonNull(id, "null id");
@@ -32,7 +32,7 @@ class NodeImpl extends AttributeHolder implements NodeId, SourceTarget {
     
     NodeImpl(String id, Port port) {
         this.id = requireNonNull(id, "null id");
-        this.port = requireNonNull(port, "null port");
+        this.port = requireNonNull((PortImpl) port, "null port");
     }
     
     NodeImpl(NodeImpl org) {
@@ -60,7 +60,7 @@ class NodeImpl extends AttributeHolder implements NodeId, SourceTarget {
     @Override
     public String script(GraphImpl graph) {
         return quote(id)
-            + (port == null ? "" : ":" + port.toString())
+            + (port == null ? "" : ":" + port.value())
             + super.script();
     }
 }
