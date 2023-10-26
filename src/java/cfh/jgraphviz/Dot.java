@@ -364,9 +364,9 @@ public class Dot {
         /** Appropriate side of the port adjacent to the exterior of the node should be used, if such exists. Otherwise, the center is used. */
         DEFAULT("_"),
         ;
-        private final String value;
         private Compass() { this.value = name().toLowerCase(); }
         private Compass(String value) { this.value = value; }
+        private final String value;
         @Override public String value() { return value; }
     }
     
@@ -384,8 +384,8 @@ public class Dot {
         BOTTOM_CENTER("bc"),
         BOTTOM_RIGHT("br"),
         ;
-        private final String value;
         private ImagePos(String value) { this.value = value; }
+        private final String value;
         @Override public String value() { return value; }
     }
     
@@ -399,8 +399,8 @@ public class Dot {
         /** The height of the image is scaled. */      HEIGHT("height"),
         /** Height and Width are scaled separately. */ BOTH("both"),
         ;
-        private final String value;
         private ImageScale(String value) { this.value = value; }
+        private final String value;
         @Override public String value() { return value; }
     }
     
@@ -417,8 +417,8 @@ public class Dot {
         /** Two-step process of overlap removal and straightening (<code>3</code>). */
         TWO_STEPS(3),
         ;
-        private final String value;
         private LabelScheme(int value) { this.value = Integer.toString(value); }
+        private final String value;
         @Override public String value() { return value; }
     }
     
@@ -476,9 +476,9 @@ public class Dot {
         /** For <code>sfdp</code>, use a spring-electrical model but take into account edge lengths specified by the <code>len</code> attribute. */
         MAXENT,
         ;
-        private final String value;
         private Mode() { this.value = name().toLowerCase(); }
         private Mode(String value ) { this.value = value; }
+        private final String value;
         @Override public String value() { return value; }
     }
     
@@ -503,6 +503,91 @@ public class Dot {
     }
     
     //----------------------------------------------------------------------------------------------
+    
+    /**Constrains the left-to-right ordering of node edges; <code>dot</code> only. */
+    public enum Ordering implements Valuable {
+        /** No ordering. */
+        DEFAULT(""),
+        /** The outedges of a node, that is, edges with the node as its tail node, 
+         *  must appear left-to-right in the same order in which they are defined in the input. */
+        OUT("out"),
+        /** The inedges of a node, that is, edges with the node as its head node 
+         *  must appear left-to-right in the same order in which they are defined in the input. */
+        IN("in"),
+        ;
+        private Ordering(String value) { this.value = value; }
+        private final String value;
+        @Override public String value() { return value; }
+    }
+    
+    //----------------------------------------------------------------------------------------------
+    
+    /** Order in which nodes and edges are drawn. */
+    public enum OutputMode implements Valuable {
+        /** Output in breadth first graph walk order, the default. */
+        BREADTH_FIRST("breadthfirst"),
+        /** Nodes are drawn first, followed by the edges. */
+        NODES_FIRST("nodesfirst"),
+        /** Edges are drawn first, followed by the nodes; edges appear beneath nodes. */
+        EDGES_FIRST("edgesfirst"),
+        ;
+        private OutputMode(String value) { this.value = value; }
+        private final String value;
+        @Override public String value() { return value; }
+    }
+    
+    //----------------------------------------------------------------------------------------------
+
+    /** How node overlaps should be removed; <code>sfdp</code>, <code>fdp</code>, <code>neato</code> only. */
+    public enum Overlap implements Valuable {
+        /** Overlaps are retained, the default (<code>true</code>) except for <code>fdp</code> and <code>sfdp</code>. */
+        RETAIN("true"),
+        /** Overlaps are removed by uniformly scaling in x and y. */
+        SCALE,
+        /** <code>Prism</code>, a proximity graph-based algorithm, is used to remove node overlaps, 1000 attempts. */
+        PRISM,
+        /** <code>Prism</code>, a proximity graph-based algorithm, is used to remove node overlaps, only the scaling phase, the default for <code>sfdp</code>. */
+        PRISM0,
+        /** A Voronoi-based technique is used to remove overlaps. */
+        VORONOI,
+        /** <code>x</code> and <code>y</code> are separately scaled to remove overlaps. */
+        SCALEXY,
+        /** The layout will be scaled down as much as possible without introducing any overlaps, obviously assuming there are none to begin with. */
+        COMPRESS,
+        /** Overlap removal is done as a quadratic optimization to minimize node displacement while removing node overlaps.*/
+        VPSC,
+        /** Overlaps are moved by optimizing two constraint for the <code>x</code> axis first and then for the <code>y</code> axis. */
+        @Deprecated
+        ORTHOXY,
+        /** Overlaps are moved by optimizing two constraint for the <code>y</code> axis first and then for the <code>y</code> axis. */
+        @Deprecated
+        ORTHOYX,
+        /** Similar to {@link #ORTHOXY}, using a heuristic is used to reduce the bias between the two passes.  */
+        @Deprecated
+        ORTHO,
+        /** Similar to {@link #ORTHOYX}, using a heuristic is used to reduce the bias between the two passes.  */
+        @Deprecated
+        ORTHO_YX,
+        /** Similar to {@link #ORTHOXY},  pseudo-orthogonal ordering is enforced. */
+        @Deprecated
+        PORTHOXY,
+        /** Similar to {@link #ORTHOYX},  pseudo-orthogonal ordering is enforced. */
+        @Deprecated
+        PORTHOYX,
+        /** Similar to {@link #ORTHO},  pseudo-orthogonal ordering is enforced. */
+        @Deprecated
+        PORTHO,
+        /** Similar to {@link #ORTHO_YX},  pseudo-orthogonal ordering is enforced. */
+        @Deprecated
+        PORTHO_YX,
+        /** Overlap removal constraints are incorporated into the layout algorithm itself; <code>neato</code>, <code>ipsec</code> only. */
+        IPSEC,
+        ;
+        private Overlap() { this.value = name().toLowerCase(); }
+        private Overlap(String value) { this.value = value; }
+        private final String value;
+        @Override public String value() { return value; }
+    }
     
     //==============================================================================================
     
@@ -959,6 +1044,97 @@ public class Dot {
     
     /** Use a single global ranking, ignoring clusters; <code>dot</code> only. */
     public static Attr.G newrank(boolean ignore) { return booleanAttribute("newrank", ignore); }
+    
+    /** <code>dot</code>: the minimum space between two adjacent nodes in the same rank, in inches;
+     * other layouts: affects the spacing between loops on a single node, or multiedges between a pair of nodes;
+     * defualt: <code>0.25</code>, minimum: <code>0.02</code>.
+     */
+    public static Attr.G nodesep(double inches) { return minimumAttribute("nodesep", inches, 0.02); }
+    
+    /** Justify multiline text vs the previous text line (rather than the side of the container). */
+    public static Attr.GSNE nojustify() { return nojustify(true); }
+    
+    /** Justify multiline text vs the previous text line (rather than the side of the container). */
+    public static Attr.GSNE nojustify(boolean nojustify) { return booleanAttribute("nojustify", nojustify); }
+    
+    /** Normalizes coordinates of final layout, so that the first point is at the origin (0 degrees); 
+     * <code>neato</code>, <code>fdp</code>, <code>sfdp</code>, <code>twopi</code>, <code>circo</code> only.
+     */
+    public static Attr.G normalize() { return normalize(true); }
+    
+    
+    /** Normalizes coordinates of final layout, so that the first point is at the origin (0 degrees); 
+     * <code>neato</code>, <code>fdp</code>, <code>sfdp</code>, <code>twopi</code>, <code>circo</code> only. 
+     */
+    public static Attr.G normalize(boolean normalize) { return booleanAttribute("normalize", normalize); }
+    
+    
+    /** Normalizes coordinates of final layout, so that the first point is at the origin, 
+     * and then rotates the layout so that the angle of the first edge is specified by the value of normalize in degrees; 
+     * <code>neato</code>, <code>fdp</code>, <code>sfdp</code>, <code>twopi</code>, <code>circo</code> only. 
+     */
+    public static Attr.G normalize(double degrees) { return doubleAttribute("normalize", degrees); }
+    
+    /** Avoid translating layout to the origin point; <code>neato</code> only. */
+    public static Attr.G notranslate() { return notranslate(true); }
+    
+    /** Avoid translating layout to the origin point; <code>neato</code> only. */
+    public static Attr.G notranslate(boolean notranslate) { return booleanAttribute("notranslate", notranslate); }
+    
+    /** Number of iterations in network simplex applications in computing node x coordinates, <code># iterations = nslimit * # nodes</code>; <code>dot</code> only. */
+    public static Attr.G nslimit(double factor) { return doubleAttribute("nslimit", factor); }
+    
+    /** Number of iterations in network simplex applications for ranking nodes, <code># iterations = nslimit * # nodes</code>; <code>dot</code> only. */
+    public static Attr.G nslimit1(double factor) { return doubleAttribute("nslimit1", factor); }
+    
+    /** Draw circo graphs around one circle; <code>circo</code> only. */
+    public static Attr.G oneblock() { return oneblock(true); }
+    
+    /** Draw circo graphs around one circle, default: <code>false</code>; <code>circo</code> only. */
+    public static Attr.G oneblock(boolean oneblock) { return booleanAttribute("oneblock", oneblock); }
+    
+    /** Constrains the left-to-right ordering of node edges; <code>dot</code> only. */
+    public static Attr.GSN ordering(Ordering ordering) { return new AttributeImpl("ordering", ordering); }
+    
+    /** Node shape rotation angle,in degrees, default: <code>0.0</code>, minimum <code>-360.0</code>. */
+    public static Attr.N orientation(double degrees) { return minimumAttribute("orientation", degrees, -360.0); }
+    
+    /** Graph orientation, landscape. */
+    public static Attr.G orientation() { return orientation(true); }
+    
+    /** Graph orientation, landscape. */
+    public static Attr.G orientation(boolean landscape) { return new AttributeImpl("orientation", landscape ? "landscape" : "default"); }
+    
+    /** Order in which nodes and edges are drawn. */
+    public static Attr.G outputorder(OutputMode order) { return new AttributeImpl("outputorder", order); }
+    
+    /** How node overlaps should be removed; <code>sfdp</code>, <code>fdp</code>, <code>neato</code> only. </P>
+     *  If <code>true</code>, overlaps are retained. 
+     *  If <code>false</code>, and available, Prism, a proximity graph-based algorithm, is used to remove node overlaps;
+     *  otherwise, if not available, Voronoi-based technology is used. 
+     *  @see Overlap#PRISM
+     *  @see Overlap#VORONOI  */
+    public static Attr.G overlap(boolean retain) { return booleanAttribute("overlap", retain); }
+    
+    /** How node overlaps should be removed; <code>sfdp</code>, <code>fdp</code>, <code>neato</code> only. */
+    public static Attr.G overlap(Overlap overlap) { return new AttributeImpl("overlap", overlap); }
+    
+    /** How node overlaps should be removed and given number of attempts - for {@link Overlap#PRISM} mode; <code>sfdp</code>, <code>fdp</code>, <code>neato</code> only. */
+    public static Attr.G overlap(Overlap overlap, int attempts) {
+        if (overlap != Overlap.PRISM)
+            throw new IllegalArgumentException("attempts can only be used with Overlap.PRISM, not: " + overlap);
+        if (attempts < 0)
+            throw new IllegalArgumentException("number of attempts must be non-negative: " + attempts);
+        return new AttributeImpl("overlap", overlap.value() + attempts); 
+    }
+    
+    /** How node overlaps should be removed, first try a number of passes using a built-in, force-directed technique; <code>sfdp</code>, <code>fdp</code> only. */
+    public static Attr.G overlap(int passes, Overlap overlap) {
+        if (passes < 0)
+            throw new IllegalArgumentException("number of passes must be non-negative: " + passes);
+        return new AttributeImpl("overlap", passes + ":" + overlap.value()); 
+    }
+    
     
     
     

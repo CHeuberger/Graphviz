@@ -11,7 +11,7 @@ import static cfh.jgraphviz.Dot.*;
  */
 sealed interface Valuable 
 permits XDotImpl, ArrowTypeImpl, ColorImpl, ColorListImpl, PointImpl, HTMLImpl, PortImpl, LayerRangeImpl, 
-        Engine, DirType, FixedSize, FontNames, Compass, 
+        Engine, DirType, FixedSize, FontNames, Compass, Ordering, OutputMode, Overlap, 
         ImagePos, ImageScale, LabelScheme, LabelJust, LabelLoc, Mode, Model {
     
     public String value();

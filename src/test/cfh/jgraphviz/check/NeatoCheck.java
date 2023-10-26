@@ -87,10 +87,12 @@ public class NeatoCheck {
 
     private List<List<Graph>> createDotGraphs() {
 
+        Graph tmp;
+        
         return List.of(
             List.of(
                 // default graph
-                graph()
+                graph("10")
                 .add(node("B").with(X11.GREEN))
                 .add(node("A").to(node("B")))
                 ,
@@ -134,7 +136,7 @@ public class NeatoCheck {
                 )
             ,
             List.of(
-                digraph()
+                digraph("20")
                 .with(fontname("Symbol"), label("Font Symbol"), fontnames(FontNames.HD))
                 .nodedefs(X11.RED.font())
                 .edgedefs(X11.BLUE.font())
@@ -176,7 +178,7 @@ public class NeatoCheck {
                 .add(edge(node("E"), node("F")))
                 ),
             List.of(
-                graph()
+                graph("30")
                 .add(edge(node("A"), node("B")))
                 .add(edge(node("A"), node("C")))
                 .add(edge(node("A"), node("D")))
@@ -184,7 +186,7 @@ public class NeatoCheck {
                 .add(edge(node("C"), node("F")))
                 .add(edge(node("E"), node("F")))
                 ,
-                graph()
+                graph("31")
                 .with(model(Model.MDS))
                 .edgedefs(len(0.8))
                 .add(edge(node("A"), node("B")))
@@ -193,6 +195,56 @@ public class NeatoCheck {
                 .add(edge(node("A"), node("E")))
                 .add(edge(node("C"), node("F")).with(len(1.5)))
                 .add(edge(node("E"), node("F")))
+                ,
+                graph("32")
+                .with(layout(Engine.CIRCO))
+                .with(normalize(30.0))
+                .add(edge("A", "B"))
+                .add(edge("A", "C"))
+                .add(edge("A", "D"))
+                .add(edge("A", "E"))
+                )
+            ,
+            List.of( 
+                tmp = digraph("33+34")
+                .with(layout(Engine.CIRCO))
+                .add(edge("A1", "B1"))
+                .add(edge("B1", "C1"))
+                .add(edge("C1", "A1"))
+                .add(edge("C1", "A2"))
+                .add(edge("A2", "B2"))
+                .add(edge("B2", "C2"))
+                .add(edge("C2", "A2"))
+                ,
+                tmp.copy()
+                .with(oneblock())
+                ,
+                tmp = digraph("35+36")
+                .with(epsilon(0.8))
+                .nodedefs(attribute("style", "filled"))
+                .add(edge(node("A"), node("B")))
+                .add(edge(node("A"), node("C")))
+                .add(edge(node("A"), node("D")))
+                .add(edge(node("A"), node("E")))
+                .add(edge(node("E"), node("F")))
+                ,
+                tmp.copy().with(outputorder(OutputMode.EDGES_FIRST))
+                )
+            ,
+            List.of( 
+                tmp = graph("41")
+                .with(epsilon(0.2))
+                .add(edge(node("A"), node("B")))
+                .add(edge(node("A"), node("C")))
+                .add(edge(node("A"), node("D")))
+                .add(edge(node("A"), node("E")))
+                .add(edge(node("E"), node("F")))
+                ,
+                tmp.copy()
+                .with(overlap(false))
+                ,
+                tmp.copy()
+                .with(overlap(Overlap.SCALEXY))
                 )
             );
     }

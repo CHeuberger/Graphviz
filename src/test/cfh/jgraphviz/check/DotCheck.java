@@ -420,7 +420,80 @@ public class DotCheck {
                     )
                 .add(edge("A2", "B2"))
                 ,
-                tmp.copy().with(newrank())
+                tmp.copy()
+                .with(newrank())
+                ,
+                graph("95")
+                .with(compound())
+                .with(nodesep(0.1))
+                .add(subgraph("cluster_a")
+                    .with(label("a"))
+                    .add(edge("A1", "A2"), edge("A2", "A3"))
+                    )
+                .add(subgraph("cluster_b")
+                    .with(label("b"))
+                    .add(edge("B1", "B2"), edge("B1", "B3"))
+                    )
+                .add(edge("A2", "B2"))
+                )
+            ,
+            List.of(
+                graph("101")
+                .nodedefs(attribute("shape", "box"))
+                .nodedefs(attribute("width", "3"))
+                .add(node("default").with(label("long line followed by\\nsmall line\\l")))
+                .add(node("nojustify").with(nojustify(),label("long line followed by\\nsmall line\\l")))
+                ,
+                graph("102")
+                .with(nslimit(0.02))
+                .with(nslimit1(0.03))
+                .add(edge("A", "B"))
+                .add(edge("A", "C"))
+                .add(edge("A", "D"))
+                .add(edge("A", "E"))
+                .add(edge("B", "C"))
+                .add(edge("B", "D"))
+                .add(edge("B", "E"))
+                ,
+                tmp = digraph("103+104")
+                .with(label("no ordering"))
+                .add(node("A"), node("B"), node("C"))
+                .add(node("X"))
+                .add(node("E"), node("E"), node("F"))
+                .add(edge("B", "X").with(label("1")))
+                .add(edge("A", "X").with(label("2")))
+                .add(edge("C", "X").with(label("3")))
+                .add(edge("X", "D").with(label("4")))
+                .add(edge("X", "F").with(label("5")))
+                .add(edge("X", "E").with(label("6")))
+                ,
+                tmp.copy()
+                .with(label("ordering: IN"))
+                .with(ordering(Ordering.IN))
+                ,
+                tmp.copy()
+                .with(label("ordering: OUT"))
+                .with(ordering(Ordering.OUT))
+                )
+            ,
+            List.of(
+                graph("111")
+                .with(orientation())
+                .add(node("A"), node("B"), node("C"))
+                ,
+                graph("112")
+                .with(orientation(false))
+                .add(node("A"), node("B"), node("C"))
+                ,
+                graph("113")
+                .with(orientation(false))
+                .nodedefs(attribute("shape", "house"))
+                .nodedefs(orientation(30))
+                .add(
+                    node("A"), 
+                    node("B").with(orientation(45)), 
+                    node("C").with(orientation(90))
+                    )
                 )
             // TODO ports
             );
