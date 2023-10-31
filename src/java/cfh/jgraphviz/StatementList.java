@@ -169,7 +169,13 @@ class StatementListImpl<T extends StatementList<T>> implements StatementList<T> 
         final Attribute attr; 
         
         AttrStatement(Attr attr) {
-            this.attr = (Attribute) requireNonNull(attr, "null attr");
+            if (attr instanceof Attribute a) {
+                this.attr = a;
+            } else if (attr instanceof Valuable v) {
+                this.attr = new AttributeImpl(v.attribute(), v.value());
+            } else {
+                throw new IllegalArgumentException("illegal attribute: " + attr);
+            }
         }
 
         @Override

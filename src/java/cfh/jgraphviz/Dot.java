@@ -222,7 +222,7 @@ public class Dot {
     //----------------------------------------------------------------------------------------------
     
     /** Layout Engine. */
-    public enum Engine implements Valuable {
+    public enum Engine implements Valuable, Attr.G {
         /** <a href="https://en.wikipedia.org/wiki/Layered_graph_drawing">Hierarchical or layered drawings</a>. */
         DOT,
         /** "Spring Model" layout. */
@@ -245,6 +245,7 @@ public class Dot {
         PATCHWORK,
         ;
         private final String value = name().toLowerCase();
+        @Override public String attribute() { return "layout"; }
         @Override public String value() { return value; }
     }
 
@@ -309,8 +310,23 @@ public class Dot {
     
     //----------------------------------------------------------------------------------------------
 
+    /** Character encoding used when interpreting string input as a text label. </P>
+     *  Valid values: utf-8. iso-8859-1 (latin-1,) big-5 */
+    public enum CharSet implements Valuable, Attr.G {
+        UTF_8(),
+        ISO_8859_1,
+        LATIN_1,
+        BIG_5;
+        ;
+        private final String value = name().toLowerCase().replace("_", "-");
+        @Override public String attribute() { return "charset"; }
+        @Override public String value() { return value; }
+    }
+    
+    //----------------------------------------------------------------------------------------------
+
     /** Edge arrow direction type. */
-    public enum DirType implements Valuable {
+    public enum DirType implements Valuable, Attr.E {
         /** Forward arrow type, draw head glyph only. */  
         FORWARD,
         /** Backward arrow type, draw tail glyph only. */  
@@ -321,13 +337,14 @@ public class Dot {
         NONE,
         ;
         private final String value = name().toLowerCase();
+        @Override public String attribute() { return "dir"; }
         @Override public String value() { return value; }
     }
     
     //----------------------------------------------------------------------------------------------
 
     /** Fixed size type: whether to use the specified width and height attributes to choose node size. */
-    public enum FixedSize implements Valuable {
+    public enum FixedSize implements Valuable, Attr.N {
         /** Size is specified by the values of the <code>width</code> and <code>height</code> attributes only and is not expanded to contain the text label. */
         TRUE,
         /** Size of a node is determined by smallest width and height needed to contain its label and image. */
@@ -336,13 +353,14 @@ public class Dot {
         SHAPE,
         ;
         private final String value = name().toLowerCase();
+        @Override public String attribute() { return "fixedsize"; }
         @Override public String value() { return value; }
     }
     
     //----------------------------------------------------------------------------------------------
     
     /** How basic fontnames are represented in SVG output. */
-    public enum FontNames implements Valuable {
+    public enum FontNames implements Valuable, Attr.G {
         /** Try to use known SVG fontnames. */
         SVG,
         /** Use known PostScript font names. */
@@ -351,6 +369,7 @@ public class Dot {
         HD,
         ;
         private final String value = name().toLowerCase();
+        @Override public String attribute() { return "fontnames"; }
         @Override public String value() { return value; }
     }
     
@@ -373,7 +392,7 @@ public class Dot {
     //----------------------------------------------------------------------------------------------
 
     /** How an image is positioned within its containing node. */
-    public enum ImagePos implements Valuable {
+    public enum ImagePos implements Valuable, Attr.N {
         TOP_LEFT("tl"),
         TOP_CENTER("tc"),
         TOP_RIGHT("tr"),
@@ -386,13 +405,14 @@ public class Dot {
         ;
         private ImagePos(String value) { this.value = value; }
         private final String value;
+        @Override public String attribute() { return "imagepos"; }
         @Override public String value() { return value; }
     }
     
     //----------------------------------------------------------------------------------------------
 
     /** How an image fills its containing node. */
-    public enum ImageScale implements Valuable {
+    public enum ImageScale implements Valuable, Attr.N {
         /** Image retains its natural size. */         NONE("false"),
         /** Image is uniformly scale. */               UNIFORMLY("true"),
         /** The width of the image is scaled. */       WIDTH("width"),
@@ -401,13 +421,14 @@ public class Dot {
         ;
         private ImageScale(String value) { this.value = value; }
         private final String value;
+        @Override public String attribute() { return "imagescale"; }
         @Override public String value() { return value; }
     }
     
     //----------------------------------------------------------------------------------------------
     
     /** How to treat a node whose name has the form <code>|edgelabel|*</code> as a special node representing an edge label. */
-    public enum LabelScheme implements Valuable {
+    public enum LabelScheme implements Valuable, Attr.G {
         /** Produces no effect, the default (<code>0</code>). */
         NO_EFFECT(0),
         /** Uses a penalty-based method to make that kind of node close to the center of its neighbor (<code>1</code>). */
@@ -419,13 +440,14 @@ public class Dot {
         ;
         private LabelScheme(int value) { this.value = Integer.toString(value); }
         private final String value;
+        @Override public String attribute() { return "label_scheme"; }
         @Override public String value() { return value; }
     }
     
     //----------------------------------------------------------------------------------------------
 
     /** Justification for graph & cluster labels. */
-    public enum LabelJust implements Valuable {
+    public enum LabelJust implements Valuable, Attr.GS {
         /** The label is centered (<code>c</code>), the default. */
         CENTER,
         /** The label is right-justified within bounding rectangle (<code>r</code>). */
@@ -434,25 +456,27 @@ public class Dot {
         LEFT,
         ;
         private final String value = name().toLowerCase().substring(0, 1);
+        @Override public String attribute() { return "labeljust"; }
         @Override public String value() { return value; }
     }
     
     //----------------------------------------------------------------------------------------------
     
     /** Vertical placement of labels for nodes, root graphs and clusters.*/
-    public enum LabelLoc implements Valuable {
+    public enum LabelLoc implements Valuable, Attr.GSN {
         CENTER,
         TOP,
         BOTTOM,
         ;
         private final String value = name().toLowerCase().substring(0, 1);
+        @Override public String attribute() { return "labelloc"; }
         @Override public String value() { return value; }
     }
     
     //----------------------------------------------------------------------------------------------
 
     /** Technique for optimizing the layout; <code>neato</code>, <code>sfdp</code>? only. */
-    public enum Mode implements Valuable {
+    public enum Mode implements Valuable, Attr.G {
         /** Use stress majorization, the default. */
         MAJOR,
         /** Use the Kamada-Kawai2 version of the gradient descent method. </P>
@@ -479,13 +503,14 @@ public class Dot {
         private Mode() { this.value = name().toLowerCase(); }
         private Mode(String value ) { this.value = value; }
         private final String value;
+        @Override public String attribute() { return "mode"; }
         @Override public String value() { return value; }
     }
     
     //----------------------------------------------------------------------------------------------
     
     /** Specifies how the distance matrix is computed for the input graph; <code>neato</code> only. */
-    public enum Model implements Valuable {
+    public enum Model implements Valuable, Attr.G {
         /** Use the length of the shortest path, where the length of each edge is given by its <code>len</code> attribute, the default. */
         SHORTPATH,
         /** Use the circuit resistance model to compute the distances. This tends to emphasize clusters. */
@@ -499,13 +524,14 @@ public class Dot {
         MDS,
         ;
         private final String value = name().toLowerCase();
+        @Override public String attribute() { return "model"; }
         @Override public String value() { return value; }
     }
     
     //----------------------------------------------------------------------------------------------
     
     /**Constrains the left-to-right ordering of node edges; <code>dot</code> only. */
-    public enum Ordering implements Valuable {
+    public enum Ordering implements Valuable, Attr.GSN {
         /** No ordering. */
         DEFAULT(""),
         /** The outedges of a node, that is, edges with the node as its tail node, 
@@ -517,13 +543,14 @@ public class Dot {
         ;
         private Ordering(String value) { this.value = value; }
         private final String value;
+        @Override public String attribute() { return "ordering"; }
         @Override public String value() { return value; }
     }
     
     //----------------------------------------------------------------------------------------------
     
     /** Order in which nodes and edges are drawn. */
-    public enum OutputMode implements Valuable {
+    public enum OutputOrder implements Valuable, Attr.G {
         /** Output in breadth first graph walk order, the default. */
         BREADTH_FIRST("breadthfirst"),
         /** Nodes are drawn first, followed by the edges. */
@@ -531,15 +558,16 @@ public class Dot {
         /** Edges are drawn first, followed by the nodes; edges appear beneath nodes. */
         EDGES_FIRST("edgesfirst"),
         ;
-        private OutputMode(String value) { this.value = value; }
+        private OutputOrder(String value) { this.value = value; }
         private final String value;
+        @Override public String attribute() { return "outputorder"; }
         @Override public String value() { return value; }
     }
     
     //----------------------------------------------------------------------------------------------
 
     /** How node overlaps should be removed; <code>sfdp</code>, <code>fdp</code>, <code>neato</code> only. */
-    public enum Overlap implements Valuable {
+    public enum Overlap implements Valuable, Attr.G {
         /** Overlaps are retained, the default (<code>true</code>) except for <code>fdp</code> and <code>sfdp</code>. */
         RETAIN("true"),
         /** Overlaps are removed by uniformly scaling in x and y. */
@@ -586,6 +614,7 @@ public class Dot {
         private Overlap() { this.value = name().toLowerCase(); }
         private Overlap(String value) { this.value = value; }
         private final String value;
+        @Override public String attribute() { return "overlap"; }
         @Override public String value() { return value; }
     }
     
@@ -689,10 +718,8 @@ public class Dot {
     /** Center the drawing in the output canvas, default: <code>false</code>. */
     public static Attr.G center(boolean center) { return booleanAttribute("center", center); }
     
-    /** Character encoding used when interpreting string input as a text label, , default: <code>UTF-8</code>. 
-     * @deprecated testing */
-    @Deprecated
-    public static Attr.G charset(String charset) { return new AttributeImpl("charset", charset); }
+    /** Character encoding used when interpreting string input as a text label, , default: <code>UTF-8</code>. */
+    public static Attr.G charset(CharSet charset) { return new AttributeImpl("charset", charset); }
     
     /** Classnames to attach to the node, edge, graph, or cluster's SVG element; <code>svg</code> only. */
     public static Attr.GSNE classname(String... names) { return new AttributeImpl("class", String.join(" ", names)); }
@@ -1106,7 +1133,7 @@ public class Dot {
     public static Attr.G orientation(boolean landscape) { return new AttributeImpl("orientation", landscape ? "landscape" : "default"); }
     
     /** Order in which nodes and edges are drawn. */
-    public static Attr.G outputorder(OutputMode order) { return new AttributeImpl("outputorder", order); }
+    public static Attr.G outputorder(OutputOrder order) { return new AttributeImpl("outputorder", order); }
     
     /** How node overlaps should be removed; <code>sfdp</code>, <code>fdp</code>, <code>neato</code> only. </P>
      *  If <code>true</code>, overlaps are retained. 
@@ -1134,6 +1161,21 @@ public class Dot {
             throw new IllegalArgumentException("number of passes must be non-negative: " + passes);
         return new AttributeImpl("overlap", passes + ":" + overlap.value()); 
     }
+    
+    /** Scale layout by factor, to reduce node overlap, default: <code>-4.0<code>, minimum: <code>-1e+10</code>; <code>overlap=prism</code>, <code>neato</code>, <code>sfdp</code>, <code>fdp</code>, <code>circo</code>, <code>twopi</code> only. */
+    public static Attr.G overlap_scale(double scale) { return minimumAttribute("overlap_scale", scale, -1E+10); }
+    
+    /** The overlap removal algorithm should perform a compression pass to reduce the size of the layout, default: <code>true</code>; <code>prism</code> only. */
+    public static Attr.G overlap_shrink(boolean shrink) { return booleanAttribute("overlap_shrink", shrink); }
+    
+    /** Each connected component of the graph should be laid out separately, and then packed together. */
+    public static Attr.G pack() { return pack(true); }
+    
+    /** Each connected component of the graph should be laid out separately, and then packed together, default: <code>false</code>. */
+    public static Attr.G pack(boolean pack) { return booleanAttribute("pack", pack); }
+    
+    /** Each connected component of the graph should be laid out separately, and then packed together using given margin in points, default: <code>8</code>. */
+    public static Attr.G pack(int margin) { return intAttribute("pack", margin); }
     
     
     

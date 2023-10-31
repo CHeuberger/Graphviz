@@ -33,6 +33,8 @@ final class AttributeImpl implements Attribute  {
     }
     
     AttributeImpl(String name, Valuable v) {
+        if (v instanceof Attr)
+            assert name.equals(v.attribute()) : "name does not match \"" + name + "\" != \"" + v.attribute() + "\"";
         this.name = requireNonNull(name, "null name");
         this.value = v.value();
     }

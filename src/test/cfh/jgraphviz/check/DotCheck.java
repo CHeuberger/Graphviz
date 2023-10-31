@@ -69,8 +69,12 @@ public class DotCheck {
         }
 
         var scrollpane = new JScrollPane(allPanel);
+        var max = scrollpane.getMaximumSize();
+        max.width = Math.min(max.width, 1900);
+        max.height = Math.min(max.height, 980);
+        scrollpane.setPreferredSize(max);
         SwingUtilities.invokeLater( () -> scrollpane.getVerticalScrollBar().setValue(Integer.MAX_VALUE) );
-        
+
         var close = new JButton("close");
         
         frame = new JFrame(ENGINE.toString());
@@ -486,7 +490,10 @@ public class DotCheck {
                 .add(node("A"), node("B"), node("C"))
                 ,
                 graph("113")
+                .with(Engine.DOT)
                 .with(orientation(false))
+                .with(CharSet.UTF_8)
+                .with(charset(CharSet.UTF_8))
                 .nodedefs(attribute("shape", "house"))
                 .nodedefs(orientation(30))
                 .add(
@@ -494,6 +501,20 @@ public class DotCheck {
                     node("B").with(orientation(45)), 
                     node("C").with(orientation(90))
                     )
+                ,
+                tmp = graph("114+115")
+                .add(subgraph()
+                    .add(edge("A", "B"))
+                    .add(edge("B", "C"))
+                    )
+                .add(subgraph()
+                    .add(edge("D", "E"))
+                    .add(edge("E", "F"))
+                    )
+                ,
+                tmp.copy().with(pack(true))
+                ,
+                tmp.copy().with(pack(20))
                 )
             // TODO ports
             );

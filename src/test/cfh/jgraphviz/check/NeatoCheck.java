@@ -68,8 +68,12 @@ public class NeatoCheck {
         }
 
         var scrollpane = new JScrollPane(allPanel);
+        var max = scrollpane.getMaximumSize();
+        max.width = Math.min(max.width, 1900);
+        max.height = Math.min(max.height, 980);
+        scrollpane.setPreferredSize(max);
         SwingUtilities.invokeLater( () -> scrollpane.getVerticalScrollBar().setValue(Integer.MAX_VALUE) );
-        
+
         var close = new JButton("close");
         
         frame = new JFrame(ENGINE.toString());
@@ -228,11 +232,11 @@ public class NeatoCheck {
                 .add(edge(node("A"), node("E")))
                 .add(edge(node("E"), node("F")))
                 ,
-                tmp.copy().with(outputorder(OutputMode.EDGES_FIRST))
+                tmp.copy().with(outputorder(OutputOrder.EDGES_FIRST))
                 )
             ,
             List.of( 
-                tmp = graph("41")
+                tmp = graph("41,42,43")
                 .with(epsilon(0.2))
                 .add(edge(node("A"), node("B")))
                 .add(edge(node("A"), node("C")))
@@ -245,6 +249,15 @@ public class NeatoCheck {
                 ,
                 tmp.copy()
                 .with(overlap(Overlap.SCALEXY))
+                ,
+                tmp = graph("44")
+                .with(epsilon(0.2))
+                .with(overlap(Overlap.PRISM, 1), overlap_scale(10), overlap_shrink(false))
+                .add(edge(node("A"), node("B")))
+                .add(edge(node("A"), node("C")))
+                .add(edge(node("A"), node("D")))
+                .add(edge(node("A"), node("E")))
+                .add(edge(node("E"), node("F")))
                 )
             );
     }
