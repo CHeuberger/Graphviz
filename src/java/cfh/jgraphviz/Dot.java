@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.OptionalInt;
 
 import javax.imageio.ImageIO;
 
@@ -618,6 +619,48 @@ public class Dot {
         @Override public String value() { return value; }
     }
     
+    //----------------------------------------------------------------------------------------------
+    
+    public enum PackMode implements Valuable, Attr.G {
+        /** Pack at the node and edge level, with no overlapping of these objects. */
+        NODE,
+        /** Top-level clusters are kept intact. */
+        CLUST,
+        /** Pack using the bounding box of the component. */
+        GRAPH,
+        /** Pack at the graph level into an array of graphs in row-major order, with the number of columns roughly the square root of the number of components. */
+        ARRAY,
+        /** Pack at the graph level into an array of graphs in column-major order, with the number of columns roughly the square root of the number of components. */
+        ARRAY_C,
+        ;
+        private final String value = name().toLowerCase();
+        @Override public String attribute() { return "packmode"; }
+        @Override public String value() { return value; }
+        public final Count count(int count) {
+            return new Count(count);
+        }
+        final class Count implements Valuable, Attr.G {
+            private final int count;
+            private Count(int count) {
+                if (PackMode.this != ARRAY && PackMode.this != ARRAY_C)
+                    throw new IllegalArgumentException("invalid PackMode: " + PackMode.this);
+                if (count <= 0)
+                    throw new IllegalArgumentException("invalid count: " + count);
+                this.count = count;
+            }
+            @Override
+            public String attribute() { return PackMode.this.attribute(); }
+            @Override
+            public String value() {
+                var value = PackMode.this.value();
+                if (value.indexOf('_') == -1) {
+                    value += '_';
+                }
+                return value + count;
+            }
+        }
+    }
+    
     //==============================================================================================
     
     private static String layerSep = Character.toString(":\\t".codePointAt(0));
@@ -1177,6 +1220,12 @@ public class Dot {
     /** Each connected component of the graph should be laid out separately, and then packed together using given margin in points, default: <code>8</code>. */
     public static Attr.G pack(int margin) { return intAttribute("pack", margin); }
     
+    /** How connected components should be packed, default: <code>node</code>. */
+    public static Attr.G packmode(PackMode mode) { return new AttributeImpl("packmode", mode); }
+    
+    /** How connected components should be packed and number of columns for row-major or the number of rows for column-major, default: <code>node</code>. */
+    public static Attr.G packmode(PackMode.Count mode) { return new AttributeImpl("packmode", mode); }
+
     
     
     

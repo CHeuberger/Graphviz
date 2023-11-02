@@ -512,9 +512,14 @@ public class DotCheck {
                     .add(edge("E", "F"))
                     )
                 ,
-                tmp.copy().with(pack(true))
+                tmp.copy()
+                .with(pack(true))
                 ,
-                tmp.copy().with(pack(20))
+                tmp.copy()
+                .with(pack(20))
+                ,
+                tmp.copy()
+                .with(packmode(PackMode.ARRAY_C.count(3)))
                 )
             // TODO ports
             );
