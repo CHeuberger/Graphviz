@@ -621,44 +621,18 @@ public class Dot {
     
     //----------------------------------------------------------------------------------------------
     
-    public enum PackMode implements Valuable, Attr.G {
-        /** Pack at the node and edge level, with no overlapping of these objects. */
-        NODE,
-        /** Top-level clusters are kept intact. */
-        CLUST,
-        /** Pack using the bounding box of the component. */
-        GRAPH,
-        /** Pack at the graph level into an array of graphs in row-major order, with the number of columns roughly the square root of the number of components. */
-        ARRAY,
-        /** Pack at the graph level into an array of graphs in column-major order, with the number of columns roughly the square root of the number of components. */
-        ARRAY_C,
+    /** The order in which pages are emitted, used only if <code>page</code> is set and applicable. <P/> 
+     *  The first character corresponding to the major order and the second to the minor order.
+     */
+    public enum PageDir implements Valuable, Attr.G {
+        BL, BR, 
+        TL, TR, 
+        RB, RT, 
+        LB, LT, 
         ;
-        private final String value = name().toLowerCase();
-        @Override public String attribute() { return "packmode"; }
+        private final String value = name();
+        @Override public String attribute() { return "pagedir"; }
         @Override public String value() { return value; }
-        public final Count count(int count) {
-            return new Count(count);
-        }
-        final class Count implements Valuable, Attr.G {
-            private final int count;
-            private Count(int count) {
-                if (PackMode.this != ARRAY && PackMode.this != ARRAY_C)
-                    throw new IllegalArgumentException("invalid PackMode: " + PackMode.this);
-                if (count <= 0)
-                    throw new IllegalArgumentException("invalid count: " + count);
-                this.count = count;
-            }
-            @Override
-            public String attribute() { return PackMode.this.attribute(); }
-            @Override
-            public String value() {
-                var value = PackMode.this.value();
-                if (value.indexOf('_') == -1) {
-                    value += '_';
-                }
-                return value + count;
-            }
-        }
     }
     
     //==============================================================================================
@@ -1222,11 +1196,39 @@ public class Dot {
     
     /** How connected components should be packed, default: <code>node</code>. */
     public static Attr.G packmode(PackMode mode) { return new AttributeImpl("packmode", mode); }
-    
-    /** How connected components should be packed and number of columns for row-major or the number of rows for column-major, default: <code>node</code>. */
-    public static Attr.G packmode(PackMode.Count mode) { return new AttributeImpl("packmode", mode); }
 
+    /** Extend the drawing area around the minimal area needed to draw the graph in inches, default: <code>0.0555</code>. */
+    public static Attr.G pad(double inches) { return doubleAttribute("pad", inches); }
     
+    /** Extend the drawing area around the minimal area needed to draw the graph in inches, default: <code>0.0555</code>. */
+    public static Attr.G pad(Point inches) { return new AttributeImpl("pad", inches); }
+    
+    /** Width and height of output pages, in inches; Postscript only. */
+    public static Attr.G page(double inches) { return doubleAttribute("page", inches); }
+    
+    /** Width and height of output pages, in inches; Postscript only. */
+    public static Attr.G page(Point inches) { return new AttributeImpl("page", inches); }
+    
+    /** The order in which pages are emitted, used only if <code>page</code> is set and applicable, default: <code>BL</code>. <P/> 
+     *  The first character corresponding to the major order and the second to the minor order.
+     */
+    public static Attr.G pagedir(PageDir dir) { return new AttributeImpl("pagedir", dir); }
+    
+    /** Color used to draw the bounding box around a cluster, default: <code>black</code>. */
+    public static Attr.S pencolor(Color color) { return new AttributeImpl("pencolor", color); }
+    
+    /** Width of the pen, in points, used to draw lines and curves, default: <code>1.0</code>, minimum: <code>0.0</code>. */
+    public static Attr.SNE penwidth(double points) { return minimumAttribute("penwidth", points, 0.0); }
+    
+    /** Number of peripheries used in polygonal shapes and cluster boundaries, minimum: <code>0</code>. */
+    public static Attr.SN peripheries(int count) { return nonNegativeAttribute("peripheries", count); }
+    
+    /** Keep the node at the node's given input position if the node has a <code>pos</code>, default: <code>false</code>; <code>neato</code>, <code>fdp</code> only. */
+    public static Attr.N pin() { return pin(true); }
+    
+    /** Keep the node at the node's given input position if the node has a <code>pos</code>, default: <code>false</code>; <code>neato</code>, <code>fdp</code> only. */
+    public static Attr.N pin(boolean pin) { return booleanAttribute("pin", pin); }
+
     
     
     

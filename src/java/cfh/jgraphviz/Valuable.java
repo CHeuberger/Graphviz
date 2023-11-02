@@ -11,9 +11,9 @@ import static cfh.jgraphviz.Dot.*;
  *
  */
 sealed interface Valuable  
-permits XDotImpl, ArrowTypeImpl, ColorImpl, ColorListImpl, PointImpl, HTMLImpl, PortImpl, LayerRangeImpl, 
+permits XDotImpl, ArrowTypeImpl, ColorImpl, ColorListImpl, PointImpl, HTMLImpl, PortImpl, LayerRangeImpl, PackModeImpl, 
         Engine, CharSet, DirType, FixedSize, FontNames, Compass, Ordering, OutputOrder, 
-        Overlap, ImagePos, ImageScale, LabelScheme, LabelJust, LabelLoc, Mode, Model, PackMode, PackMode.Count {
+        Overlap, ImagePos, ImageScale, LabelScheme, LabelJust, LabelLoc, Mode, Model, PageDir {
     
     public default String attribute() { throw new IllegalArgumentException("invalid attribute: " + this); }
     public String value();

@@ -25,6 +25,8 @@ import javax.swing.SwingUtilities;
 
 import cfh.jgraphviz.Graph;
 import cfh.jgraphviz.LayerRange;
+import cfh.jgraphviz.PackMode;
+import cfh.jgraphviz.PackMode.Align;
 
 /**
  * @author Carlos F. Heuberger, 2023-03-03
@@ -502,7 +504,7 @@ public class DotCheck {
                     node("C").with(orientation(90))
                     )
                 ,
-                tmp = graph("114+115")
+                tmp = graph("114+...")
                 .add(subgraph()
                     .add(edge("A", "B"))
                     .add(edge("B", "C"))
@@ -520,6 +522,52 @@ public class DotCheck {
                 ,
                 tmp.copy()
                 .with(packmode(PackMode.ARRAY_C.count(3)))
+                .with(packmode(PackMode.ARRAY.count(1)))
+                .with(packmode(PackMode.ARRAY.align(Align.BOTTOM)))
+                .with(packmode(PackMode.ARRAY_C.align(Align.TOP).align(Align.RIGHT).count(3)))
+                .with(packmode(PackMode.ARRAY.count(1).align(Align.LEFT)))
+                )
+            ,
+            List.of(
+                tmp = graph("121-124")
+                .add(edge("A", "B"), edge("B", "C"))
+                ,
+                tmp.copy()
+                .with(pad(-0.2))
+                ,
+                tmp.copy()
+                .with(pad(0.2))
+                ,
+                tmp.copy()
+                .with(page(4.0))   // only Postscript
+                .with(PageDir.RT)  // only Postscript
+                ,
+                graph("125")
+                .add(subgraph()
+                    .with(cluster())
+                    .add(edge("A", "B"))
+                    .add(edge("B", "C"))
+                    )
+                .add(subgraph()
+                    .with(cluster())
+                    .with(DARKORANGE.pen())
+                    .with(penwidth(5.0))
+                    .add(edge("D", "E"))
+                    .add(edge("E", "F"))
+                    )
+                ,
+                graph("126")
+                .with(Engine.NEATO)
+                .add(node("A").with(attribute("pos", "1,1")))
+                .add(node("B").with(attribute("pos", "2,1")))
+                .add(node("C").with(attribute("pos", "3,1")))
+                ,
+                graph("126")
+                .with(Engine.NEATO)
+                .nodedefs(pin(true))
+                .add(node("A").with(attribute("pos", "1,1")))
+                .add(node("B").with(attribute("pos", "2,1")))
+                .add(node("C").with(attribute("pos", "3,1")))
                 )
             // TODO ports
             );

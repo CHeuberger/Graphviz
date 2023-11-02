@@ -33,9 +33,6 @@ public sealed interface ColorList extends Attr.SNE permits Color, ColorListImpl 
     
     /** Color used to fill the background of a node or cluster. */
     public Attr.SNE fill();
-    
-    /** Color used for text. */
-    public Attr.GSNE font();
 }
 
 /**
@@ -126,11 +123,6 @@ final class ColorListImpl implements ColorList, Attribute, Valuable {
     @Override
     public Attr.SNE fill() {
         return Dot.fillcolor(this);
-    }
-    
-    @Override
-    public Attr.GSNE font() {
-        return Dot.fontcolor(this);
     }
     
     @Override

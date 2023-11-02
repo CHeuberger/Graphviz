@@ -16,6 +16,12 @@ import java.util.Locale;
  */
 public sealed interface Color extends ColorList {
     
+    /** Color used for text. */
+    public Attr.GSNE font();
+    
+    /** Color used to draw the bounding box around a cluster, default: <code>black</code>. */
+    public Attr.S pen();
+    
     public static interface X11 {  // TODO wanted? or better move to some Colors?
         public static final String SCHEME = "x11";
         public static final Color ALICEBLUE  = new ColorImpl("/" + SCHEME + "/aliceblue");
@@ -747,6 +753,11 @@ final class ColorImpl implements Color, Attribute, Valuable {
     public Attr.GSNE font() {
         return Dot.fontcolor(this);
     }
+    
+    @Override
+    public Attr.S pen() {
+        return Dot.pencolor(this);
+    };
 
     @Override
     public ColorList to(Color second) {
