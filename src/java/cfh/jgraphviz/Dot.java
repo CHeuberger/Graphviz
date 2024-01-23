@@ -1228,7 +1228,12 @@ public class Dot {
     
     /** Keep the node at the node's given input position if the node has a <code>pos</code>, default: <code>false</code>; <code>neato</code>, <code>fdp</code> only. */
     public static Attr.N pin(boolean pin) { return booleanAttribute("pin", pin); }
+    
+    /** Position of node; <code>neato</code>, <code>fdp</code> only. */
+    public static Attr.N pos(Point pos) { return new AttributeImpl("pos", pos); }
 
+    // TODO
+    // public static Attr.E pos(...)
     
     
     

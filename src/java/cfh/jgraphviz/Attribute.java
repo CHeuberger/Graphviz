@@ -12,7 +12,7 @@ import static java.util.Objects.*;
  * @author Carlos F. Heuberger, 2023-03-04
  *
  */
-non-sealed interface Attribute extends GN, GS, SN, SNE, GNE, GSNE, GSN {
+non-sealed interface Attribute extends GN, GS, NE, SN, SNE, GNE, GSNE, GSN {
     public String script();
 }
 

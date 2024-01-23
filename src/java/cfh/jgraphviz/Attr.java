@@ -15,12 +15,12 @@ sealed interface Attr {
     public sealed interface G extends Attr 
     permits GN, GS, GNE, GSN, GSNE, Engine, CharSet, FontNames, LabelScheme, Mode, Model, OutputOrder, Overlap, PackMode, PageDir { }
     public sealed interface S extends Attr { }
-    public sealed interface N extends Attr permits GN, SN, GNE, GSN, SNE, GSNE, FixedSize, ImagePos, ImageScale { }
-    public sealed interface E extends Attr permits GNE, SNE, GSNE, DirType { }
+    public sealed interface N extends Attr permits GN, NE, SN, GNE, GSN, SNE, GSNE, FixedSize, ImagePos, ImageScale { }
+    public sealed interface E extends Attr permits NE, GNE, SNE, GSNE, DirType { }
     public sealed interface GN extends G, N permits Attribute { }
 //    public sealed interface GE extends G, E permits Attribute { }
     public sealed interface GS extends G, S permits Attribute, LabelJust { }
-//    public sealed interface NE extends N, E { }
+    public sealed interface NE extends N, E permits Attribute { }
     public sealed interface SN extends S, N permits Attribute { }
 //    public sealed interface SE extends S, E permits Attribute { }
     public sealed interface GNE extends G, N, E permits Attribute { }

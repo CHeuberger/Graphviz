@@ -558,16 +558,25 @@ public class DotCheck {
                 ,
                 graph("126")
                 .with(Engine.NEATO)
-                .add(node("A").with(attribute("pos", "1,1")))
-                .add(node("B").with(attribute("pos", "2,1")))
-                .add(node("C").with(attribute("pos", "3,1")))
+                .add(node("A").with(pos(point(1, 1))))
+                .add(node("B").with(pos(point(2, 1))))
+                .add(node("C").with(pos(point(3, 1))))
                 ,
                 graph("126")
                 .with(Engine.NEATO)
                 .nodedefs(pin(true))
-                .add(node("A").with(attribute("pos", "1,1")))
-                .add(node("B").with(attribute("pos", "2,1")))
-                .add(node("C").with(attribute("pos", "3,1")))
+                .add(node("A").with(pos(point(1, 1))))
+                .add(node("B").with(pos(point(2, 1))))
+                .add(node("C").with(pos(point(4, 1))))
+                ,
+                digraph("127")
+                .with(Engine.NEATO)
+                .nodedefs(pin(true))
+                .add(node("A").with(pos(point(1, 1))))
+                .add(node("B").with(pos(point(2, 1))))
+                .add(node("C").with(pos(point(4, 1))))
+                .add(edge("A", "B"))
+                .add(edge("B", "C"))
                 )
             // TODO ports
             );
